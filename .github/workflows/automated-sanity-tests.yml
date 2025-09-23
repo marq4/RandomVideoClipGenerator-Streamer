@@ -4,8 +4,8 @@ name: Automated sanity tests.
 on:
   workflow_run:
     workflows: ["Code quality."]
-      types:
-        - completed
+    types:
+      - completed
 
 jobs:
   pre-checks:
