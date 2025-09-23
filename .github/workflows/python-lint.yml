@@ -1,11 +1,7 @@
 ---
 name: Code quality.
 
-on:
-  workflow_run:
-    workflows: ["Lint-YAML"]
-    types:
-      - completed
+on: [push, pull_request]
 
 jobs:
   code-imports-typing-style:

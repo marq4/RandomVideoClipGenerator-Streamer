@@ -1,11 +1,7 @@
 ---
 name: Automated sanity tests.
 
-on:
-  workflow_run:
-    workflows: ["Code quality."]
-    types:
-      - completed
+on: [push, pull_request]
 
 jobs:
   pre-checks:
