@@ -6,7 +6,7 @@ Cannot be executed locally as the Google API key is a secret stored in GitHub.
 import sys
 
 from core_utils import (GOOGLE_API_KEY, invalid_url_should_fail,
-                           verify_videos_exist)
+                        verify_videos_exist)
 
 
 def main() -> None:
