@@ -1,5 +1,5 @@
 ---
-name: Lint YAML.
+name: Lint-YAML
 
 on: [push, pull_request]
 

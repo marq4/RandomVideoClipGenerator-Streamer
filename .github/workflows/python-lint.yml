@@ -3,7 +3,7 @@ name: Code quality.
 
 on:
   workflow_run:
-    workflows: ["Lint YAML."]
+    workflows: ["Lint-YAML"]
     types:
       - completed
 
