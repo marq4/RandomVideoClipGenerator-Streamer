@@ -1,7 +1,11 @@
 ---
 name: Code quality.
 
-on: [push, pull_request]
+on:
+	workflow_run:
+		workflows: ["Lint YAML."]
+		types:
+			- completed
 
 jobs:
   code-imports-typing-style:
@@ -27,14 +31,16 @@ jobs:
       - name: Code style.
         run: |
           echo 'Files to be linted: '
-          echo $(git ls-files '*.py')
-          pylint -v $(git ls-files '*.py')
+          files=$(git ls-files '*.py')
+          echo $files
+          pylint -v $files
 
       - name: Type checking.
         run: |
-          mypy \
-          sanitize_video_titles.py \
-          random_clip_generator.py
+          echo 'Files to be type-checked: '
+          files=$(git ls-files '*.py')
+          echo $files
+          mypy $files
 
       - name: Import ordering.
         run: |

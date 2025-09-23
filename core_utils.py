@@ -9,18 +9,16 @@ API = "https://www.googleapis.com/youtube/v3/videos"
 GOOGLE_API_KEY = os.environ["GOOGLEAPIYOUTUBEKEY"]
 
 
-def get_response(google_api_key: str, video_id: str) -> str:
+def get_response(google_api_key: str, video_id: str) -> requests.Response:
     """ Call YouTube API. """
     call_string = f"{API}?id={video_id}&part=id&key={google_api_key}"
     response = requests.get(call_string, timeout=6)
     return response
 #
 
-def check_response_valid(response: str) -> bool:
+def check_response_valid(response: requests.Response) -> bool:
     """ Valid responses have at least one item. """
-    if len(response.json()['items']) < 1:
-        return False
-    return True
+    return len(response.json().get('items', [])) >= 1
 #
 
 def get_list_of_videos() -> List[str]:
@@ -43,7 +41,7 @@ def transform_into_list_of_ids(video_list: list) -> List[str]:
             id_list.append(parts[1])
         else:
             # Invalid URL found.
-            return False
+            return []
     return id_list
 #
 

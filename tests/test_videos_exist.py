@@ -10,7 +10,7 @@ from core_utils import (GOOGLE_API_KEY, invalid_url_should_fail,
 
 
 @pytest.mark.integration
-def test_videos_exist() -> bool:
+def test_videos_exist() -> None:
     """
     Goes to YouTube and checks if videos listed in music video list test file exist.
     """
@@ -18,7 +18,7 @@ def test_videos_exist() -> bool:
 #
 
 @pytest.mark.integration
-def test_invalid_url_should_fail() -> bool:
+def test_invalid_url_should_fail() -> None:
     """
     Negative test: invalid YouTube music video id should fail.
     """
