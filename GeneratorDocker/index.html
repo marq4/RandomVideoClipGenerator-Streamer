@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Random Video Clip Streamer</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <style>
+	html, body {
+		margin: 0;
+		padding: 0;
+		overflow: hidden;
+		background: black;
+		height: 100%;
+		width: 100%
+	}
+	video {
+		display: block;
+		width: 100vw;
+		height: 100vh;
+		object-fit: contain;
+		background: black;
+	}
+  </style>
+</head>
+<body>
+  <video id="video" autoplay muted>
+    <!-- <source src="playlist.m3u8" type="application/x-mpegURL" /> -->
+  </video>
+  <script>
+    var video = document.getElementById('video');
+    if (Hls.isSupported()) {
+          var hls = new Hls();
+          hls.loadSource('playlist.m3u8');
+          hls.attachMedia(video);
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = 'playlist.m3u8';
+    }
+  </script>
+</body>
+</html>

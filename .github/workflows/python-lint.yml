@@ -1,0 +1,41 @@
+---
+name: Code quality.
+
+on: [push, pull_request]
+
+jobs:
+  code-imports-typing-style:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-versions: ['3.10']
+    timeout-minutes: 8
+    steps:
+      - name: Checkout code.
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ matrix.python-versions }}.
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-versions }}
+
+      - name: Install dependencies.
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Code style.
+        run: |
+          echo 'Files to be linted: '
+          echo $(git ls-files '*.py')
+          pylint -v $(git ls-files '*.py')
+
+      - name: Type checking.
+        run: |
+          mypy \
+          sanitize_video_titles.py \
+          random_clip_generator.py
+
+      - name: Import ordering.
+        run: |
+          isort --check .
