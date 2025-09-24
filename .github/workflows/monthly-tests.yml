@@ -15,4 +15,8 @@ jobs:
   website-is-available:
     uses: jtalk/url-health-check-action@v3
     with:
-      url: https://www.randomvideoclipgenerator.com|https://randomvideoclipgenerator.com|http://www.randomvideoclipgenerator.com|http://randomvideoclipgenerator.com
+      url: |
+        https://www.randomvideoclipgenerator.com
+        https://randomvideoclipgenerator.com
+        http://www.randomvideoclipgenerator.com
+        http://randomvideoclipgenerator.com
