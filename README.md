@@ -8,7 +8,7 @@ Great for parties / DJs!
 ### Common requisites: ###
 * The music videos have to be locally available (so you need to download them first).
 
-# Python Core (for Windows)
+# Simple Python script (for Windows)
 Visit [the website](https://randomvideoclipgenerator.com), download the Python script, run it.
 
 You will need:

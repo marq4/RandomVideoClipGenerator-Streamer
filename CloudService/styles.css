@@ -60,27 +60,27 @@ code {
 }
 
 
-button,input,optgroup,select,textarea {
+input,optgroup,select,textarea {
 	font-family:inherit;font-size:100%;line-height:1.15;margin:0
 }
 
-.actual-button button,input {
+.actual-button input {
 	overflow:visible
 }
 
-.actual-button button,select {
+.actual-button select {
 	text-transform:none
 }
 
-[type=button],[type=reset],[type=submit],button {
+[type=button],[type=reset],[type=submit] {
 	-webkit-appearance:button
 }
 
-.upload-form [type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner {
+.upload-form [type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner::-moz-focus-inner {
 	border-style:none;padding:0
 }
 
-.upload-form [type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring {
+.upload-form [type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring:-moz-focusring {
 	outline:1px dotted ButtonText
 }
 
@@ -162,7 +162,7 @@ button,input,optgroup,select,textarea {
 }
 
 .upload-form input {
-	  appearance: button;
+  appearance: button;
   background-color: #1899D6;
   border: solid transparent;
   border-radius: 16px;
@@ -220,6 +220,7 @@ div.info {
   margin: 1.5rem auto;
 }
 
+/*
 h1 {
 	place-self: center;
         background: linear-gradient(90deg, #29cc08, #cc4806, #050102) -100%/ 200%;
@@ -232,6 +233,36 @@ h1 {
 }
 
 @keyframes shimmer { to { background-position: 100% } }
+*/
+ 
+h1 {
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 2.8rem;
+  font-weight: 700;
+  text-align: center;
+
+  color: #1899D6;
+
+  /* background: linear-gradient(90deg, #4f46e5, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; */
+
+  margin: 2rem 0;
+  letter-spacing: -0.5px;
+
+  /* Animation on load: */
+  opacity: 0;
+  transform: translateY(15px);
+  animation: fadeInUp 0.8s ease forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 
 #clipsin {
 	width: 4em;
@@ -254,7 +285,8 @@ input[type="number"]:focus {
 }
 
 
-button {
+
+.actual-button butto buttonn {
 	font-family:inherit;font-size:100%;line-height:1.15;margin:0;
         overflow:visible;
 	font-family:inherit;font-size:100%;line-height:1.15;margin:0
@@ -300,7 +332,10 @@ button {
   -webkit-user-select: none;
   vertical-align: middle;
   white-space: nowrap;
+  font-family:inherit;font-size:100%;line-height:1.15;margin:0;
+  overflow:visible;
 }
+
 
 input[type="submit"]:hover {
 	background-color: #357ab8;
@@ -340,11 +375,12 @@ h3 {
   font-size: 0.8em;
 }
 
-
+/*
 button {
   font-family:inherit;font-size:100%;line-height:1.15;margin:0;
   overflow:visible;
 }
+*/
 
 #upload:hover {
   background-color: #357ab8;
@@ -381,4 +417,51 @@ button {
   width: fit-content; /* shrink-wrap */
   height: auto; /* ensure it grows */
 }
+
+
+
+/* Tabs: */
+
+.tab-buttons {
+  display: flex;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 1rem;
+}
+
+.tab-button {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-weight: 600;
+  color: white;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  background: #374151;
+}
+
+.tab-button.active {
+  background: #374151;
+  border-bottom: 3px solid #4f46e5;
+}
+
+.tab-content {
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+}
+
+.hidden {
+  display: none;
+}
+
+
+
+
+
+
+
 

@@ -1,47 +1,173 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Random Video Clip Generator</title>
+  <title>Random Video Clip Generator / Streamer</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="https://unpkg.com/vue@1.0.28/dist/vue.js"></script>
   <script src="https://unpkg.com/axios@0.2.1/dist/axios.min.js"></script>
 </head>
 <body>
-  <h1>Random Video Clip Generator</h1>
-  <div class="info">
-    <h2>Instructions (Windows):</h2>
-    <ol>
-      <li>Install <a href="https://www.youtube.com/watch?v=DMEP82yrs5g">FFMPEG</a>.</li>
-      <li>Install <a href="https://www.videolan.org/vlc/">VLC</a>.</li>
-      <li>Create folder structure on your computer: <code>C:\Videos\videos</code></li>
-      <li>Download some music videos there (contact me for instructions: <a href="mailto:juancmarquina@gmail.com">juancmarquina@gmail.com</a>).</li>
-      <li>Download the <a href="https://rvcg-marq-30072025.s3.us-east-2.amazonaws.com/GenerateList.ps1">PoweShell script</a>.</li>
-      <li>Move it to <code>C:\Videos</code> folder.</li>
-      <li>Run it:</li>
-	<ol>
-	  <li>Open an elevated PowerShell window by pressing <code>WIN+X</code> and selecting Windows PowerShell (Admin).</li>
-	  <li>Change-directory into your Videos folder: <code>cd C:\Videos</code></li>
-	  <li>Execute the script: <code>powershell.exe -executionpolicy bypass -File .\GenerateList.ps1</code></li>
-	  <li>Contact me if you don't see this: <code>Script complete.</code></li>
-	</ol>
-      <li>Upload <code>list_videos.txt</code> bellow (Browse + Upload).</li>
-      <li>After uploading your list of videos, click the <code>Generate Playlist</code> button in the next page.</li>
-      <li>When you double-click the downloaded playlist, your video clips will appear on VLC media player. Press <code>f</code> key to toggle full-screen.</li>
-    </ol>
+  <h1>Random Video Clip Generator / Streamer</h1>
+
+  <div class="tabs-js">
+    <div class="tab-buttons">
+      <button class="tab-button active" data-tab="core">Python script</button>
+      <button class="tab-button" data-tab="generator">Generator - Docker</button>
+      <button class="tab-button" data-tab="cloud">Cloud Service</button>
+    </div>
+    
+    <div class="tab-content" id="core">
+    <div class="info">
+      <h2>Instructions (Windows):</h2>
+      <ol>
+        <li>
+          Install <a href="https://www.youtube.com/watch?v=DMEP82yrs5g">FFmpeg</a>.
+        </li>
+        <li>
+          Install Python by following this 
+          <a href="https://phoenixnap.com/kb/how-to-install-python-3-windows">
+            guide
+          </a>. 
+        </li>
+        <li>Install <a href="https://www.videolan.org/vlc/">VLC</a>.</li>
+        <li>
+          Create this folder structure on your computer:
+          <code>C:\Videos\videos</code>
+        </li>
+        <li>
+          Download some music videos there (contact me for instructions: 
+          <a href="mailto:juancmarquina@gmail.com">juancmarquina@gmail.com</a>).
+        </li>
+        <li>
+          Download <a href="###">the Python script</a> anywhere in your computer.
+        </li>
+        <li>
+          Edit the script file. Specify:
+          <ul>
+            <li>Number of clips to play.</li>
+            <li>Minimum clip duration (seconds).</li>
+            <li>Maximum clip duration (seconds).</li>
+          </ul>
+        </li>
+        <li>
+          Execute the script to generate the playlist file: 
+          <code>python3 random_video_clip_generator.py</code>
+        </li>
+        <li>
+          Double-click the playlist file (clips.xspf): your video clips will appear on VLC media player. Press f key to toggle full-screen.
+        </li>
+      </ol>
+    </div>
+    </div>
+
+    <div class="tab-content hidden" id="generator">
+    <div class="info">
+      <h2>Instructions (Windows):</h2>
+      <ol>
+        <li>
+          Install <a href="https://docs.docker.com/get-started/introduction/get-docker-desktop/">Docker Desktop</a>. 
+        </li>
+        <li>
+          Create a directory (folder) under your C drive called 'share'.
+        </li>
+        <li>
+          Download some music videos there (contact me for instructions: 
+          <a href="mailto:juancmarquina@gmail.com">juancmarquina@gmail.com</a>).
+        </li>
+        <li>Start Docker Desktop.</li>
+        <li>Open the Docker Desktop GUI.</li>
+        <!-- <li> -->
+          <ol>
+            <li>Go to Docker Hub section on the right vertical menu.</li>
+            <li>Search for and select "marq4/random_video_clip_streamer".</li>
+            <li>Make sure the latest tag is selected. Click "Pull" button.</li>
+            <li>
+              Go to Images section. Select the image you just downloaded. Click the play button. Expand Optional Settings. Give your container a name, e.g. RandomVideoClipStreamerContainer (optional).
+            </li>
+            <li>Host Port: 8080.</li>
+            <li>
+              For the volumes: Host path: browse to <code>C:\share</code>. Container path: <code>/root/RandomVideos/share/</code>
+            </li>
+            <li>
+              To optionally specify a clip duration set the Enviornment Variable name to: <code>USER_CLIP_LENGTH</code>. The valid range is between 3 and 25 seconds but the default and recommeneded minimun value is 6.
+            </li>
+            <li>Click "Run" button.</li>
+          </ol>
+          <!-- </li> -->
+        <li>
+          Open your web browser (like FireFox or Brave) and go to 
+          <code>http://localhost:8080</code>
+        </li>
+        <li>Reload the web browser as needed and wait for a couple of seconds.</li>
+        <li>IF you don't see your video clips playing, please contact me.</li>
+      </ol>
+    </div>
+    </div>
+
+    <div class="tab-content hidden" id="cloud">
+      <div class="info">
+        <h2>Instructions (Windows):</h2>
+        <ol>
+          <li>
+            Install <a href="https://www.youtube.com/watch?v=DMEP82yrs5g">FFmpeg</a>.
+          </li>
+          <li>Install <a href="https://www.videolan.org/vlc/">VLC</a>.</li>
+          <li>
+            Create this folder structure on your computer: 
+            <code>C:\Videos\videos</code>
+          </li>
+          <li>
+            Download some music videos there (contact me for instructions: 
+            <a href="mailto:juancmarquina@gmail.com">juancmarquina@gmail.com</a>).
+          </li>
+          <li>
+            Download the <a href="https://rvcg-marq-30072025.s3.us-east-2.amazonaws.com/GenerateList.ps1">PoweShell script</a>.
+          </li>
+          <li>Move it to <code>C:\Videos</code> folder.</li>
+          <li>Run it:</li>
+          <ol>
+            <li>Open an elevated PowerShell window by pressing <code>WIN+X</code> and selecting Windows PowerShell (Admin).
+            </li>
+            <li>
+              Change-directory into your Videos folder: <code>cd C:\Videos</code>
+            </li>
+            <li>
+              Execute the script: <code>powershell.exe -executionpolicy bypass -File .\GenerateList.ps1</code>
+            </li>
+            <li>
+              Contact me if you don't see this: <code>Script complete.</code>
+            </li>
+          </ol>
+          <li>
+            Upload <code>list_videos.txt</code> bellow (Browse + Upload).
+          </li>
+          <li>
+            After uploading your list of videos, click the <code>Generate Playlist</code> button in the next page.
+          </li>
+          <li>
+            When you double-click the downloaded playlist, your video clips will appear on VLC media player. Press <code>f</code> key to toggle full-screen.
+          </li>
+        </ol>
+
+        <div id="app" class="upload-form">
+          <div v-if="!textFile">
+            <h2 class="label">Select video list text file</h2>
+            <input type="file" @change="onFileChange" accept="text/plain" />
+          </div>
+          <div v-else>
+            <button v-if="!uploadURL" @click="uploadFile" 
+              class="actual-button" id="upload">
+              Upload
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <div id="app" class="upload-form">
-    <div v-if="!textFile">
-      <h2 class="label">Select video list text file</h2>
-      <input type="file" @change="onFileChange" accept="text/plain" />
-    </div>
-    <div v-else>
-      <button v-if="!uploadURL" @click="uploadFile" class="actual-button" id="upload">
-        Upload
-      </button>
-    </div>
-  </div>
-  
+
+
   <script>
     const MAX_LIST_SIZE = 5000000
     const API_ENDPOINT = 'https://9xd9orynnk.execute-api.us-east-2.amazonaws.com/uploads'
@@ -96,6 +222,20 @@
                 }
           }
     })
+  </script>
+
+  <script>
+    const buttons = document.querySelectorAll(".tab-button");
+    const contents = document.querySelectorAll(".tab-content");
+
+    buttons.forEach(btn => {
+          btn.addEventListener("click", () => {
+                buttons.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                contents.forEach(c => c.classList.add("hidden"));
+                document.getElementById(btn.dataset.tab).classList.remove("hidden");
+          });
+    });
   </script>
 
 </body>
