@@ -61,7 +61,7 @@ jobs:
 
       - name: Import ordering.
         run: |
-          isort --check .
+          isort --check --verbose .
 
   #test-code: #TODO.
 
