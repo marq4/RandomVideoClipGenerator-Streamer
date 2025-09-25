@@ -1,23 +1,30 @@
 ---
-name: Common Continuous Integration code.
+name: Validate music video URLs.
 
-on: [workflow_call]
+on:
+  pull_request:
+    paths:
+      - "List.md"
+  push:
+    paths:
+      - "List.md"
+  workflow_call:
+    # Allow monthly YAML to call this.
 
 jobs:
   videos-exist-test:
     runs-on: ubuntu-latest
     env:
       GOOGLEAPIYOUTUBEKEY: ${{ secrets.GOOGLEAPIYOUTUBEKEY }}
-    timeout-minutes: 12
+    timeout-minutes: 20
     strategy:
       matrix:
         python-versions: ['3.10']
-
     steps:
       - name: Checkout code.
         uses: actions/checkout@v4
 
-      - name: Setup Python.
+      - name: Setup Python ${{ matrix.python-versions }}.
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-versions }}
@@ -34,4 +41,5 @@ jobs:
       - name: Run debug script if Pytest fails.
         if: failure()
         run: |
-          python debug_manual_tests.py
+          python debug_video_urls_valid.py
+

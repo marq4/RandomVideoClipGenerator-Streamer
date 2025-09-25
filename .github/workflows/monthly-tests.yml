@@ -7,12 +7,12 @@ on:
     - cron: "0 2 15 * *"
 
 jobs:
-  call-ci:
-    # Check if music video URLs are valid.
-    uses: ./.github/workflows/ci.yml
+  validate-video-urls:
+    # Check if music video URLs in List.md are valid:
+    uses: ./.github/workflows/validate_video_urls.yml
     secrets: inherit
 
-  website-is-available:
+  rvcgs-website-is-available:
     uses: jtalk/url-health-check-action@v3
     with:
       url: |
@@ -20,3 +20,4 @@ jobs:
         https://randomvideoclipgenerator.com
         http://www.randomvideoclipgenerator.com
         http://randomvideoclipgenerator.com
+

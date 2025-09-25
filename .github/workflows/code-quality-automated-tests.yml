@@ -1,19 +1,40 @@
 ---
-name: Code quality.
+name: Code quality & automated code tests.
 
-on: [push, pull_request]
+on: [pull_request, push]
 
 jobs:
-  code-imports-typing-style:
+  code-quality:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-versions: ['3.10']
-    timeout-minutes: 8
+    timeout-minutes: 9
     steps:
       - name: Checkout code.
         uses: actions/checkout@v4
 
+      - name: Get changed files.
+        id: changed-files
+        uses: tj-actions/changed-files@v22.1
+
+      - name: List all updated files.
+        run: |
+          for file in ${{ steps.changed-files.otputs.all_changed_files }}
+          do
+            echo ">>> $file was updated. "
+          done
+
+      - name: Check if List.md changed.
+        if: contains(steps.changed-files.outputs.modified_files, 'List.md')
+        run: |
+          echo ">>> Music video list was modified!"
+
+
+      - name: Lint YAML files.
+        uses: frenck/action-yamllint@v1
+
+      # Python code quality:
       - name: Setup Python ${{ matrix.python-versions }}.
         uses: actions/setup-python@v3
         with:
@@ -24,7 +45,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Code style.
+      - name: Lint Python code.
         run: |
           echo 'Files to be linted: '
           files=$(git ls-files '*.py')
@@ -40,4 +61,7 @@ jobs:
 
       - name: Import ordering.
         run: |
-          isort --check .
+          isort --check
+
+  #test-code: #TODO.
+
