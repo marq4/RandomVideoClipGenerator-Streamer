@@ -20,7 +20,7 @@ jobs:
 
       - name: List all updated files.
         run: |
-          for file in ${{ steps.changed-files.otputs.all_changed_files }}
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}
           do
             echo ">>> $file was updated. "
           done
