@@ -63,5 +63,8 @@ jobs:
         run: |
           isort --check --verbose .
 
-  #test-code: #TODO.
+  test-code:
+    - name: Code tests.
+      run: |
+        PYTHONPATH=. pytest -vvv tests/code_tests.py
 

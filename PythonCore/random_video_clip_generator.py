@@ -17,13 +17,14 @@ CURRENT_DIRECTORY = os.path.dirname( os.path.abspath(__file__) )
 
 def prepend_line(filename: str, line: str) -> None:
     """ Append line to beginning of file. """
-    assert filename, f"Cannot prepend line: '{line}' to invalid {filename}. "
+    if not filename:
+        raise ValueError(f"Cannot prepend line: '{line}' to invalid {filename}. ")
     if line is not None and len(line) > 0:
         with open(filename, 'r+', encoding='utf-8') as file:
             content = file.read()
             file.seek(0,0)
             file.write( line.rstrip("\r\n") + "\n" + content )
-
+#
 
 def list_files_subfolder() -> list:
     """ Create a list of all files in SUBFOLDER (videos). """
@@ -32,15 +33,15 @@ def list_files_subfolder() -> list:
         print(f"There are no files under {SUBFOLDER}. ")
         sys.exit()
     return subfolder_contents
-
+#
 
 def select_video_at_random(list_of_files: list) -> str:
     """ Choose a video. :return: Video filename with Win full path. """
     assert list_of_files and SUBFOLDER
     subpath = os.path.join(CURRENT_DIRECTORY, SUBFOLDER)
-    selected = random.randint(0, len(list_of_files) - 1)
-    return ( os.path.join(subpath, list_of_files[selected]) ).replace("\\", "/")
-
+    selected = random.randint(0, len(list_of_files) - 1) # TODO: refactor: use random.choice. 
+    return ( os.path.join(subpath, list_of_files[selected]) ).replace("\\", "/") # TODO: should work fine in Linux too.
+#
 
 def get_video_duration(num_to_log: int, video: str) -> int:
     """ Extract video duration with ffprobe and subprocess.Popen.
@@ -57,14 +58,19 @@ def get_video_duration(num_to_log: int, video: str) -> int:
     seconds = int(result)
     assert INTERVAL_MIN < seconds > 0, f"Video too short: {video} "
     return seconds
-
+#
 
 def choose_starting_point(video_length: int) -> int:
     """ Choose beginning of clip.
     :return: Starting point from beginning of video to end of video - max. """
-    assert video_length > 0
+    if video_length < 1:
+        raise ValueError('Video too short. Videos must be at least 1 second long. ')
+    if video_length < INTERVAL_MIN:
+        raise ValueError(f"Video too short: {video_length}. Minimum interval is: {INTERVAL_MIN}. ")
+    if video_length == INTERVAL_MIN:
+        return 0
     return random.randint(0, video_length - INTERVAL_MAX)
-
+#
 
 def add_clip_to_tracklist(track_list: ET.Element, \
     video: str, start: int, end: int) -> None:
@@ -73,7 +79,7 @@ def add_clip_to_tracklist(track_list: ET.Element, \
         :param: video: The name of the video file to be cut.
         :param: start: Begin clip from.
         :param: end: Stop clip at. """
-    assert track_list is not None and video and start >= 0
+    assert track_list is not None and video and start >= 0 #XXX
     track = ET.SubElement(track_list, 'track')
     ET.SubElement(track, 'location').text = f"file:///{video}"
     extension = ET.SubElement(track, 'extension', \
@@ -126,6 +132,7 @@ def execute_vlc() -> None:
         pass
 
 
+# XXX: should I move this to tests?
 def verify_intervals_valid() -> None:
     """ Music video clips should be between at most 15 to 25 seconds long. """
     assert 15 >= INTERVAL_MIN >= 1
@@ -138,7 +145,7 @@ def main():
     * Generate an xml playlist with random clips from those videos.
     * Run VLC with that playlist.
     """
-    verify_intervals_valid()
+    verify_intervals_valid() #XXX?
     files = list_files_subfolder()
     top_element = generate_random_video_clips_playlist(files)
     create_xml_file(top_element)
