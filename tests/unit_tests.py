@@ -61,7 +61,7 @@ def test_list_files_subfolder_empty(tmp_path: Path, monkeypatch: MonkeyPatch) ->
     subfolder.mkdir()
     monkeypatch.chdir(tmp_path)
     with pytest.raises(SystemExit):
-        rvcg.list_files_subfolder() # Works with SUBFOLDER global. 
+        rvcg.list_files_subfolder() # Works with SUBFOLDER global.
 #
 
 def test_select_video_at_random(monkeypatch: MonkeyPatch) -> None:
