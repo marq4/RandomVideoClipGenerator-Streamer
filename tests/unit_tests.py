@@ -1,4 +1,4 @@
-""" Unit + Integration tests. """
+""" Unit tests. """
 
 import os
 from pathlib import Path
@@ -15,8 +15,6 @@ example_videos_with_durations = {
 		"RaeSremmurd_NoType.mp4": 197
 }
 
-
-# Unit tests:
 
 def test_prepend_line(tmp_path: Path) -> None:
 	""" Ensure file ends up with correct line at the top. """
@@ -124,12 +122,4 @@ def test_add_clip_to_tracklist() -> None:
 	assert f"stop_time={stop_time}"
 	assert 'no-audio' in options
 #
-
-def test_verify_intervals_valid(monkeypatch: MonkeyPatch) -> None:
-	""" ??? """
-#
-
-
-
-# Integration tests:
 

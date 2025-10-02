@@ -4,12 +4,13 @@ name: Code quality & automated code tests.
 on: [pull_request, push]
 
 jobs:
-  code-quality:
+  code-quality-unit-tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-versions: ['3.10']
     timeout-minutes: 9
+
     steps:
       - name: Checkout code.
         uses: actions/checkout@v4
@@ -63,8 +64,7 @@ jobs:
         run: |
           isort --check --verbose .
 
-  test-code:
-    - name: Code tests.
-      run: |
-        PYTHONPATH=. pytest -vvv tests/code_tests.py
+      - name: Unit Testing.
+        run: |
+          PYTHONPATH=. pytest -vvv tests/unit_tests.py
 
