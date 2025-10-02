@@ -39,8 +39,8 @@ def select_video_at_random(list_of_files: list) -> str:
     """ Choose a video. :return: Video filename with Win full path. """
     assert list_of_files and SUBFOLDER
     subpath = os.path.join(CURRENT_DIRECTORY, SUBFOLDER)
-    selected = random.randint(0, len(list_of_files) - 1) # TODO: refactor: use random.choice. 
-    return ( os.path.join(subpath, list_of_files[selected]) ).replace("\\", "/") # TODO: should work fine in Linux too.
+    selected = random.randint(0, len(list_of_files) - 1)
+    return ( os.path.join(subpath, list_of_files[selected]) ).replace("\\", "/")
 #
 
 def get_video_duration(num_to_log: int, video: str) -> int:
@@ -79,7 +79,7 @@ def add_clip_to_tracklist(track_list: ET.Element, \
         :param: video: The name of the video file to be cut.
         :param: start: Begin clip from.
         :param: end: Stop clip at. """
-    assert track_list is not None and video and start >= 0 #XXX
+    assert track_list is not None and video and start >= 0
     track = ET.SubElement(track_list, 'track')
     ET.SubElement(track, 'location').text = f"file:///{video}"
     extension = ET.SubElement(track, 'extension', \
@@ -132,7 +132,6 @@ def execute_vlc() -> None:
         pass
 
 
-# XXX: should I move this to tests?
 def verify_intervals_valid() -> None:
     """ Music video clips should be between at most 15 to 25 seconds long. """
     assert 15 >= INTERVAL_MIN >= 1
@@ -145,7 +144,7 @@ def main():
     * Generate an xml playlist with random clips from those videos.
     * Run VLC with that playlist.
     """
-    verify_intervals_valid() #XXX?
+    verify_intervals_valid()
     files = list_files_subfolder()
     top_element = generate_random_video_clips_playlist(files)
     create_xml_file(top_element)
