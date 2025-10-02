@@ -52,7 +52,7 @@ def test_list_files_subfolder(monkeypatch: MonkeyPatch) -> None:
     files = rvcg.list_files_subfolder()
     expected = set(example_videos_with_durations)
     actual_files_set = set(files)
-    assert expected.issubset(actual_files_set, f"Missing files: {expected - actual_files_set}")
+    assert expected.issubset(actual_files_set), f"Missing files: {expected - actual_files_set}"
 #
 
 def test_list_files_subfolder_empty(tmp_path: Path, monkeypatch: MonkeyPatch) -> None:
@@ -66,7 +66,7 @@ def test_list_files_subfolder_empty(tmp_path: Path, monkeypatch: MonkeyPatch) ->
 
 def test_select_video_at_random(monkeypatch: MonkeyPatch) -> None:
     """ Ensure returned path is inside subfolder and video name is valid. """
-    files = example_videos_with_durations.keys()
+    files = list(example_videos_with_durations.keys())
     monkeypatch.setattr(rvcg, 'CURRENT_DIRECTORY', '/tmp')
     selected_video_full_path = rvcg.select_video_at_random(files)
     video_name = selected_video_full_path.split('/')[-1]
@@ -116,7 +116,10 @@ def test_add_clip_to_tracklist() -> None:
     rvcg.add_clip_to_tracklist(tracks, video_name, start_time, stop_time)
     track = tracks.find('track')
     assert track is not None
-    assert track.find('location').text.startswith(f"file:///{video_name}")
+    location = track.find('location')
+    assert location is not None
+    assert location.text is not None
+    assert location.text.startswith(f"file:///{video_name}")
     options = [opt.text for opt in track.findall('.//vlc:option')]
     assert f"start-time={start_time}"
     assert f"stop_time={stop_time}"
