@@ -4,6 +4,7 @@ No main, Pytest will run all functions that stat with 'test'.
 """
 
 import pytest
+
 from core_utils import (GOOGLE_API_KEY, invalid_url_should_fail,
                         verify_videos_exist)
 
