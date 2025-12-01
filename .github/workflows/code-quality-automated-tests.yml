@@ -87,6 +87,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Unit Testing.
+        env:
+          PYTHONPATH: .
         run: |
-          set PYTHONPATH=.
           pytest -vvv tests/unit_tests.py
