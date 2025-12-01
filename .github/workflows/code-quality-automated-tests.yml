@@ -4,7 +4,7 @@ name: Code quality & automated code tests.
 on: [pull_request, push]
 
 jobs:
-  code-quality-unit-tests:
+  code-quality:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -37,7 +37,7 @@ jobs:
 
       # Python code quality:
       - name: Setup Python ${{ matrix.python-versions }}.
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-versions }}
 
@@ -64,7 +64,29 @@ jobs:
         run: |
           isort --check --verbose .
 
+  unit-tests:
+    needs: code-quality
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-versions: ['3.10']
+    timeout-minutes: 13
+
+    steps:
+      - name: Checkout code.
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ matrix.python-versions }}.
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-versions }}
+
+      - name: Install dependencies.
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
       - name: Unit Testing.
         run: |
-          PYTHONPATH=. pytest -vvv tests/unit_tests.py
-
+          set PYTHONPATH=.
+          pytest -vvv tests/unit_tests.py

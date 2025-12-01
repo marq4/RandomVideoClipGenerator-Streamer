@@ -2,17 +2,21 @@
 
 import os
 import random
-import subprocess
 import sys
+import subprocess
 import xml.etree.ElementTree as ET
-from subprocess import Popen
+from subprocess import Popen, PIPE
+from pathlib import Path
 
 XML_PLAYLIST_FILE = 'clips.xspf'
-SUBFOLDER = 'videos'
+#SUBFOLDER = 'videos'
+SUBFOLDER = '../example_videos'
+#SUBFOLDER = 'C:/Marq/Documents_C/Career/Repo/RandomVideoClipGeneratorStreamerMonorepo/RandomVideoClipGenerator-Streamer/example_videos'
 NUMBER_OF_CLIPS = 5
 INTERVAL_MIN = 4
 INTERVAL_MAX = 8
 CURRENT_DIRECTORY = os.path.dirname( os.path.abspath(__file__) )
+VLC_BATCH_FILE = 'exevlc.bat'
 
 
 def prepend_line(filename: str, line: str) -> None:
@@ -23,13 +27,17 @@ def prepend_line(filename: str, line: str) -> None:
         with open(filename, 'r+', encoding='utf-8') as file:
             content = file.read()
             file.seek(0,0)
-            file.write( line.rstrip("\r\n") + "\n" + content )
+            file.write(line.rstrip("\r\n") + "\n" + content)
 #
 
 def list_files_subfolder() -> list:
-    """ Create a list of all files in SUBFOLDER (videos). """
-    subfolder_contents = os.listdir(SUBFOLDER)
-    if subfolder_contents is None or len(subfolder_contents) < 1:
+    """ Create a list of all files in (global) SUBFOLDER. """
+    subfolder_path = Path(SUBFOLDER)
+    if not subfolder_path.exists():
+        print(f"Subfolder does not exist: {SUBFOLDER}. ")
+        sys.exit()
+    subfolder_contents = [f.name for f in subfolder_path.iterdir() if f.is_file()]
+    if not subfolder_contents:
         print(f"There are no files under {SUBFOLDER}. ")
         sys.exit()
     return subfolder_contents
@@ -38,25 +46,44 @@ def list_files_subfolder() -> list:
 def select_video_at_random(list_of_files: list) -> str:
     """ Choose a video. :return: Video filename with Win full path. """
     assert list_of_files and SUBFOLDER
-    subpath = os.path.join(CURRENT_DIRECTORY, SUBFOLDER)
+    subfolder_path = Path(CURRENT_DIRECTORY) / SUBFOLDER
     selected = random.randint(0, len(list_of_files) - 1)
-    return ( os.path.join(subpath, list_of_files[selected]) ).replace("\\", "/")
+    return str((subfolder_path / list_of_files[selected]).resolve())
 #
 
 def get_video_duration(num_to_log: int, video: str) -> int:
     """ Extract video duration with ffprobe and subprocess.Popen.
         :return: Video duration in seconds. """
     assert video
-    ffprobe_str = "ffprobe -v error -select_streams v:0 \
-        -show_entries stream=duration -of default=noprint_wrappers=1:nokey=1"
-    command = f"{ffprobe_str} {video} "
-    with Popen(command, stdout=subprocess.PIPE) as process:
-        (out, err) = process.communicate()
-    if err:
-        print(f"Process error: [{str(err)}]. Iteration: {num_to_log}. ")
-    result = ( ( ( ( str(out) ).split('.', maxsplit=1) )[0] ).split("b'") )[1]
-    seconds = int(result)
-    assert INTERVAL_MIN < seconds > 0, f"Video too short: {video} "
+    # Verify video file exists:
+    if not os.path.exists(video):
+        raise FileNotFoundError(f"Video file not found: {video}. ")
+    video_path = Path(video)
+    command_as_list = [
+        'ffprobe', '-v', 'error',
+        '-select_streams', 'v:0',
+        '-show_entries', 'stream=duration',
+        '-of', 'default=noprint_wrappers=1:nokey=1',
+        str(video_path)
+    ]
+    try:
+        result = subprocess.run(
+            command_as_list,
+            stdout=PIPE,
+            stderr=PIPE,
+            text=True,
+            check=True,
+            encoding='utf-8'
+        )
+        duration_str = result.stdout.strip()
+        seconds = int(float(duration_str))
+    except subprocess.CalledProcessError as e:
+        print(f"FFprobe error on iteration {num_to_log}: {e.stderr}. ")
+        raise
+    except (ValueError, IndexError) as e:
+        print(f"Could not parse duration for video: {video}. Error: {e}. ")
+        raise
+    assert INTERVAL_MIN < seconds and seconds > 0, f"Video too short: {video}. "
     return seconds
 #
 
@@ -81,7 +108,14 @@ def add_clip_to_tracklist(track_list: ET.Element, \
         :param: end: Stop clip at. """
     assert track_list is not None and video and start >= 0
     track = ET.SubElement(track_list, 'track')
-    ET.SubElement(track, 'location').text = f"file:///{video}"
+    # Convert to absolute path and proper URI format for VLC:
+    abs_path = os.path.abspath(video)
+    # Convert Windows backslashes to forward slashes:
+    video_uri = abs_path.replace("\\", '/')
+    # Ensure proper prefix:
+    if not video_uri.startswith('file:///'):
+        video_uri = f"file:///{video_uri}"
+    ET.SubElement(track, 'location').text = video_uri
     extension = ET.SubElement(track, 'extension', \
         application='http://www.videolan.org/vlc/playlist/0')
     ET.SubElement(extension, 'vlc:option').text = f"start-time={start}"
@@ -91,7 +125,7 @@ def add_clip_to_tracklist(track_list: ET.Element, \
 
 def create_xml_file(playlist_et: ET.Element) -> None:
     """ Finally write the playlist tree element as an xspf file to disk. """
-    ET.ElementTree(playlist_et).write(XML_PLAYLIST_FILE)
+    ET.ElementTree(playlist_et).write(XML_PLAYLIST_FILE, encoding='UTF-8', xml_declaration=False)
     prepend_line(XML_PLAYLIST_FILE, '<?xml version="1.0" encoding="UTF-8"?>')
 
 
@@ -106,11 +140,12 @@ def generate_random_video_clips_playlist(video_list: list) -> ET.Element:
     """
     assert video_list
 
-    playlist = ET.Element("playlist", version="1", xmlns="http://xspf.org/ns/0/")
-    tracks = ET.SubElement(playlist, "trackList")
+    playlist = ET.Element('playlist', version='1', xmlns='http://xspf.org/ns/0/',
+                          attrib={'xmlns:vlc': 'http://www.videolan.org/vlc/playlist/0'})
+    tracks = ET.SubElement(playlist, 'trackList')
 
     assert 1 <= NUMBER_OF_CLIPS < sys.maxsize, \
-        "Invalid number of clips: {NUMBER_OF_CLIPS} "
+        f"Invalid number of clips: {NUMBER_OF_CLIPS}. "
 
     for iteration in range(NUMBER_OF_CLIPS):
         video_file = select_video_at_random(video_list)
@@ -127,9 +162,17 @@ def generate_random_video_clips_playlist(video_list: list) -> ET.Element:
 
 def execute_vlc() -> None:
     """ Call VLC only once and pass it the xspf playlist. """
-    executable = os.path.join(CURRENT_DIRECTORY, 'exevlc.bat')
-    with Popen([executable, f"{CURRENT_DIRECTORY}/{XML_PLAYLIST_FILE}"]):
+    # Use absolute path for the playlist:
+    playlist_path = os.path.abspath(XML_PLAYLIST_FILE)
+    executable = Path(CURRENT_DIRECTORY) / VLC_BATCH_FILE
+    assert Path(executable).exists(), f"""\n
+        Windows Batch script that calls VLC: {VLC_BATCH_FILE} is missing.
+        This file must exist in the same location as this script.
+        Please download it from the repo (it's under PythonCore folder).
+        """
+    with Popen([executable, playlist_path]):
         pass
+#
 
 
 def verify_intervals_valid() -> None:

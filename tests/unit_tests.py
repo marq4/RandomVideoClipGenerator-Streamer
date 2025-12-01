@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pytest
-import random_video_clip_generator as rvcg
+from PythonCore import random_video_clip_generator as rvcg
 from _pytest.monkeypatch import MonkeyPatch
 
 # Actual videos under 'example_videos' folder with their durations in seconds:
@@ -26,16 +26,22 @@ def test_prepend_line(tmp_path: Path) -> None:
     basic_case_file_path.write_text(bottom_line)
     rvcg.prepend_line(str(basic_case_file_path), top_line)
     content = basic_case_file_path.read_text().splitlines()
-    assert content[0] == top_line
-    assert content[-1] == bottom_line
+    assert content[0] == top_line.rstrip("\n")
+    assert content[-1] == bottom_line.rstrip("\n")
 
     # Edge case: ensure empty line doesn't cause problems:
+    rvcg.prepend_line(str(basic_case_file_path), '')
+    content = basic_case_file_path.read_text().splitlines()
+    assert content[0] == top_line.rstrip("\n")
+    assert content[-1] == bottom_line.rstrip("\n")
+
+    # Edge case: ensure empty line & empty file doesn't cause problems:
     edge_case_file_path = tmp_path / "prepend_empty_line_file_edge_case.txt"
     edge_case_file_path.write_text(bottom_line)
-    rvcg.prepend_line(str(basic_case_file_path), "")
-    content = basic_case_file_path.read_text().splitlines()
-    assert content[0] == bottom_line
-    assert content[-1] == bottom_line
+    rvcg.prepend_line(str(edge_case_file_path), '')
+    content = edge_case_file_path.read_text().splitlines()
+    assert content[0] == bottom_line.rstrip("\n")
+    assert content[-1] == bottom_line.rstrip("\n")
 #
 
 def test_prepend_line_invalid_file() -> None:
