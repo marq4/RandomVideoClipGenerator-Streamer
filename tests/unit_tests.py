@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
+
 from PythonCore import random_video_clip_generator as rvcg
 
 # Actual videos under 'example_videos' folder with their durations in seconds:
