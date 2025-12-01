@@ -83,9 +83,10 @@ def test_select_video_at_random(monkeypatch: MonkeyPatch) -> None:
 
 def test_get_video_duration() -> None:
     """ Ensure duration is valid for example videos. """
+    repo_root = Path(__file__).parent.parent
     for example_video_name, expected_duration in example_videos_with_durations.items():
-        path = f"../example_videos/{example_video_name}"
-        actual_duration = rvcg.get_video_duration(0, path)
+        video_path = repo_root / 'example_videos' / example_video_name
+        actual_duration = rvcg.get_video_duration(0, str(video_path))
         assert expected_duration == actual_duration
 #
 
