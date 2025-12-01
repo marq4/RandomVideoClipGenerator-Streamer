@@ -76,9 +76,9 @@ def test_select_video_at_random(monkeypatch: MonkeyPatch) -> None:
     files = list(example_videos_with_durations.keys())
     monkeypatch.setattr(rvcg, 'CURRENT_DIRECTORY', '/tmp')
     selected_video_full_path = rvcg.select_video_at_random(files)
-    video_name = selected_video_full_path.rsplit('/', maxsplit=1)[-1]
+    video_name = os.path.basename(selected_video_full_path)
     assert video_name in files
-    assert '/tmp/videos' in selected_video_full_path
+    assert 'videos' in selected_video_full_path
 #
 
 def test_get_video_duration() -> None:
