@@ -88,5 +88,4 @@ jobs:
 
       - name: Unit Testing.
         run: |
-          set PYTHONPATH=.
-          pytest -vvv tests/unit_tests.py
+          PYTHONPATH=. pytest -vvv tests/unit_tests.py
