@@ -2,11 +2,11 @@
 
 import os
 import random
-import sys
 import subprocess
+import sys
 import xml.etree.ElementTree as ET
-from subprocess import Popen, PIPE
 from pathlib import Path
+from subprocess import PIPE, Popen
 
 XML_PLAYLIST_FILE = 'clips.xspf'
 SUBFOLDER = 'videos'
