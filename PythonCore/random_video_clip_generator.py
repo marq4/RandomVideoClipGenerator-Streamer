@@ -9,9 +9,7 @@ from subprocess import Popen, PIPE
 from pathlib import Path
 
 XML_PLAYLIST_FILE = 'clips.xspf'
-#SUBFOLDER = 'videos'
-SUBFOLDER = '../example_videos'
-#SUBFOLDER = 'C:/Marq/Documents_C/Career/Repo/RandomVideoClipGeneratorStreamerMonorepo/RandomVideoClipGenerator-Streamer/example_videos'
+SUBFOLDER = 'videos'
 NUMBER_OF_CLIPS = 5
 INTERVAL_MIN = 4
 INTERVAL_MAX = 8

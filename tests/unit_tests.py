@@ -5,8 +5,8 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pytest
-from PythonCore import random_video_clip_generator as rvcg
 from _pytest.monkeypatch import MonkeyPatch
+from PythonCore import random_video_clip_generator as rvcg
 
 # Actual videos under 'example_videos' folder with their durations in seconds:
 example_videos_with_durations = {
@@ -75,7 +75,7 @@ def test_select_video_at_random(monkeypatch: MonkeyPatch) -> None:
     files = list(example_videos_with_durations.keys())
     monkeypatch.setattr(rvcg, 'CURRENT_DIRECTORY', '/tmp')
     selected_video_full_path = rvcg.select_video_at_random(files)
-    video_name = selected_video_full_path.split('/')[-1]
+    video_name = selected_video_full_path.rsplit('/', maxsplit=1)[-1]
     assert video_name in files
     assert '/tmp/videos' in selected_video_full_path
 #
