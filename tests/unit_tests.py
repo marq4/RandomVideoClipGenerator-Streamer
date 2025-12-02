@@ -24,7 +24,6 @@ from _pytest.monkeypatch import MonkeyPatch
 
 from PythonCore import random_video_clip_generator as rvcg
 
-
 EXAMPLE_VIDEOS_SUBFOLDER = 'example_videos'
 
 # Setup:
