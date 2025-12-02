@@ -1,7 +1,7 @@
 """ Unit tests. """
 
-import subprocess
 import os
+import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -9,7 +9,6 @@ import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
 from PythonCore import random_video_clip_generator as rvcg
-
 
 # Setup:
 example_video_titles = [
