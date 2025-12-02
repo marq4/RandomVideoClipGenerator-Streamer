@@ -59,7 +59,7 @@ def create_fake_example_videos() -> None:
         output_path = subfolder / filename
         subprocess.run([
             'ffmpeg', '-f', 'lavfi',
-            '-i', f"testsrc=duration={duration+1}:size=320x240:rate=30",
+            '-i', f"testsrc=duration={duration}:size=320x240:rate=30",
             '-pix_fmt', 'yuv420p', '-y',
             str(output_path)
         ], check=True, capture_output=True)
