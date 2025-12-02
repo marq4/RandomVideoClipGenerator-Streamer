@@ -9,13 +9,32 @@ from _pytest.monkeypatch import MonkeyPatch
 
 from PythonCore import random_video_clip_generator as rvcg
 
-# Actual videos under 'example_videos' folder with their durations in seconds:
-example_videos_with_durations = {
-    "Deftones - You've Seen The Butcher [Official Music Video] $!.mp4": 213,
-    "Doja Cat ñá - Kiss Me More (Official Video) ft. SZA.mp4": 315,
-    "RaeSremmurd_NoType.mp4": 197
-}
 
+# Setup:
+def set_example_video_durations() -> dict:
+    """
+    Create a dictionary containing the video file names and their known durations.
+    Video duration depends on whether videos are real (local) or fake (CI).
+    """
+    example_video_titles = [
+        "Deftones - You've Seen The Butcher [Official Music Video] $!.mp4",
+        "Doja Cat ñá - Kiss Me More (Official Video) ft. SZA.mp4",
+        "RaeSremmurd_NoType.mp4"
+    ]
+    known_durations_local = [213, 315, 197]
+    known_durations_ci = [10, 12, 8]
+    result = {}
+    if os.getenv('CI'):
+        result = dict(zip(example_video_titles, known_durations_ci))
+    else:
+        # Assume 'local'. No other envs for now.
+        result = dict(zip(example_video_titles, known_durations_local))
+    return result
+#
+example_videos_with_durations : dict = set_example_video_durations()
+
+
+# Tests:
 
 def test_prepend_line(tmp_path: Path) -> None:
     """ Ensure file ends up with correct line at the top. """
