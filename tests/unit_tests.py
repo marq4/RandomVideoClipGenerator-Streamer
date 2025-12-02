@@ -1,4 +1,18 @@
-""" Unit tests. """
+"""
+Unit tests.
+Setup:
+    * A list contains the example video file names (with special characters).
+    * I have downloaded these videos locally.
+    * In the GitHub workflow, fake videos are generated (with the same names).
+    * To break UT locally: change any local duration value.
+    * To break UT in CI: under create_fake_example_videos set duration+1.
+    * Changing value(s) for given durations for fake videos doesn't break
+        the test as the files are both created with the arbitrary duration,
+        and that same number is also used as expected value later.
+    * Global example_videos_with_durations is set from 
+        the list of titles + durations which depend on env (local|CI).
+    * Finally the fake video files are created on the GitHub runner with given durations.
+"""
 
 import os
 import subprocess
@@ -10,6 +24,9 @@ from _pytest.monkeypatch import MonkeyPatch
 
 from PythonCore import random_video_clip_generator as rvcg
 
+
+EXAMPLE_VIDEOS_SUBFOLDER = 'example_videos'
+
 # Setup:
 example_video_titles = [
     "Deftones - You've Seen The Butcher [Official Music Video] $!.mp4",
@@ -17,46 +34,41 @@ example_video_titles = [
     "RaeSremmurd_NoType.mp4"
 ]
 known_durations_local = [213, 315, 197]
-known_durations_ci = [10, 12, 88] #8
+given_durations_ci = [10, 12, 8]
 def set_example_video_durations() -> dict[str, int]:
     """
-    Create a dictionary containing the video file names and their known durations.
-    Video duration depends on whether videos are real (local) or fake (CI).
+    Create a dictionary containing the video file names and their known/given durations.
+    Video durations depends on whether videos are real (local) or fake (CI).
     """
-    result = {}
+    result: dict[str, int] = {}
     if os.getenv('CI'):
-        result = dict(zip(example_video_titles, known_durations_ci))
+        result = dict(zip(example_video_titles, given_durations_ci))
     else:
         # Assume 'local'. No other envs for now.
         result = dict(zip(example_video_titles, known_durations_local))
     return result
 #
+example_videos_with_durations : dict = set_example_video_durations()
 def create_fake_example_videos() -> None:
     """ Using FFMpeg. For CI env only. """
     if not os.getenv('CI'):
         return
-    subfolder = Path('example_videos')
+    subfolder = Path(EXAMPLE_VIDEOS_SUBFOLDER)
     subfolder.mkdir(exist_ok=True)
-    videos_with_durations = set_example_video_durations()
-    for (filename, duration) in videos_with_durations.items():
+    assert subfolder.exists()
+    for (filename, duration) in example_videos_with_durations.items():
         output_path = subfolder / filename
         subprocess.run([
             'ffmpeg', '-f', 'lavfi',
-            '-i', f"testsrc=duration={duration}:size=320x240:rate=30",
+            '-i', f"testsrc=duration={duration+1}:size=320x240:rate=30", #XXX: make sure this fails on GitHub!
             '-pix_fmt', 'yuv420p', '-y',
             str(output_path)
         ], check=True, capture_output=True)
 #
 create_fake_example_videos()
-example_videos_with_durations : dict = set_example_video_durations()
 
 
 # Tests:
-
-def test_should_always_fail() -> None:
-    """ TMP: DEL this function. """
-    assert False
-#
 
 def test_prepend_line(tmp_path: Path) -> None:
     """ Ensure file ends up with correct line at the top. """
@@ -96,7 +108,7 @@ def test_list_files_subfolder(monkeypatch: MonkeyPatch) -> None:
     """ Ensure all files in example_videos subfolder are found. """
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     monkeypatch.chdir(repo_root)
-    monkeypatch.setattr(rvcg, 'SUBFOLDER', 'example_videos')
+    monkeypatch.setattr(rvcg, 'SUBFOLDER', EXAMPLE_VIDEOS_SUBFOLDER)
     files = rvcg.list_files_subfolder()
     expected = set(example_videos_with_durations)
     actual_files_set = set(files)
@@ -126,7 +138,7 @@ def test_get_video_duration() -> None:
     """ Ensure duration is valid for example videos. """
     repo_root = Path(__file__).parent.parent
     for example_video_name, expected_duration in example_videos_with_durations.items():
-        video_path = repo_root / 'example_videos' / example_video_name
+        video_path = repo_root / EXAMPLE_VIDEOS_SUBFOLDER / example_video_name
         actual_duration = rvcg.get_video_duration(0, str(video_path))
         assert expected_duration == actual_duration
 #
