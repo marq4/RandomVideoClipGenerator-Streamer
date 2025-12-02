@@ -17,7 +17,7 @@ example_video_titles = [
     "RaeSremmurd_NoType.mp4"
 ]
 known_durations_local = [213, 315, 197]
-known_durations_ci = [10, 12, 8]
+known_durations_ci = [10, 12, 88] #8
 def set_example_video_durations() -> dict[str, int]:
     """
     Create a dictionary containing the video file names and their known durations.
