@@ -127,9 +127,13 @@ def test_add_clip_to_tracklist() -> None:
     location = track.find('location')
     assert location is not None
     assert location.text is not None
-    assert location.text.startswith(f"file:///{video_name}")
-    options = [opt.text for opt in track.findall('.//vlc:option')]
-    assert f"start-time={start_time}"
-    assert f"stop_time={stop_time}"
+    assert location.text.startswith('file:///')
+    assert video_name in location.text
+    extension = track.find('extension')
+    assert extension is not None
+    options = [opt.text for opt in extension.findall('.//*') \
+        if opt.tag.endswith('option')]
+    assert f"start-time={start_time}" in options
+    assert f"stop-time={stop_time}" in options
     assert 'no-audio' in options
 #
