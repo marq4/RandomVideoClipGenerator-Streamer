@@ -1,7 +1,4 @@
-"""
-Verify video URLs are valid and videos exist.
-No main, Pytest will run all functions that stat with 'test'.
-"""
+""" Verify video URLs are valid and videos exist. """
 
 import pytest
 

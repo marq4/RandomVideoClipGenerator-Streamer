@@ -53,6 +53,11 @@ example_videos_with_durations : dict = set_example_video_durations()
 
 # Tests:
 
+def test_should_always_fail() -> None:
+    """ TMP: DEL this function. """
+    assert False
+#
+
 def test_prepend_line(tmp_path: Path) -> None:
     """ Ensure file ends up with correct line at the top. """
 
