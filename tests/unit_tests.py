@@ -230,11 +230,12 @@ def test_generate_random_video_clips_playlist_valid_xml(monkeypatch: MonkeyPatch
     # Mock return values from other functions:
     monkeypatch.setattr(rvcg, 'get_video_duration', lambda *_: 16)
     monkeypatch.setattr(rvcg, 'choose_starting_point', lambda *_: 0)
+    monkeypatch.setattr(rvcg, 'select_video_at_random', lambda *_: 'video.mp4')
     monkeypatch.setattr('random.randint', lambda *_: 2)
     playlist = rvcg.generate_random_video_clips_playlist(example_dummy_video_list)
     assert playlist.tag == 'playlist'
     assert playlist.attrib['version'] == '1'
     assert playlist.attrib['xmlns'] == 'http://xspf.org/ns/0/'
     assert playlist.attrib['xmlns:vlc'] == 'http://www.videolan.org/vlc/playlist/0'
-    tracklist = playlist.find('tracklist')
+    tracklist = playlist.find('trackList')
     assert tracklist is not None

@@ -3,6 +3,10 @@ name: Code quality & automated code tests.
 
 on: [pull_request, push]
 
+env:
+  # Specify minimum code coverage for Unit Testing:
+  TARGET_COVERAGE: 80
+
 jobs:
   code-quality:
     runs-on: ubuntu-latest
@@ -95,3 +99,7 @@ jobs:
           PYTHONPATH: .
         run: |
           pytest -vvv tests/unit_tests.py
+
+      - name: Code coverage.
+        run: |
+          pytest --cov=PythonCore --cov-fail-under=${{ env.TARGET_COVERAGE }} tests/unit_tests.py
