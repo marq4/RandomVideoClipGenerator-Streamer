@@ -15,8 +15,8 @@ Setup:
 """
 
 import os
-import sys
 import subprocess
+import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
