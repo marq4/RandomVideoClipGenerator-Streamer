@@ -1,7 +1,9 @@
 ---
 name: Code quality & automated code tests.
 
-on: [pull_request, push]
+on:
+  pull_request:
+  push:
 
 env:
   # Specify minimum code coverage for Unit Testing:
@@ -101,5 +103,7 @@ jobs:
           pytest -vvv tests/unit_tests.py
 
       - name: Code coverage.
-        run: |
-          pytest --cov=PythonCore --cov-fail-under=${{ env.TARGET_COVERAGE }} tests/unit_tests.py
+        run: >
+          pytest --cov=PythonCore
+          --cov-fail-under=${{ env.TARGET_COVERAGE }}
+          tests/unit_tests.py
