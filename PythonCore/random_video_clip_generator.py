@@ -26,20 +26,17 @@ def prepend_line(filename: str, line: str) -> None:
             content = file.read()
             file.seek(0,0)
             file.write(line.rstrip("\r\n") + "\n" + content)
-#
 
 def list_files_subfolder() -> list:
     """ Create a list of all files in (global) SUBFOLDER. """
     subfolder_path = Path(SUBFOLDER)
     if not subfolder_path.exists():
-        print(f"Subfolder does not exist: {SUBFOLDER}. ")
-        sys.exit()
+        raise FileNotFoundError(f"Subfolder does not exist: {SUBFOLDER}. ")
     subfolder_contents = [f.name for f in subfolder_path.iterdir() if f.is_file()]
     if not subfolder_contents:
         print(f"There are no files under {SUBFOLDER}. ")
         sys.exit()
     return subfolder_contents
-#
 
 def select_video_at_random(list_of_files: list) -> str:
     """ Choose a video. :return: Video filename with Win full path. """
@@ -47,7 +44,6 @@ def select_video_at_random(list_of_files: list) -> str:
     subfolder_path = Path(CURRENT_DIRECTORY) / SUBFOLDER
     selected = random.randint(0, len(list_of_files) - 1)
     return str((subfolder_path / list_of_files[selected]).resolve())
-#
 
 def get_video_duration(num_to_log: int, video: str) -> int:
     """ Extract video duration with ffprobe and subprocess.Popen.
@@ -83,7 +79,6 @@ def get_video_duration(num_to_log: int, video: str) -> int:
         raise
     assert INTERVAL_MIN < seconds and seconds > 0, f"Video too short: {video}. "
     return seconds
-#
 
 def choose_starting_point(video_length: int) -> int:
     """ Choose beginning of clip.
@@ -95,7 +90,6 @@ def choose_starting_point(video_length: int) -> int:
     if video_length == INTERVAL_MIN:
         return 0
     return random.randint(0, video_length - INTERVAL_MAX)
-#
 
 def add_clip_to_tracklist(track_list: ET.Element, \
     video: str, start: int, end: int) -> None:
@@ -120,12 +114,10 @@ def add_clip_to_tracklist(track_list: ET.Element, \
     ET.SubElement(extension, 'vlc:option').text = f"stop-time={end}"
     ET.SubElement(extension, 'vlc:option').text = 'no-audio'
 
-
 def create_xml_file(playlist_et: ET.Element) -> None:
     """ Finally write the playlist tree element as an xspf file to disk. """
     ET.ElementTree(playlist_et).write(XML_PLAYLIST_FILE, encoding='UTF-8', xml_declaration=False)
     prepend_line(XML_PLAYLIST_FILE, '<?xml version="1.0" encoding="UTF-8"?>')
-
 
 def generate_random_video_clips_playlist(video_list: list) -> ET.Element:
     """
@@ -157,7 +149,6 @@ def generate_random_video_clips_playlist(video_list: list) -> ET.Element:
 
     return playlist
 
-
 def execute_vlc() -> None:
     """ Call VLC only once and pass it the xspf playlist. """
     # Use absolute path for the playlist:
@@ -170,8 +161,6 @@ def execute_vlc() -> None:
         """
     with Popen([executable, playlist_path]):
         pass
-#
-
 
 def verify_intervals_valid() -> None:
     """ Music video clips should be between at most 15 to 25 seconds long. """
