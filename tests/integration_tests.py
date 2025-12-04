@@ -88,9 +88,13 @@ def execute_vlc(playlist: str) -> CompletedProcess:
     """ Call VLC CLI passing appropriate flags and the playlist. """
     result = subprocess.run([
         VLC_PATH,
+        # Flags required to avoid intermittent crash on CI:
+        # 3221226356 (0xC0000374 - heap corruption):
         '--no-loop',
         '--no-repeat',
         '--play-and-exit',
+        '--intf', 'dummy', '--dummy-quiet', '--no-video-title-show',
+        '--no-audio',
         playlist
     ], capture_output=True, text=True, timeout=VLC_TIMEOUT, check=False)
     return result
