@@ -20,7 +20,11 @@ from PythonCore import random_video_clip_generator as rvcg
 
 # start-time, stop-time, no-audio:
 EXPECTED_NUM_OPTIONS = 3
-VLC_TIMEOUT = 3
+
+# Anything bellow 15 is too aggressive for CI env and causes intermittent timeouts:
+CI_VLC_TIMEOUT = 30
+LOCAL_VLC_TIMEOUT = 3
+TIMEOUT = CI_VLC_TIMEOUT if os.getenv('CI') else LOCAL_VLC_TIMEOUT
 
 VLC_PATH = 'C:/Program Files/VideoLAN/VLC/vlc.exe'
 REPO_ROOT = Path(__file__).parent.parent
@@ -84,7 +88,7 @@ def aux_write_real_playlist_to_disk_get_absolute_path() -> str:
     rvcg.create_xml_file(real_playlist)
     return os.path.abspath(rvcg.XML_PLAYLIST_FILE)
 
-def execute_vlc(playlist: str) -> CompletedProcess:
+def execute_vlc(playlist: str, timeout: str) -> CompletedProcess:
     """ Call VLC CLI passing appropriate flags and the playlist. """
     result = subprocess.run([
         VLC_PATH,
@@ -96,7 +100,7 @@ def execute_vlc(playlist: str) -> CompletedProcess:
         '--intf', 'dummy', '--dummy-quiet', '--no-video-title-show',
         '--no-audio',
         playlist
-    ], capture_output=True, text=True, timeout=VLC_TIMEOUT, check=False)
+    ], capture_output=True, text=True, timeout=timeout, check=False)
     return result
 
 def test_vlc_accepts_playlist_one_second_single_clip(monkeypatch: MonkeyPatch) -> None:
@@ -105,7 +109,7 @@ def test_vlc_accepts_playlist_one_second_single_clip(monkeypatch: MonkeyPatch) -
     monkeypatch.setattr(rvcg, 'INTERVAL_MIN', 1)
     monkeypatch.setattr(rvcg, 'INTERVAL_MAX', 1)
     playlist_abs_path = aux_write_real_playlist_to_disk_get_absolute_path()
-    result = execute_vlc(playlist_abs_path)
+    result = execute_vlc(playlist_abs_path, TIMEOUT)
     assert result.returncode == 0, \
         f"Fundamental test failed (1 clip, 1 second): {result.stderr}. "
 
@@ -113,7 +117,7 @@ def test_vlc_accepts_playlist_timeout_expected() -> None:
     """ Ensure VLC can load & parse the XSPF. """
     playlist_abs_path = aux_write_real_playlist_to_disk_get_absolute_path()
     try:
-        result = execute_vlc(playlist_abs_path)
+        result = execute_vlc(playlist_abs_path, TIMEOUT)
         # Will usually not reach this point, as it will timeout with default settings.
         assert result.returncode == 0, f"VLC failed to parse playlist: {result.stderr}. "
     except subprocess.TimeoutExpired:
@@ -125,7 +129,7 @@ def test_vlc_cannot_parse_malformed_playlist() -> None:
     playlist_abs_path = aux_write_real_playlist_to_disk_get_absolute_path()
     rvcg.prepend_line(rvcg.XML_PLAYLIST_FILE, \
         'This line should make VLC reject this playlist /> ')
-    result = execute_vlc(playlist_abs_path)
+    result = execute_vlc(playlist_abs_path, TIMEOUT)
     all_output = result.stderr.lower() + result.stdout.lower()
     error_hints = ['xml reader error', 'XML parser error', 'playlist stream error',
                    "can't read xml stream", 'invalid', 'malformed']
