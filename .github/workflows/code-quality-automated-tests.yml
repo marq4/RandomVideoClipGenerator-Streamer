@@ -85,6 +85,10 @@ jobs:
           choco install ffmpeg -y
           choco install vlc -y
 
+      - name: Verify VLC installation.
+        run: |
+          "C:\Program Files\VideoLAN\VLC\vlc.exe" --version
+
       - name: Setup Python ${{ matrix.python-versions }}.
         uses: actions/setup-python@v5
         with:
