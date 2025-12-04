@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 # pylint: disable=wrong-import-position
 from unit_tests import EXAMPLE_VIDEOS_SUBFOLDER, example_video_titles
 
+
 def test_playlist_creation():
     """ Reuses fake videos generated during unit testing. """
     subfolder_path = Path(EXAMPLE_VIDEOS_SUBFOLDER)
