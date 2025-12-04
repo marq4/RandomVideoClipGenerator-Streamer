@@ -80,9 +80,10 @@ jobs:
       - name: Checkout code.
         uses: actions/checkout@v4
 
-      - name: Install FFMpeg.
+      - name: Install FFMpeg, VLC.
         run: |
           choco install ffmpeg -y
+          choco install vlc -y
 
       - name: Setup Python ${{ matrix.python-versions }}.
         uses: actions/setup-python@v5
