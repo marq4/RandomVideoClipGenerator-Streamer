@@ -142,8 +142,8 @@ def test_get_video_duration() -> None:
     # Ensure duration is valid for example videos:
     repo_root = Path(__file__).parent.parent
     for example_video_name, expected_duration in example_videos_with_durations.items():
-        video_path = repo_root / EXAMPLE_VIDEOS_SUBFOLDER / example_video_name
-        actual_duration = rvcg.get_video_duration(0, str(video_path))
+        absolute_video_path = repo_root / EXAMPLE_VIDEOS_SUBFOLDER / example_video_name
+        actual_duration = rvcg.get_video_duration(0, str(absolute_video_path))
         assert expected_duration == actual_duration
 
     # Ensure program exits if a video is not found:
