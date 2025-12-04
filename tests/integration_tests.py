@@ -86,17 +86,11 @@ def aux_write_real_playlist_to_disk_get_absolute_path() -> str:
 
 def execute_vlc(playlist: str) -> CompletedProcess:
     """ Call VLC CLI passing appropriate flags and the playlist. """
-    # Execute VLC in dummy mode (no GUI, minimal output, exit after playlist, 1s) ???
     result = subprocess.run([
         VLC_PATH,
         '--no-loop',
         '--no-repeat',
-        #'--intf', 'dummy', #CI only
-        #'--dummy-quiet', #CI only
         '--play-and-exit',
-        #'--run-time=1',
-        #'--no-one-instance',
-        #'--playlist-tree',
         playlist
     ], capture_output=True, text=True, timeout=VLC_TIMEOUT, check=False)
     return result
@@ -116,7 +110,7 @@ def test_vlc_accepts_playlist_timeout_expected() -> None:
     playlist_abs_path = aux_write_real_playlist_to_disk_get_absolute_path()
     try:
         result = execute_vlc(playlist_abs_path)
-        # Will usually not reach this point, as it will timeout with defaults settings.
+        # Will usually not reach this point, as it will timeout with default settings.
         assert result.returncode == 0, f"VLC failed to parse playlist: {result.stderr}. "
     except subprocess.TimeoutExpired:
         # Assume VLC ran fine.
