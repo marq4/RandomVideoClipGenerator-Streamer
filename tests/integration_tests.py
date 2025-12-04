@@ -14,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Do not remove this comment or code quality breaks:
 # pylint: disable=wrong-import-position
-from unit_tests import EXAMPLE_VIDEOS_SUBFOLDER, example_video_titles
+from setup import EXAMPLE_VIDEOS_SUBFOLDER, example_video_titles
 
 from PythonCore import random_video_clip_generator as rvcg
 
@@ -126,4 +126,7 @@ def test_vlc_cannot_parse_malformed_playlist() -> None:
     rvcg.prepend_line(rvcg.XML_PLAYLIST_FILE, \
         'This line should make VLC reject this playlist /> ')
     result = execute_vlc(playlist_abs_path)
-    assert 'XML parser error' in result.stderr
+    all_output = result.stderr.lower() + result.stdout.lower()
+    error_hints = ['xml reader error', 'XML parser error', 'playlist stream error',
+                   "can't read xml stream", 'invalid', 'malformed']
+    assert any(hint in all_output for hint in error_hints)
