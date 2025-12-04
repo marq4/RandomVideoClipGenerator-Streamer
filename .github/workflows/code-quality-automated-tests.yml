@@ -68,7 +68,7 @@ jobs:
         run: |
           isort --check --verbose .
 
-  unit-tests:
+  unit-and-integration-tests:
     needs: code-quality
     runs-on: windows-latest
     strategy:
@@ -94,7 +94,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Unit Testing.
+      - name: Unit testing.
         env:
           PYTHONPATH: .
         run: |
@@ -107,3 +107,8 @@ jobs:
           pytest --cov=PythonCore
           --cov-fail-under=${{ env.TARGET_COVERAGE }}
           tests/unit_tests.py
+
+      - name: Integration testing.
+        env:
+          PYTHONPATH: .
+        run: pytest -vvv tests/integration_tests.py
