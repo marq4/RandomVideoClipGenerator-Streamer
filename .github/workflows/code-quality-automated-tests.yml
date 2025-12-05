@@ -68,6 +68,10 @@ jobs:
         run: |
           isort --check --verbose .
 
+      - name: Dependency scanning.
+        run: |
+          pyscan
+
   unit-and-integration-tests:
     needs: code-quality
     runs-on: windows-latest
