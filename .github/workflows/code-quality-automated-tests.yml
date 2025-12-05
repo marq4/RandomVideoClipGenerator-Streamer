@@ -68,7 +68,7 @@ jobs:
         run: |
           isort --check --verbose .
 
-      - name: Dependency scanning.
+      - name: Dependency audit.
         run: |
           pyscan
 
