@@ -47,6 +47,6 @@ jobs:
 
       - name: Upload script to S3.
         run: >
-          aws s3 cp ${{ env.SCRIPT_NAME }}
+          aws s3 cp PythonCore/${{ env.SCRIPT_NAME }}
           s3://${{ env.BUCKET }}/${{ env.SCRIPT_NAME }}
 
