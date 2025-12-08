@@ -8,6 +8,9 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from subprocess import PIPE, Popen
 
+# DO NOT CHANGE THIS or CD breaks:
+__version__ = '1.1.0'
+
 XML_PLAYLIST_FILE = 'clips.xspf'
 SUBFOLDER = 'videos'
 NUMBER_OF_CLIPS = 5
@@ -16,6 +19,12 @@ INTERVAL_MAX = 8
 CURRENT_DIRECTORY = os.path.dirname( os.path.abspath(__file__) )
 VLC_BATCH_FILE = 'exevlc.bat'
 
+
+def display_version_and_exit():
+    """ Simply print global __version__ value and exit. """
+    if len(sys.argv) > 1 and sys.argv[1] in ['--version', '-v', 'version']:
+        print(f"Random Video Clip Generator version: {__version__}. ")
+    sys.exit(0)
 
 def prepend_line(filename: str, line: str) -> None:
     """ Append line to beginning of file. """
@@ -174,6 +183,7 @@ def main():
     * Generate an xml playlist with random clips from those videos.
     * Run VLC with that playlist.
     """
+    display_version_and_exit()
     verify_intervals_valid()
     files = list_files_subfolder()
     top_element = generate_random_video_clips_playlist(files)

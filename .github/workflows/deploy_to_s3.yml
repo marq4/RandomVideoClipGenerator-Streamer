@@ -1,0 +1,52 @@
+---
+# Upload Python script to S3 only when main branch completes CI.
+
+on:
+  workflow_run:
+    workflows: ['Code quality & automated code tests.']
+    types:
+      - completed
+    branches: 
+      - main
+
+env:
+  BUCKET: 'rvcg-marq-30072025'
+  REGION: 'us-east-2'
+  SCRIPT_NAME: 'random_video_clip_generator.py'
+
+jobs:
+  deploy-python-core-script-to-s3:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code.
+        uses: actions/checkout@v4
+        with:
+          # Fetch all history for version tagging:
+          fetch-depth: 0
+
+      - name: Setup Python.
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # No need to install AWS CLI.
+
+      - name: Load AWS credentials from GitHub secrets.
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_2UPLOAD2S3 }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_2UPLOAD2S3 }}
+          aws-region: ${{ env.REGION }}
+
+      - name: Verify AWS CLI is available.
+        run: |
+          which aws
+          aws --version
+
+      - name: Upload script to S3.
+        run: >
+          aws s3 cp ${{ env.SCRIPT_NAME }}
+          s3://${{ env.BUCKET }}/${{ env.SCRIPT_NAME }}
+

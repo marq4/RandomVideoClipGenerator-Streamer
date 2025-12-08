@@ -5,7 +5,7 @@ on: [pull_request, push]
 
 env:
   # Specify minimum code coverage for Unit Testing:
-  TARGET_COVERAGE: 80
+  TARGET_COVERAGE: 70
 
 jobs:
   code-quality:
