@@ -1,5 +1,5 @@
 ---
-name: Code quality, automated code tests, deploy to S3.
+name: CICD.
 
 on: push
 
