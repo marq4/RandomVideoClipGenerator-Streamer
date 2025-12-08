@@ -6,6 +6,7 @@ on: push
 env:
   # Specify minimum code coverage for Unit Testing:
   TARGET_COVERAGE: 70
+  SUBFOLDER_NAME: 'PythonCore'
 
 jobs:
   # Python: linting, type-checking, import order, dependency audit.
@@ -74,8 +75,8 @@ jobs:
         run: |
           pyscan
 
-  # Runs on Windows: UT, IT, code coverage.
-  unit-and-integration-tests:
+  # Runs on Windows: unit + code coverage, integration.
+  code-testing:
     needs: code-quality
     runs-on: windows-latest
     strategy:
@@ -123,7 +124,7 @@ jobs:
         env:
           PYTHONPATH: .
         run: >
-          pytest --cov=PythonCore
+          pytest --cov=${{ env.SUBFOLDER_NAME }}
           --cov-fail-under=${{ env.TARGET_COVERAGE }}
           tests/unit_tests.py
 
@@ -136,11 +137,8 @@ jobs:
   #  * Main branch completes CI.
   #  * Script changed.
   deploy-to-s3:
-    needs: unit-and-integration-tests
-    if: |
-      github.ref == 'refs/heads/main' &&
-      contains(github.event.head_commit.modified,
-        'random_video_clip_generator.py')
+    needs: code-testing
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     env:
       BUCKET: 'rvcg-marq-30072025'
@@ -153,6 +151,18 @@ jobs:
         with:
           # Fetch all history for version tagging:
           fetch-depth: 0
+
+      - name: Check if Python script changed in this commit.
+        id: script-was-updated
+        uses: tj-actions/changed-files@v22.1
+        with:
+          files: ${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}
+
+      - name: Skip the rest of this job if Python script did not change.
+        if: steps.script-was-updated.outputs.any_changed != 'true'
+        run: |
+          echo "Core Python script unchanged in this commit, skipping deployment."
+          exit 0
 
       - name: Setup Python.
         uses: actions/setup-python@v5
@@ -175,7 +185,7 @@ jobs:
 
       - name: Upload script to S3.
         run: >
-          aws s3 cp PythonCore/${{ env.SCRIPT_NAME }}
+          aws s3 cp ${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}
           s3://${{ env.BUCKET }}/${{ env.SCRIPT_NAME }}
           --content-type 'text/x-python'
           --content-disposition "attachment; filename=${{ env.SCRIPT_NAME }}"
