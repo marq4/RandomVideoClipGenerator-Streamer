@@ -6,7 +6,7 @@ on:
     workflows: ['Code quality & automated code tests.']
     types:
       - completed
-    branches: 
+    branches:
       - main
 
 env:
