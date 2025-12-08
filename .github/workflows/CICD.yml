@@ -161,7 +161,8 @@ jobs:
       - name: Skip the rest of this job if Python script did not change.
         if: steps.script-was-updated.outputs.any_changed != 'true'
         run: |
-          echo "Core Python script unchanged in this commit, skipping deployment."
+          echo "Core Python script unchanged in this commit," \
+          " skipping deployment."
           exit 0
 
       - name: Setup Python.
