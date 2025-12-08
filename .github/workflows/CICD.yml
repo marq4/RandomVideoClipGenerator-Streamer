@@ -8,7 +8,8 @@ env:
   TARGET_COVERAGE: 70
 
 jobs:
-  # Python: linting, type-checking, import order, dependency audit. YAML: linting.
+  # Python: linting, type-checking, import order, dependency audit.
+  # YAML: linting.
   code-quality:
     runs-on: ubuntu-latest
     strategy:
@@ -131,12 +132,15 @@ jobs:
           PYTHONPATH: .
         run: pytest -vvv tests/integration_tests.py
 
-  # Upload Python script to S3 only when main branch completes CI and script changed.
+  # Upload Python script to S3 only when:
+  #  * Main branch completes CI.
+  #  * Script changed.
   deploy-to-s3:
     needs: unit-and-integration-tests
     if: |
       github.ref == 'refs/heads/main' &&
-      contains(github.event.head_commit.modified, 'random_video_clip_generator.py')
+      contains(github.event.head_commit.modified,
+        'random_video_clip_generator.py')
     runs-on: ubuntu-latest
     env:
       BUCKET: 'rvcg-marq-30072025'
