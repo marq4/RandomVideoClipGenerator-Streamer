@@ -1,13 +1,14 @@
 ---
-name: Code quality & automated code tests.
+name: Code quality, automated code tests, deploy to S3.
 
-on: [pull_request, push]
+on: push
 
 env:
   # Specify minimum code coverage for Unit Testing:
   TARGET_COVERAGE: 70
 
 jobs:
+  # Python: linting, type-checking, import order, dependency audit. YAML: linting.
   code-quality:
     runs-on: ubuntu-latest
     strategy:
@@ -72,6 +73,7 @@ jobs:
         run: |
           pyscan
 
+  # Runs on Windows: UT, IT, code coverage.
   unit-and-integration-tests:
     needs: code-quality
     runs-on: windows-latest
@@ -128,3 +130,49 @@ jobs:
         env:
           PYTHONPATH: .
         run: pytest -vvv tests/integration_tests.py
+
+  # Upload Python script to S3 only when main branch completes CI and script changed.
+  deploy-to-s3:
+    needs: unit-and-integration-tests
+    if: |
+      github.ref == 'refs/heads/main' &&
+      contains(github.event.head_commit.modified, 'random_video_clip_generator.py')
+    runs-on: ubuntu-latest
+    env:
+      BUCKET: 'rvcg-marq-30072025'
+      REGION: 'us-east-2'
+      SCRIPT_NAME: 'random_video_clip_generator.py'
+
+    steps:
+      - name: Checkout code.
+        uses: actions/checkout@v4
+        with:
+          # Fetch all history for version tagging:
+          fetch-depth: 0
+
+      - name: Setup Python.
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # No need to install AWS CLI.
+
+      - name: Load AWS credentials from GitHub secrets.
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_2UPLOAD2S3 }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_2UPLOAD2S3 }}
+          aws-region: ${{ env.REGION }}
+
+      - name: Verify AWS CLI is available.
+        run: |
+          which aws
+          aws --version
+
+      - name: Upload script to S3.
+        run: >
+          aws s3 cp PythonCore/${{ env.SCRIPT_NAME }}
+          s3://${{ env.BUCKET }}/${{ env.SCRIPT_NAME }}
+          --content-type 'text/x-python'
+          --content-disposition "attachment; filename=${{ env.SCRIPT_NAME }}"
+          --metadata-directive REPLACE
