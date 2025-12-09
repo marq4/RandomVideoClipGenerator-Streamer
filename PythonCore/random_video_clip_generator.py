@@ -9,7 +9,7 @@ from pathlib import Path
 from subprocess import PIPE, Popen
 
 # DO NOT CHANGE THIS or CD breaks:
-__version__ = '1.3.0'
+__version__ = '1.3.1'
 
 XML_PLAYLIST_FILE = 'clips.xspf'
 SUBFOLDER = 'videos'
