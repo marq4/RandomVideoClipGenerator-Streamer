@@ -144,6 +144,7 @@ jobs:
       BUCKET: 'rvcg-marq-30072025'
       REGION: 'us-east-2'
       SCRIPT_NAME: 'random_video_clip_generator.py'
+      VERIFY_BASH_SCRIPT: '.github/scripts/verify_deployed_version.sh'
 
     steps:
       - name: Checkout code.
@@ -194,25 +195,8 @@ jobs:
 
       - name: Verify correct version is live.
         run: |
-          script_from_src="${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}"
-          echo "Script from SCM => ${script_from_src} "
-          # Expected version:
-          top_result=$(grep version $script_from_src | head -1)
-          cut_result=$(echo $top_result | cut -d= -f 2)
-          expected_version=$(echo $cut_result | tr -d " '")
-          echo "Expected version => ${expected_version} "
-          # Actual version:
-          proto='https://'
-          s3_endpoint='.s3.us-east-2.amazonaws.com'
-          partial_url="${proto}${{ env.BUCKET }}${s3_endpoint}"
-          download_endpoint="${partial_url}/${{ env.SCRIPT_NAME }}"
-          echo $download_endpoint
-          curl -X GET ${download_endpoint} -o rvcg.py
-          actual_version=$(python rvcg.py --version)
-          echo "Actual version => ${actual_version} "
-          if [[ $expected_version != $actual_version ]]
-          then
-            echo "Expected ${expected_version} version, " \
-            "but instead found ${actual_version}. "
-            exit 1
-          fi
+          chmod +x ${{ env.VERIFY_BASH_SCRIPT }}
+          ${{ env.VERIFY_BASH_SCRIPT }} \
+            "${{ env.SUBFOLDER_NAME }}" \
+            "${{ env.SCRIPT_NAME }}" \
+            "${{ env.BUCKET }}"
