@@ -204,7 +204,7 @@ jobs:
           # Actual version:
           proto='https://'
           s3_endpoint='.s3.us-east-2.amazonaws.com'
-          partial_url"${proto}${{ env.BUCKET }}${s3_endpoint}"
+          partial_url="${proto}${{ env.BUCKET }}${s3_endpoint}"
           download_endpoint="${partial_url}/${{ env.SCRIPT_NAME }}"
           echo $download_endpoint
           curl -X GET ${download_endpoint} -o rvcg.py
