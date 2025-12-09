@@ -1,0 +1,19 @@
+# This file is PSR (Py Semantic Release)'s configuration.
+[semantic_release]
+
+# Project's version lives inside the core script:
+version_variables = [
+    'PythonCore/random_video_clip_generator.py:__version__'
+]
+
+branch = 'main'
+
+upload_to_pypi = false # Do not publish to PyPI (Py Package Index).
+
+# No build (this is not a package):
+build_command = ''
+
+# Chore: maintenance task (no version bump), DO NOT test again:
+commit_message = "chore(release): PSR auto bumping version to: {version} [skip ci]."
+
+tag_format = "v{version}"
