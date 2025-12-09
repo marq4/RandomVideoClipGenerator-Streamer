@@ -52,7 +52,7 @@ def test_verify_example_videos_available(monkeypatch: MonkeyPatch) -> None:
     expected_content_length = len(expected_subfolder_contents)
     assert actual_content_length == expected_content_length, \
         f"""Expected {expected_content_length} videos,
-        but instead found {actual_content_length}. """
+         but instead found {actual_content_length}. """
 
 def aux_generate_real_playlist() -> ET.Element:
     """ Create a real XSPF XML file with the example videos. """
@@ -69,7 +69,7 @@ def test_playlist_is_valid() -> None:
     expected_number_of_tracks = rvcg.NUMBER_OF_CLIPS
     assert actual_number_of_tracks == expected_number_of_tracks, \
         f"""Expected {expected_number_of_tracks} tracks/clips,
-        but instead found {actual_number_of_tracks}. """
+         but instead found {actual_number_of_tracks}. """
     # Verify each track has the required elements:
     for track in tracks:
         assert track.find('location') is not None
@@ -80,7 +80,7 @@ def test_playlist_is_valid() -> None:
         actual_number_of_options = len(options)
         assert actual_number_of_options == EXPECTED_NUM_OPTIONS, \
             f"""Expected {EXPECTED_NUM_OPTIONS} options,
-            but instead found {actual_number_of_options}. """
+             but instead found {actual_number_of_options}. """
 
 # Skipping test: ensure XML file conforms to XSPF spec, as XSD is deprecated, links broken.
 

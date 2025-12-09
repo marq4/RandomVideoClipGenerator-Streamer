@@ -144,6 +144,8 @@ jobs:
       BUCKET: 'rvcg-marq-30072025'
       REGION: 'us-east-2'
       SCRIPT_NAME: 'random_video_clip_generator.py'
+      DOWNLOAD_ENDPOINT: 'https://rvcg-marq-30072025.s3.us-east-2.amazonaws.com
+        /random_video_clip_generator.py'
 
     steps:
       - name: Checkout code.
@@ -161,8 +163,8 @@ jobs:
       - name: Skip the rest of this job if Python script did not change.
         if: steps.script-was-updated.outputs.any_changed != 'true'
         run: |
-          echo "Core Python script unchanged in this commit," \
-          " skipping deployment."
+          echo "Core Python script unchanged in this commit, " \
+          "skipping deployment."
           exit 0
 
       - name: Setup Python.
@@ -191,3 +193,23 @@ jobs:
           --content-type 'text/x-python'
           --content-disposition "attachment; filename=${{ env.SCRIPT_NAME }}"
           --metadata-directive REPLACE
+
+      - name: Verify correct version is live.
+        run: |
+          script_from_src="${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}"
+          echo "Script from SCM => ${script_from_src} "
+          # Expected version:
+          top_result=$(grep version $script_from_src | head -1)
+          cut_result=$(echo $top_result | cut -d= -f 2)
+          expected_version=$(echo $cut_result | tr -d " '")
+          echo "Expected version => ${expected_version} "
+          # Actual version:
+          curl -X GET ${{ env.DOWNLOAD_ENDPOINT }} -o rvcg.py
+          actual_version=$(python rvcg.py --version)
+          echo "Actual version => ${actual_version} "
+          if [[ $expected_version != $actual_version ]]
+          then
+            echo "Expected ${expected_version} version, " \
+            "but instead found ${actual_version}. "
+            exit 1
+          fi

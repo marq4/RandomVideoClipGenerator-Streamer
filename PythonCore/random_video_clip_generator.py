@@ -9,7 +9,7 @@ from pathlib import Path
 from subprocess import PIPE, Popen
 
 # DO NOT CHANGE THIS or CD breaks:
-__version__ = '1.2.3'
+__version__ = '1.3.0'
 
 XML_PLAYLIST_FILE = 'clips.xspf'
 SUBFOLDER = 'videos'
@@ -23,7 +23,7 @@ VLC_BATCH_FILE = 'exevlc.bat'
 def display_version_and_exit():
     """ Simply print global __version__ value and exit. """
     if len(sys.argv) > 1 and sys.argv[1] in ['--version', '-v', 'version']:
-        print(f"Random Video Clip Generator version: {__version__}. ")
+        print(__version__)
     sys.exit(0)
 
 def prepend_line(filename: str, line: str) -> None:
