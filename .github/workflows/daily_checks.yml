@@ -1,5 +1,5 @@
 ---
-# Send myself an email if any of the website URLs breaks (www, https).
+# Send myself a notification on Discord if any of the website URLs breaks (www, https).
 name: Daily website health checks.
 
 on:
@@ -13,8 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       HEALTH_CHECK_BASH_SCRIPT: '.github/scripts/curl_rvcgs_urls.sh'
-      # Please feel free to contact me ;)
-      CONTACT_ADDRESS: 'elapamarquina@hotmail.com'
 
     steps:
       - name: Get separate Bash script that actually contains the curl calls.
@@ -29,19 +27,23 @@ jobs:
           chmod +x ${{ env.HEALTH_CHECK_BASH_SCRIPT }}
           ${{ env.HEALTH_CHECK_BASH_SCRIPT }}
 
-      - name: Send email notification on failure.
+      - name: Send notification on failure.
         if: steps.health_check.outcome == 'failure'
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp-mail.outlook.com
-          server_port: 587
-          username: ${{ env.CONTACT_ADDRESS }}
-          password: ${{ secrets.OUTLOOK_PASSWORD }}
-          subject: "!!! Website down: RVCGS [GitHub]. "
-          from: ${{ env.CONTACT_ADDRESS }}
-          to: ${{ env.CONTACT_ADDRESS }}
-          body: |
-            Website availability health check has failed!
-            Unreachable URLs:
-              ${{ steps.health_check.outputs.failed_urls }}
-            Please investigate and fix ASAP!
+        run: |
+          curl -H 'Content-Type: application/json' \
+          -d '{
+            "content": "Website down alert",
+            "embeds": [{
+              "title": "RVCG/S website health check failed!",
+              "description": "GitHub website check notification.",
+              "color": 15158332,
+              "fields": [
+                {
+                  "name": "Failed URLs",
+                  "value": "${{ steps.health_check.outputs.failed_urls }}",
+                  "inline": false
+                }
+              ]
+            }]
+          }' \
+          ${{ secrets.DISCORD_WEBHOOK_URL }}
