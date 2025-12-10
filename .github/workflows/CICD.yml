@@ -136,9 +136,11 @@ jobs:
 
   # Auxiliary job that checks if core Python script changed.
   core-changed:
+    needs: code-testing
     runs-on: ubuntu-latest
     outputs:
-      core-python-script-changed: ${{ steps.script_was_updated.outputs.any_changed }}
+      core-python-script-changed:
+        ${{ steps.script_was_updated.outputs.any_changed }}
     steps:
       - uses: actions/checkout@v4
         with:
