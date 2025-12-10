@@ -22,3 +22,4 @@ spellright.dict
 DockerWinInstructions.txt
 commands.txt
 .coverage
+.BKP*

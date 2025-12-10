@@ -1,0 +1,46 @@
+---
+# Send myself an email if any of the website URLs breaks (www, https).
+name: Daily website health checks.
+
+on:
+  # Run every night at 2am UTC:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual execution.
+
+jobs:
+  rvcgs-website-is-available:
+    runs-on: ubuntu-latest
+    env:
+      HEALTH_CHECK_BASH_SCRIPT: '.github/scripts/curl_rvcgs_urls.sh'
+      # Please feel free to contact me ;)
+      CONTACT_ADDRESS: 'elapamarquina@hotmail.com'
+
+    steps:
+      - name: Get separate Bash script that actually contains the curl calls.
+        uses: actions/checkout@v4
+
+      - name: Verify RVCG/S website availability.
+        id: health_check
+        # Don't just fail the workflow. I want to receive an email in case of failure:
+        continue-on-error: true
+        run: |
+          chmod +x ${{ env.HEALTH_CHECK_BASH_SCRIPT }}
+          ${{ env.HEALTH_CHECK_BASH_SCRIPT }}
+
+      - name: Send email notification on failure.
+        if: steps.health_check.conclusion == 'failure'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp-mail.outlook.com
+          server_port: 587
+          username: ${{ env.CONTACT_ADDRESS }}
+          password: ${{ secrets.OUTLOOK_PASSWORD }}
+          subject: "!!! Website down: RVCGS [GitHub]. "
+          from: ${{ env.CONTACT_ADDRESS }}
+          to: ${{ env.CONTACT_ADDRESS }}
+          body: |
+            Website availability health check has failed!
+            Unreachable URLs:
+              ${{ steps.health_check.outputs.failed_urls }}
+            Please investigate and fix ASAP!
