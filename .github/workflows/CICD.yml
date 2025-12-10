@@ -134,34 +134,34 @@ jobs:
           PYTHONPATH: .
         run: pytest -vvv tests/integration_tests.py
 
+  # Auxiliary job that checks if core Python script changed.
+  core-changed:
+    runs-on: ubuntu-latest
+    outputs:
+      core-python-script-changed: ${{ steps.script_was_updated.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Fetch all history for version tagging:
+          fetch-depth: 0
+      - id: script_was_updated
+        uses: tj-actions/changed-files@v45
+        with:
+          files: ${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}
+
   # Conventional Commits Release (PSR: Python Semantic Release).
   release:
-    needs: code-testing
-    if: github.ref == 'refs/heads/main'
+    needs: [code-testing, core-changed]
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      needs.core-changed.outputs.core-python-script-changed == 'true'
     runs-on: ubuntu-latest
     # Allow commits, tags, pushes:
     permissions:
       contents: write
 
     steps:
-      - name: Checkout code.
-        uses: actions/checkout@v4
-        with:
-          # Fetch all history for version tagging:
-          fetch-depth: 0
-
-      - name: Check if Python script changed in this commit.
-        id: script-was-updated
-        uses: tj-actions/changed-files@v22.1
-        with:
-          files: ${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}
-
-      - name: Skip the rest of this job if Python script did not change.
-        if: steps.script-was-updated.outputs.any_changed != 'true'
-        run: |
-          echo "Core Python script unchanged in this commit, " \
-          "skipping Release."
-          exit 0
+      - uses: actions/checkout@v4
 
       - name: Setup Python.
         uses: actions/setup-python@v5
@@ -192,8 +192,10 @@ jobs:
   #  * Main branch completes CI.
   #  * Script changed.
   deploy-to-s3:
-    needs: release
-    if: github.ref == 'refs/heads/main'
+    needs: [release, core-changed]
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      needs.core-changed.outputs.core-python-script-changed == 'true'
     runs-on: ubuntu-latest
     env:
       BUCKET: 'rvcg-marq-30072025'
@@ -209,19 +211,6 @@ jobs:
 
       - name: Pull release.
         run: git pull origin main
-
-      - name: Check if Python script changed in this commit.
-        id: script-was-updated
-        uses: tj-actions/changed-files@v22.1
-        with:
-          files: ${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}
-
-      - name: Skip the rest of this job if Python script did not change.
-        if: steps.script-was-updated.outputs.any_changed != 'true'
-        run: |
-          echo "Core Python script unchanged in this commit, " \
-          "skipping deployment."
-          exit 0
 
       - name: Setup Python.
         uses: actions/setup-python@v5
