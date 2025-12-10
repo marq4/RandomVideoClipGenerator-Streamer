@@ -30,7 +30,7 @@ jobs:
           ${{ env.HEALTH_CHECK_BASH_SCRIPT }}
 
       - name: Send email notification on failure.
-        if: steps.health_check.conclusion == 'failure'
+        if: steps.health_check.outcome == 'failure'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp-mail.outlook.com
