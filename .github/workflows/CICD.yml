@@ -7,6 +7,7 @@ env:
   # Specify minimum code coverage for Unit Testing:
   TARGET_COVERAGE: 70
   SUBFOLDER_NAME: 'PythonCore'
+  SCRIPT_NAME: 'random_video_clip_generator.py'
 
 jobs:
   # Python: linting, type-checking, import order, dependency audit.
@@ -149,6 +150,19 @@ jobs:
           # Fetch all history for version tagging:
           fetch-depth: 0
 
+      - name: Check if Python script changed in this commit.
+        id: script-was-updated
+        uses: tj-actions/changed-files@v22.1
+        with:
+          files: ${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}
+
+      - name: Skip the rest of this job if Python script did not change.
+        if: steps.script-was-updated.outputs.any_changed != 'true'
+        run: |
+          echo "Core Python script unchanged in this commit, " \
+          "skipping Release."
+          exit 0
+
       - name: Setup Python.
         uses: actions/setup-python@v5
         with:
@@ -184,7 +198,6 @@ jobs:
     env:
       BUCKET: 'rvcg-marq-30072025'
       REGION: 'us-east-2'
-      SCRIPT_NAME: 'random_video_clip_generator.py'
       VERIFY_BASH_SCRIPT: '.github/scripts/verify_deployed_version.sh'
 
     steps:
