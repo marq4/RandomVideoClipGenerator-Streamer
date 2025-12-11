@@ -11,24 +11,19 @@ do
     unreachable_urls="${unreachable_urls}• ${url} \n"
 done
 
-response=$(curl -sS -L --write-out "\n%{http_code}" \
-    -H 'Content-Type: application/json' \
-    -d @- "${discord_webhook_url}" <<EOM
-{
-    "content": "🚨 Website down alert!",
+json_payload=$(printf '{
     "embeds": [{
         "title": "RVCG/S website health check failed!",
-        "description": "GitHub website check notification.",
-        "color": 15158332,
         "fields": [{
             "name": "Unreachable URLs:",
-            "value": "${unreachable_urls}",
-            "inline": false
+            "value": "%b"
         }]
     }]
-}
-EOM
-)
+}' "${unreachable_urls}")
+
+echo $json_payload #TMP
+
+curl -H "Content-Type: application/json" -d "$json_payload" "$discord_webhook_url" #TMP 
 
 http_code=$(echo "$response" | tail -n1)
 response_body=$(echo "$response" | head -n-1)
