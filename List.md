@@ -1,6 +1,8 @@
 # List of recommended videos 
 
-Rock [Indie/Psychedelic/Metal/Core] (guitars, drums, headbanging): 
+Rock [Indie/Psychedelic/Metal/Core] (guitars, drums, headbanging):
+* %%% nothing this video doesn't exist - test workflow
+https://www.youtube.com/watch?v=AB94xMTx1BZ 
 * Toy - Motoring 
 https://www.youtube.com/watch?v=VDYMjvdCWpc 
 * Abandoned By Bears - Heads or Tails 
@@ -13,8 +15,6 @@ https://www.youtube.com/watch?v=woAcXSMyCEw
 https://www.youtube.com/watch?v=JozAmXo2bDE
 * My Ticket Home - Spit Not Chewed 
 https://www.youtube.com/watch?v=oB9QxMTx1Bs 
-* %%% nothing this video doesn't exist - test workflow
-https://www.youtube.com/watch?v=AB9QxMTx1BZ 
 * TOY - I'm Still Believing 
 https://www.youtube.com/watch?v=RS4vsK0S1cI 
 * Wage War - The River
@@ -56,4 +56,4 @@ https://www.youtube.com/watch?v=sJQk0jDZx8o
 * RÜFÜS DU SOL - Innerbloom
 https://www.youtube.com/watch?v=Tx9zMFodNtA
 * %%% nothing this video doesn't exist - test workflow
-https://www.youtube.com/watch?v=T09zMFodNtA
+https://www.youtube.com/watch?v=T09zMF4dNtA

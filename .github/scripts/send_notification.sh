@@ -4,7 +4,8 @@ set -euo pipefail
 
 failed_urls_string=$1
 discord_webhook_url=$2
-upstream=$3
+content=$3
+title=$4
 
 # Convert space-separated string to array:
 IFS=' ' read -ra URL_Array <<< "${failed_urls_string}"
@@ -14,16 +15,6 @@ for url in "${URL_Array[@]}"
 do
     unreachable_urls_string_with_newlines="${unreachable_urls_string_with_newlines}• ${url}\n"
 done
-
-if [[ $upstream == 'daily' ]]
-then
-    content='🚨 Website down alert!'
-    title='RVCG/S website health check failed!'
-elif [[ $upstream == 'YouTube' ]]
-then
-    content='Music video not found alert.'
-    title='Music video list health check failed.'
-fi
 
 response=$(curl --silent --show-error --location --write-out "\n%{http_code}" \
     -H 'Content-Type: application/json' \

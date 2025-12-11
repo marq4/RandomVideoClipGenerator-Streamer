@@ -52,4 +52,5 @@ jobs:
           ${{ env.SEND_NOTIFICATION_SCRIPT }} \
             "${{ steps.health_check.outputs.failed_urls }}" \
             "${{ secrets.DISCORD_WEBHOOK_URL }}" \
-            'YouTube'
+            'Music video(s) not found alert.' \
+            'Music video list health check failed.'
