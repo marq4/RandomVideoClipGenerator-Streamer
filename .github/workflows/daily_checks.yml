@@ -33,5 +33,5 @@ jobs:
         run: |
           chmod +x ${{ env.SEND_NOTIFICATION_SCRIPT }}
           ${{ env.SEND_NOTIFICATION_SCRIPT }} \
-            ${{ steps.health_check.outputs.failed_urls }} \
-            ${{ secrets.DISCORD_WEBHOOK_URL }}
+            "${{ steps.health_check.outputs.failed_urls }}" \
+            "${{ secrets.DISCORD_WEBHOOK_URL }}"
