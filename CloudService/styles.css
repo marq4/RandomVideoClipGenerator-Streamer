@@ -289,11 +289,11 @@ input[type="number"]:focus {
 .actual-button button button {
 	font-family:inherit;font-size:100%;line-height:1.15;margin:0;
         overflow:visible;
-	font-family:inherit;font-size:100%;line-height:1.15;margin:0
-	overflow:visible
-	text-transform:none
-	-webkit-appearance:button
-	border-style:none;padding:0
+	font-family:inherit;font-size:100%;line-height:1.15;margin:0;
+	overflow:visible;
+	text-transform:none;
+	-webkit-appearance:button;
+	border-style:none;padding:0;
 	-webkit-appearance:button;
 	font:inherit;
 	background-color: #4a90e2;
