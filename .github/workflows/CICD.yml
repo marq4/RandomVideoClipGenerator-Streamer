@@ -55,6 +55,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Lint Python code.
+        env:
+          PYTHONPATH: .
         run: |
           echo 'Files to be linted: '
           files=$(git ls-files '*.py')
