@@ -1,8 +1,6 @@
 # List of recommended videos 
 
 Rock [Indie/Psychedelic/Metal/Core] (guitars, drums, headbanging):
-* %%% nothing this video doesn't exist - test workflow
-https://www.youtube.com/watch?v=AB94xMTx1BZ 
 * Toy - Motoring 
 https://www.youtube.com/watch?v=VDYMjvdCWpc 
 * Abandoned By Bears - Heads or Tails 
@@ -41,7 +39,7 @@ https://www.youtube.com/watch?v=2j3x0VYnehg
 * Lil Pump - Gucci Gang 
 https://www.youtube.com/watch?v=4LfJnj66HVQ 
 * Azealia Banks - 1991
-https://www.youtube.com/watch?v=0oM_9ca8hxE
+https://www.youtube.com/watch?v=0oM_9ca8hxE 
 
 
 Other/Animated/Stunts:
@@ -50,10 +48,8 @@ https://www.youtube.com/watch?v=wycjnCCgUes
 * OK Go - The One Moment 
 https://www.youtube.com/watch?v=QvW61K2s0tA 
 * OK Go - Obsession 
-https://www.youtube.com/watch?v=LgmxMuW6Fsc
+https://www.youtube.com/watch?v=LgmxMuW6Fsc 
 * The Horrors - Still Life 
 https://www.youtube.com/watch?v=sJQk0jDZx8o 
-* RÜFÜS DU SOL - Innerbloom
-https://www.youtube.com/watch?v=Tx9zMFodNtA
-* %%% nothing this video doesn't exist - test workflow
-https://www.youtube.com/watch?v=T09zMF4dNtA
+* RÜFÜS DU SOL - Innerbloom 
+https://www.youtube.com/watch?v=Tx9zMFodNtA 
