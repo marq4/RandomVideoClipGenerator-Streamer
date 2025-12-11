@@ -1,4 +1,6 @@
 ---
+# Send myself a notification on Discord
+#   if any of the YouTube music video URLs is unavailable.
 name: Validate music video URLs.
 
 on:
@@ -8,8 +10,11 @@ on:
   push:
     paths:
       - "List.md"
-  workflow_call:
-    # Allow monthly YAML to call this.
+  workflow_dispatch:  # Allow manual execution.
+  # Run every Friday at 2am CST:
+  schedule:
+    - cron: '*/10 * * * *'
+    #- cron: '0 8 * * 5'
 
 jobs:
   videos-exist-test:
