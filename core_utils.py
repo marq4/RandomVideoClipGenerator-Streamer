@@ -1,4 +1,4 @@
-""" Common module for both Pytest and debug_manual tests. """
+""" Common module NO LONGER NEEDED! """
 
 import os
 from typing import List
@@ -47,14 +47,22 @@ def transform_into_list_of_ids(video_list: list) -> List[str]:
 
 def verify_videos_exist(google_api_key: str) -> bool:
     """ Get all video URLs in a list. Check each one. """
+    github_output = os.getenv('GITHUB_OUTPUT')
+    print(f"{github_output=}")#TMP
+    broken_links = []
     videos = get_list_of_videos()
     ids = transform_into_list_of_ids(videos)
     for video_id in ids:
         response = get_response(google_api_key, video_id)
         if not check_response_valid(response):
             print(f"YouTube video NOT found: {video_id}! ")
-            return False
+            broken_links.append(video_id)
+            continue
         print(f"YouTube video found: {video_id}. ")
+    if len(broken_links) > 0:
+        with open(github_output, 'a', encoding='UTF-8') as f:
+            f.write(f"failed_urls={' '.join(broken_links)}\n")
+        return False
     return True
 #
 

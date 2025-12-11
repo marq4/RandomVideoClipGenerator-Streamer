@@ -6,8 +6,7 @@ name: Daily website health checks.
 on:
   # Run every night at 2am CST:
   schedule:
-    #- cron: '0 8 * * *'
-    - cron: '*/10 * * * *'
+    - cron: '0 8 * * *'
   workflow_dispatch:  # Allow manual execution.
 
 jobs:
@@ -36,4 +35,5 @@ jobs:
           chmod +x ${{ env.SEND_NOTIFICATION_SCRIPT }}
           ${{ env.SEND_NOTIFICATION_SCRIPT }} \
             "${{ steps.health_check.outputs.failed_urls }}" \
-            "${{ secrets.DISCORD_WEBHOOK_URL }}"
+            "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+            'daily'

@@ -13,14 +13,14 @@ on:
   workflow_dispatch:  # Allow manual execution.
   # Run every Friday at 2am CST:
   schedule:
-    - cron: '*/10 * * * *'
-    #- cron: '0 8 * * 5'
+    - cron: '0 8 * * 5'
 
 jobs:
   videos-exist-test:
     runs-on: ubuntu-latest
     env:
       GOOGLEAPIYOUTUBEKEY: ${{ secrets.GOOGLEAPIYOUTUBEKEY }}
+      SEND_NOTIFICATION_SCRIPT: '.github/scripts/send_notification.sh'
     timeout-minutes: 20
     strategy:
       matrix:
@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Python ${{ matrix.python-versions }}.
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-versions }}
 
@@ -40,11 +40,16 @@ jobs:
           pip install -r requirements.txt
 
       - name: Verify URLs are valid and videos exist using Pytest.
+        id: health_check
+        continue-on-error: true
         run: |
           PYTHONPATH=. pytest -vvv tests/test_videos_exist.py
 
-      - name: Run debug script if Pytest fails.
-        if: failure()
+      - name: Send notification on failure.
+        if: steps.health_check.outcome == 'failure'
         run: |
-          python debug_video_urls_valid.py
-
+          chmod +x ${{ env.SEND_NOTIFICATION_SCRIPT }}
+          ${{ env.SEND_NOTIFICATION_SCRIPT }} \
+            "${{ steps.health_check.outputs.failed_urls }}" \
+            "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+            'YouTube'
