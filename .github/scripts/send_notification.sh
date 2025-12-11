@@ -4,7 +4,7 @@ set -euo pipefail
 
 Failed_urls=$1
 discord_webhook_url=$2
-Nice_list=$(echo "${Failed_urls}" | tr ' ' "\n" | sed 's/^/  •/')
+Nice_list=$(echo "${Failed_urls}" | tr ' ' "\n" | sed 's/^/• /')
 
 response=$(curl -sS -L --write-out "\n%{http_code}" \
     -H 'Content-Type: application/json' \
