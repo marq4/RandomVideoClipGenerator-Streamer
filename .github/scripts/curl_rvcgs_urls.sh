@@ -2,14 +2,18 @@
 
 set -euo pipefail
 
+# http://www.randomvideoclipgenerator.com: FALSE POSITIVE (curl => 301, Firefox => 404)
+
 #======================================================================================
 CURL_TIMEOUT_SECONDS=16
 URLS=(
     https://randomvideoclipgenerator.com
     http://randomvideoclipgenerator.com
-    
-    http://www.randomvideoclipgenerator.com
-    
+    https://www.randomvideoclipgenerator.com
+    https://example.com/this-page-does-not-exist-404
+    https://this-domain-definitely-does-not-exist-12345.com
+    https://httpbin.org/status/500
+    https://httpbin.org/status/503
 )
 #======================================================================================
 
