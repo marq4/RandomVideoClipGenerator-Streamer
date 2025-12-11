@@ -1,5 +1,5 @@
 ---
-# Send myself a notification on Discord 
+# Send myself a notification on Discord
 #   if any of the website URLs break (www, https).
 name: Daily website health checks.
 
@@ -8,7 +8,7 @@ on:
   schedule:
     #- cron: '0 2 * * *'
     - cron: '* * * * *'
-  workflow_dispatch: # Allow manual execution.
+  workflow_dispatch:  # Allow manual execution.
 
 jobs:
   rvcgs-website-is-available:
