@@ -17,12 +17,7 @@ unreachable_urls_string_with_newlines=""
 for url in "${URL_Array[@]}"
 do
     echo -e "\n    >>>>>FOR->${url}<\n" #TMP
-    # A LITERAL new line:
-    unreachable_urls_string_with_newlines="${unreachable_urls_string_with_newlines}• ${url}\n
-     
-\n\n
-  
-"
+    unreachable_urls_string_with_newlines="${unreachable_urls_string_with_newlines}• ${url}\n"
 done
 echo  -e "\n\n\n_______ unreachable_urls_string_with_newlines=>${unreachable_urls_string_with_newlines}<=" #TMP
 
