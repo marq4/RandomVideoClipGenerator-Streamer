@@ -1,11 +1,13 @@
 ---
-# Send myself a notification on Discord if any of the website URLs breaks (www, https).
+# Send myself a notification on Discord 
+#   if any of the website URLs break (www, https).
 name: Daily website health checks.
 
 on:
   # Run every night at 2am UTC:
   schedule:
-    - cron: '0 2 * * *'
+    #- cron: '0 2 * * *'
+    - cron: '* * * * *'
   workflow_dispatch: # Allow manual execution.
 
 jobs:
