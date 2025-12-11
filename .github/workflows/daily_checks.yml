@@ -30,6 +30,8 @@ jobs:
       - name: Send notification on failure.
         if: steps.health_check.outcome == 'failure'
         run: |
+          Nice_list=$(echo ${{ steps.health_check.outputs.failed_urls }} \
+            tr ' ' "\n" | sed 's/^/  */')
           curl -H 'Content-Type: application/json' \
           -d '{
             "content": "Website down alert",
@@ -39,8 +41,8 @@ jobs:
               "color": 15158332,
               "fields": [
                 {
-                  "name": "Failed URLs",
-                  "value": "${{ steps.health_check.outputs.failed_urls }}",
+                  "name": "Unreachable URLs:",
+                  "value": "${Nice_list}",
                   "inline": false
                 }
               ]
