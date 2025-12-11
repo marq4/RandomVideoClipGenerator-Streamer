@@ -72,7 +72,7 @@ do
         "${return_status}" -eq $HTTP_MOVED || \
         "${return_status}" -eq $HTTP_TEMP_REDIRECT ]]
     then
-        echo "URL OK (${return_status}). "
+        echo "OK (${return_status}). "
     else
         append_url_to_failed_list $url $return_status
     fi
