@@ -20,7 +20,7 @@ jobs:
 
       - name: Verify RVCG/S website availability.
         id: health_check
-        # Don't just fail the workflow.
+        # Don't just fail the workflow,
         # I want to receive an email in case of failure:
         continue-on-error: true
         run: |
