@@ -32,7 +32,7 @@ response=$(curl --silent --show-error --location --write-out "\n%{http_code}" \
     "content": "${content}",
     "embeds": [{
         "title": "${title}",
-        "description": "GitHub check notification.",
+        "description": "GitHub Actions check notification.",
         "color": 15158332,
         "fields": [{
             "name": "Unreachable URLs:",
