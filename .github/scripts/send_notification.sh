@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+echo "version======>>>>>> 10:39:30" #TMP
+
 failed_urls_string=$1
 echo -e "\n\n\nfailed_urls_string=>${failed_urls_string}<=\n\n" #TMP
 discord_webhook_url=$2
@@ -35,7 +37,7 @@ curl --silent --show-error --location --write-out "\n%{http_code}" \
             "name": "Unreachable URLs:",
             "value": "${unreachable_urls_string_with_newlines}",
             "inline": false
-        
+        }]
     }]
 }
 EOM
