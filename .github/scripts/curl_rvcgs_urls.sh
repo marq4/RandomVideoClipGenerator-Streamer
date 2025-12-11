@@ -2,15 +2,13 @@
 
 set -euo pipefail
 
-# http://www.randomvideoclipgenerator.com: FALSE POSITIVE (curl => 301, Firefox => 404) !!!
-
 #======================================================================================
-CURL_TIMEOUT_SECONDS=3 #XXX
+CURL_TIMEOUT_SECONDS=9
 URLS=(
     https://randomvideoclipgenerator.com
     http://randomvideoclipgenerator.com
-    https://www.randomvideoclipgenerator.com
     http://www.randomvideoclipgenerator.com
+    https://www.randomvideoclipgenerator.com
 )
 #======================================================================================
 
@@ -52,10 +50,11 @@ function append_url_to_failed_list() {
 
 for url in "${URLS[@]}"
 do
-    echo -n "Checking ${url}... "
+    echo -n "Checking ${url} ... "
     # Temporarily disable exit-on-error or whole script halts on timeout:
     set +e
-    return_status=$(curl --silent --output /dev/null \
+    return_status=$(curl --silent \
+        --output /dev/null \
         --write-out "%{http_code}" \
         --max-time ${CURL_TIMEOUT_SECONDS} \
         "${url}")

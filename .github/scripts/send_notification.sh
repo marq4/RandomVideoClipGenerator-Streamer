@@ -29,7 +29,7 @@ response=$(curl --silent --show-error --location --write-out "\n%{http_code}" \
             "value": "${unreachable_urls_string_with_newlines}",
             "inline": false
         }]
-    }];;;
+    }]
 }
 EOM
 )
