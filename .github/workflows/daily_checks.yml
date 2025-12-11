@@ -7,7 +7,7 @@ on:
   # Run every night at 2am UTC:
   schedule:
     #- cron: '0 2 * * *'
-    - cron: '* * * * *'
+    - cron: '*/10 * * * *'
   workflow_dispatch:  # Allow manual execution.
 
 jobs:
