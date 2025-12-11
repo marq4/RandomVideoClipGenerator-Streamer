@@ -286,7 +286,7 @@ input[type="number"]:focus {
 
 
 
-.actual-button butto buttonn {
+.actual-button button button {
 	font-family:inherit;font-size:100%;line-height:1.15;margin:0;
         overflow:visible;
 	font-family:inherit;font-size:100%;line-height:1.15;margin:0
@@ -297,7 +297,7 @@ input[type="number"]:focus {
 	-webkit-appearance:button;
 	font:inherit;
 	background-color: #4a90e2;
-        color: white;
+  color: white;
   border: none;
   padding: 0.75rem 1.5rem;
   font-size: 1rem;

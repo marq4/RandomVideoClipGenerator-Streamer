@@ -1,0 +1,48 @@
+---
+name: Lint CSS.
+
+on: push
+
+env:
+  SUBFOLDER_NAME: 'CloudService'
+  CSS_STYLESHEET: 'styles.css'
+
+jobs:
+  # Auxiliary job that checks if CSS stylesheet changed.
+  css-changed:
+    runs-on: ubuntu-latest
+    outputs:
+      css-stylesheet-changed:
+        ${{ steps.css_was_updated.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: css_was_updated
+        uses: tj-actions/changed-files@v45
+        with:
+          files: ${{ env.SUBFOLDER_NAME }}/${{ env.CSS_STYLESHEET }}
+
+  # Lint CSS stylesheet only if it changed in this commit (main branch).
+  lint-css:
+    needs: css-changed
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      needs.css-changed.outputs.css-stylesheet-changed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code.
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js.
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Lint CSS.
+        run: |
+          npm install --global stylelint \
+            stylelint-config-standard
+          npx stylelint CloudService/styles.css

@@ -16,7 +16,7 @@ on:
     - cron: '0 8 * * 5'
 
 jobs:
-  videos-exist-test:
+  check-youtube-music-videos-listed-links:
     runs-on: ubuntu-latest
     env:
       GOOGLEAPIYOUTUBEKEY: ${{ secrets.GOOGLEAPIYOUTUBEKEY }}
