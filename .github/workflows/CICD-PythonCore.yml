@@ -1,5 +1,5 @@
 ---
-name: CICD for PythonCore.
+name: CICD for Python Core.
 
 on: push
 

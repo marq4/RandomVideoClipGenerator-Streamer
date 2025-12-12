@@ -1,5 +1,5 @@
 ---
-name: Lint CSS.
+name: CICD for Cloud Service.
 
 on: push
 
@@ -23,6 +23,22 @@ jobs:
         with:
           files: ${{ env.SUBFOLDER_NAME }}/${{ env.CSS_STYLESHEET }}
 
+  # Auxiliary job that checks if any HTML documents changed.
+  any-html-changed:
+    runs-on: ubuntu-latest
+    outputs:
+      html-document-changed:
+        ${{ steps.any_html_document_was_updated.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: any_html_document_was_updated
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            **/*.html
+
   # Lint CSS stylesheet only if it changed in this commit (main branch).
   lint-css:
     needs: css-changed
@@ -32,8 +48,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code.
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Node.js.
         uses: actions/setup-node@v4
@@ -46,3 +61,26 @@ jobs:
           npm list -g --depth=0
           npx stylelint --version
           npx stylelint CloudService/styles.css
+
+  # Lint any HTML documents that changed in this commit (main branch).
+  lint-html:
+    needs: any-html-changed
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      needs.any-html-changed.outputs.html-document-changed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js.
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Lint HTML.
+        run: |
+          npm install --global html-validate
+          npm list -g --depth=0
+          html-validate --version
+          html-validate .
