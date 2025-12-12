@@ -42,6 +42,7 @@ jobs:
 
       - name: Lint CSS.
         run: |
-          npm install --global stylelint \
-            stylelint-config-standard
+          npm install --global stylelint stylelint-config-standard
+          npm list -g --depth=0
+          npx stylelint --version
           npx stylelint CloudService/styles.css
