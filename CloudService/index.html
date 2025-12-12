@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <title>Random Video Clip Generator / Streamer</title>
-  <link rel="stylesheet" href="styles.css"></link>
+  <link rel="stylesheet" href="styles.css">
   <script src="https://unpkg.com/vue@1.0.28/dist/vue.js"></script>
   <script src="https://unpkg.com/axios@0.2.1/dist/axios.min.js"></script>
 </head>
@@ -76,7 +76,7 @@
         </li>
         <li>Start Docker Desktop.</li>
         <li>Open the Docker Desktop GUI.</li>
-        <!-- <li> -->
+        <li>
           <ol>
             <li>Go to Docker Hub section on the right vertical menu.</li>
             <li>Search for and select "marq4/random_video_clip_streamer".</li>
@@ -93,7 +93,7 @@
             </li>
             <li>Click "Run" button.</li>
           </ol>
-          <!-- </li> -->
+        </li>
         <li>
           Open your web browser (like FireFox or Brave) and go to
            <code>http://localhost:8080</code>
@@ -125,19 +125,21 @@
           </li>
           <li>Move it to <code>C:\Videos</code> folder.</li>
           <li>Run it:</li>
-          <ol>
-            <li>Open an elevated PowerShell window by pressing <code>WIN+X</code> and selecting Windows PowerShell (Admin).
-            </li>
-            <li>
-              Change-directory into your Videos folder: <code>cd C:\Videos</code>
-            </li>
-            <li>
-              Execute the script: <code>powershell.exe -executionpolicy bypass -File .\GenerateList.ps1</code>
-            </li>
-            <li>
-              Contact me if you don't see this: <code>Script complete.</code>
-            </li>
-          </ol>
+          <li>
+            <ol>
+              <li>Open an elevated PowerShell window by pressing <code>WIN+X</code> and selecting Windows PowerShell (Admin).
+              </li>
+              <li>
+                Change-directory into your Videos folder: <code>cd C:\Videos</code>
+              </li>
+              <li>
+                Execute the script: <code>powershell.exe -executionpolicy bypass -File .\GenerateList.ps1</code>
+              </li>
+              <li>
+                Contact me if you don't see this: <code>Script complete.</code>
+              </li>
+            </ol>
+          </li>
           <li>
             Upload <code>list_videos.txt</code> bellow (Browse + Upload).
           </li>
@@ -152,7 +154,7 @@
         <div id="app" class="upload-form">
           <div v-if="!textFile">
             <h2 class="label">Select video list text file</h2>
-            <input type="file" @change="onFileChange" accept="text/plain"></input>
+            <input type="file" @change="onFileChange" accept="text/plain">
           </div>
           <div v-else>
             <button v-if="!uploadURL" @click="uploadFile" 

@@ -40,7 +40,7 @@ jobs:
             **/*.html
 
   # Lint CSS stylesheet only if it changed in this commit (main branch).
-  lint-css:
+  css-lint:
     needs: css-changed
     if: >-
       github.ref == 'refs/heads/main' &&
@@ -63,7 +63,7 @@ jobs:
           npx stylelint CloudService/styles.css
 
   # Lint any HTML documents that changed in this commit (main branch).
-  lint-html:
+  html-lint:
     needs: any-html-changed
     if: >-
       github.ref == 'refs/heads/main' &&
