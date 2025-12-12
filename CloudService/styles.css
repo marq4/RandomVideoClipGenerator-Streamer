@@ -147,8 +147,13 @@ input, optgroup, select, textarea {
 .upload-form {
   margin-left: auto;
   margin-right: 2em;
-  display: flex;
   gap: 1rem;
+  display: block;
+  margin-top: calc(var(--nf-input-size)*1.5);
+  line-height: 1;
+  white-space: nowrap;
+  padding-bottom: 6em;
+
   --nf-input-size: 1rem;
   --nf-input-font-size: calc(var(--nf-input-size)*0.875);
   --nf-small-font-size: calc(var(--nf-input-size)*0.875);
@@ -182,15 +187,10 @@ input, optgroup, select, textarea {
   --nf-slider-thumb-border-focus-width: 1px;
   --nf-slider-thumb-border-color: #fff;
   --nf-slider-thumb-background: var(--nf-input-focus-border-color);
-  display: block;
-  margin-top: calc(var(--nf-input-size)*1.5);
-  line-height: 1;
-  white-space: nowrap;
   --switch-orb-size: var(--nf-input-size);
   --switch-orb-offset: calc(var(--nf-input-border-width)*2);
   --switch-width: calc(var(--nf-input-size)*2.5);
   --switch-height: calc(var(--nf-input-size)*1.25 + var(--switch-orb-offset));
-  padding-bottom: 6em;
 }
 
 .upload-form input {
@@ -216,13 +216,13 @@ input, optgroup, select, textarea {
 }
 
 .upload-form input {
-  appearance: button;
+  appearance: auto;
   background-color: #1899D6;
   border: solid transparent;
   border-radius: 16px;
   border-width: 0 0 4px;
   box-sizing: border-box;
-  color: #FFFFFF;
+  color: #FFF;
   cursor: pointer;
   display: inline-block;
   font-family: din-round,sans-serif;
@@ -240,12 +240,12 @@ input, optgroup, select, textarea {
   transform: translateZ(0);
   transition: filter .2s;
   user-select: none;
-  -webkit-user-select: none;
+
   vertical-align: middle;
   white-space: nowrap;
 }
 
-.upload-form input:after {
+.upload-form input::after {
   background-clip: padding-box;
   background-color: #1CB0F6;
   border: solid transparent;
@@ -273,51 +273,37 @@ input, optgroup, select, textarea {
 input[type='number']:focus {
   outline: none;
   border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  box-shadow: 0 0 5px rgba(0 123 255 0.5);
 }
 
 .actual-button button button {
-  font-family: inherit;
   font-size: 100%;
   line-height: 1.15;
   margin: 0;
   overflow: visible;
-  text-transform: none;
-  -webkit-appearance: button;
-  appearance: button;
+  appearance: auto;
   border-style: none;
-  padding: 0;
-  font: inherit;
-  background-color: #4a90e2;
   color: white;
-  border: none;
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   font-weight: 500;
   border-radius: 0.5rem;
   cursor: pointer;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, filter .2s;
   background-color: #1899D6;
   border: solid transparent;
-  border-radius: 16px;
   border-width: 0 0 4px;
   box-sizing: border-box;
-  color: #FFFFFF;
   display: inline-block;
   font-family: din-round, sans-serif;
-  font-size: 15px;
   font-weight: 700;
   letter-spacing: .8px;
-  line-height: 20px;
-  margin: 0;
   outline: none;
-  overflow: visible;
   padding: 13px 16px;
   text-align: center;
   text-transform: uppercase;
   touch-action: manipulation;
   transform: translateZ(0);
-  transition: filter .2s;
   user-select: none;
   -webkit-user-select: none;
   vertical-align: middle;
