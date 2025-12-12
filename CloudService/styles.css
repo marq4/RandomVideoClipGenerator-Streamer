@@ -20,10 +20,6 @@ body {
   color: white;
 }
 
-main {
-  display: block;
-}
-
 
 /* Text section. */
 
@@ -58,4 +54,50 @@ code, kbd, samp {
 
 code {
   background-color: #041e24;
+}
+
+
+/* Main section. */
+
+main {
+  display: block;
+}
+
+div.info {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: white;
+  background-color: black;
+  padding: 1.5rem 2rem;
+  border-left: 4px solid #8c8c8c;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  max-width: 700px;
+  margin: 1.5rem auto;
+}
+
+h1 {
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 2.8rem;
+  font-weight: 700;
+  text-align: center;
+  color: #1899D6;
+  margin: 2rem 0;
+  letter-spacing: -0.5px;
+  /* Animation on load: */
+  opacity: 0;
+  transform: translateY(15px);
+  animation: fadeInUp 0.8s ease forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#clipsin {
+  width: 4em;
 }
