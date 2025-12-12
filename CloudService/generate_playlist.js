@@ -14,32 +14,32 @@ document.getElementById('generatebutton').addEventListener('click', async () => 
     num_clips: parseInt(numClips, 10),
     min_duration: parseInt(minDuration, 10),
     max_duration: parseInt(maxDuration, 10)
-  };
+  }
 
   try {
     const response = await fetch(API_ENDPOINT, {
-      method: "POST", // PUT?
+      method: 'POST', // PUT?
       headers: {
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload)
-    });
+    })
 
     if (!response.ok) {
-      throw new Error(`Request failed: ${response.status}`);
+      throw new Error(`Request failed: ${response.status}`)
     }
 
-  const data = await response.json();
-  // Trigger download:
-  const link = document.createElement('a');
-  link.href = data.download_url;
-  link.download = 'clips.xspf';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+    const data = await response.json();
+    // Trigger download:
+    const link = document.createElement('a');
+    link.href = data.download_url
+    link.download = 'clips.xspf'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
 
   } catch (err) {
-    console.error('Error generating playlist:', err);
-    alert('Failed to generate playlist.');
+    console.error('Error generating playlist:', err)
+    alert('Failed to generate playlist.')
   }
 });

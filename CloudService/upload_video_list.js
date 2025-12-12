@@ -1,4 +1,3 @@
-const MAX_LIST_SIZE = 5000000
 const API_ENDPOINT = 'https://9xd9orynnk.execute-api.us-east-2.amazonaws.com/uploads'
 new Vue({
   el: '#app',
