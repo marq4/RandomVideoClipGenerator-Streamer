@@ -125,27 +125,23 @@ input, optgroup, select, textarea {
   text-transform: none;
 }
 
-[type=button],[type=reset],[type=submit] {
-  -webkit-appearance: button;
-  appearance: button;
+[type='button'],[type='submit'] {
+  appearance: auto;
 }
 
-.upload-form [type=button]::-moz-focus-inner,
-[type=reset]::-moz-focus-inner,
-[type=submit]::-moz-focus-inner {
+.upload-form [type='button']::-moz-focus-inner,
+[type='submit']::-moz-focus-inner {
   border-style: none;
   padding: 0;
 }
 
-.upload-form [type=button]:-moz-focusring,
-[type=reset]:-moz-focusring,
-[type=submit]:-moz-focusring {
+.upload-form [type='button']:-moz-focusring,
+[type='submit']:-moz-focusring {
   outline: 1px dotted ButtonText;
 }
 
 ::-webkit-file-upload-button {
   font: inherit;
-  -webkit-appearance: button;
 }
 
 .upload-form {
