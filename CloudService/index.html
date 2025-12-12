@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <title>Random Video Clip Generator / Streamer</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css"></link>
   <script src="https://unpkg.com/vue@1.0.28/dist/vue.js"></script>
   <script src="https://unpkg.com/axios@0.2.1/dist/axios.min.js"></script>
 </head>
@@ -11,11 +11,11 @@
 
   <div class="tabs-js">
     <div class="tab-buttons">
-      <button class="tab-button active" data-tab="core">Python script</button>
-      <button class="tab-button" data-tab="generator">Generator - Docker</button>
-      <button class="tab-button" data-tab="cloud">Cloud Service</button>
+      <button class="tab-button active" data-tab="core" type="button">Python script</button>
+      <button class="tab-button" data-tab="generator" type="button">Generator - Docker</button>
+      <button class="tab-button" data-tab="cloud" type="button">Cloud Service</button>
     </div>
-    
+
     <div class="tab-content" id="core">
     <div class="info">
       <h2>Instructions (Windows):</h2>
@@ -24,10 +24,10 @@
           Install <a href="https://www.youtube.com/watch?v=DMEP82yrs5g">FFmpeg</a>.
         </li>
         <li>
-          Install Python by following this 
-          <a href="https://phoenixnap.com/kb/how-to-install-python-3-windows">
+          Install Python by following this
+           <a href="https://phoenixnap.com/kb/how-to-install-python-3-windows">
             guide
-          </a>. 
+          </a>.
         </li>
         <li>Install <a href="https://www.videolan.org/vlc/">VLC</a>.</li>
         <li>
@@ -35,8 +35,8 @@
           <code>C:\Videos\videos</code>
         </li>
         <li>
-          Download some music videos there (contact me for instructions: 
-          <a href="mailto:juancmarquina@gmail.com">juancmarquina@gmail.com</a>).
+          Download some music videos there (contact me for instructions:
+           <a href="mailto:juancmarquina@gmail.com">juancmarquina@gmail.com</a>).
         </li>
         <li>
           Download <a href="https://rvcg-marq-30072025.s3.us-east-2.amazonaws.com/random_video_clip_generator.py">the Python script</a> anywhere in your computer.
@@ -50,8 +50,8 @@
           </ul>
         </li>
         <li>
-          Execute the script to generate the playlist file: 
-          <code>python3 random_video_clip_generator.py</code>
+          Execute the script to generate the playlist file:
+           <code>python3 random_video_clip_generator.py</code>
         </li>
         <li>
           Double-click the playlist file (clips.xspf): your video clips will appear on VLC media player. Press f key to toggle full-screen.
@@ -65,13 +65,13 @@
       <h2>Instructions (Windows):</h2>
       <ol>
         <li>
-          Install <a href="https://docs.docker.com/get-started/introduction/get-docker-desktop/">Docker Desktop</a>. 
+          Install <a href="https://docs.docker.com/get-started/introduction/get-docker-desktop/">Docker Desktop</a>.
         </li>
         <li>
           Create a directory (folder) under your C drive called 'share'.
         </li>
         <li>
-          Download some music videos there (contact me for instructions: 
+          Download some music videos there (contact me for instructions:
           <a href="mailto:juancmarquina@gmail.com">juancmarquina@gmail.com</a>).
         </li>
         <li>Start Docker Desktop.</li>
@@ -95,8 +95,8 @@
           </ol>
           <!-- </li> -->
         <li>
-          Open your web browser (like FireFox or Brave) and go to 
-          <code>http://localhost:8080</code>
+          Open your web browser (like FireFox or Brave) and go to
+           <code>http://localhost:8080</code>
         </li>
         <li>Reload the web browser as needed and wait for a couple of seconds.</li>
         <li>IF you don't see your video clips playing, please contact me.</li>
@@ -113,12 +113,12 @@
           </li>
           <li>Install <a href="https://www.videolan.org/vlc/">VLC</a>.</li>
           <li>
-            Create this folder structure on your computer: 
-            <code>C:\Videos\videos</code>
+            Create this folder structure on your computer:
+             <code>C:\Videos\videos</code>
           </li>
           <li>
-            Download some music videos there (contact me for instructions: 
-            <a href="mailto:juancmarquina@gmail.com">juancmarquina@gmail.com</a>).
+            Download some music videos there (contact me for instructions:
+             <a href="mailto:juancmarquina@gmail.com">juancmarquina@gmail.com</a>).
           </li>
           <li>
             Download the <a href="https://rvcg-marq-30072025.s3.us-east-2.amazonaws.com/GenerateList.ps1">PoweShell script</a>.
@@ -152,11 +152,11 @@
         <div id="app" class="upload-form">
           <div v-if="!textFile">
             <h2 class="label">Select video list text file</h2>
-            <input type="file" @change="onFileChange" accept="text/plain" />
+            <input type="file" @change="onFileChange" accept="text/plain"></input>
           </div>
           <div v-else>
             <button v-if="!uploadURL" @click="uploadFile" 
-              class="actual-button" id="upload">
+              class="actual-button" id="upload" type="button">
               Upload
             </button>
           </div>
