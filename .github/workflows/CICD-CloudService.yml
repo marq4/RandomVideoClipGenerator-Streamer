@@ -119,4 +119,7 @@ jobs:
 
       - name: Lint JavaScript.
         run: |
-          npm run lint
+          npm install --global standard
+          npm list -g --depth=0
+          npx standard --version
+          npx standard
