@@ -1,3 +1,5 @@
+/* eslint-env browser */
+
 const params = new URLSearchParams(window.location.search)
 const uploadedFile = params.get('file')
 // APIGW public HTTPS endpoint:
