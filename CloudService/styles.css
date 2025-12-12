@@ -235,12 +235,9 @@ input, optgroup, select, textarea {
   border: solid transparent;
   border-radius: 16px;
   border-width: 0 0 4px;
-  bottom: -4px;
   content: '';
-  left: 0;
   position: absolute;
-  right: 0;
-  top: 0;
+  inset: 0 0 -4px;
   z-index: -1;
 }
 
@@ -306,7 +303,7 @@ input[type='submit']::after {
   border-width: 0 0 4px;
   content: '';
   position: absolute;
-  inset: 0 0 -4px 0;
+  inset: 0 0 -4px;
   z-index: -1;
 }
 
@@ -357,4 +354,43 @@ h3 {
   gap: 0.5rem;
   width: fit-content;
   height: auto;
+}
+
+
+/* Tabs (Core|Cloud|Docker) section: */
+
+.tab-buttons {
+  display: flex;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 1rem;
+}
+
+.tab-button {
+  padding: 0.6rem 1.2rem;
+  background: none;
+  cursor: pointer;
+  font-weight: 600;
+  color: white;
+  border: none;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  background: #374151;
+}
+
+.tab-button.active {
+  background: #374151;
+  border-bottom: 3px solid #4f46e5;
+}
+
+.tab-content {
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+}
+
+.hidden {
+  display: none;
 }
