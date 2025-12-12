@@ -2,6 +2,7 @@
 /* global Vue, axios */
 
 const API_ENDPOINT = 'https://9xd9orynnk.execute-api.us-east-2.amazonaws.com/uploads'
+/* eslint-disable no-new */
 new Vue({
   el: '#app',
   data: {
