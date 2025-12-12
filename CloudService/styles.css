@@ -203,19 +203,6 @@ input, optgroup, select, textarea {
   border-radius: 0.5rem;
   cursor: pointer;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.upload-form input:hover {
-  background-color: #357ab8;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.upload-form input:active {
-  background-color: #2d5d8c;
-  transform: scale(0.98);
-}
-
-.upload-form input {
   appearance: auto;
   background-color: #1899D6;
   border: solid transparent;
@@ -240,9 +227,18 @@ input, optgroup, select, textarea {
   transform: translateZ(0);
   transition: filter .2s;
   user-select: none;
-
   vertical-align: middle;
   white-space: nowrap;
+}
+
+.upload-form input:hover {
+  background-color: #357ab8;
+  box-shadow: 0 4px 8px rgb(0 0 0 / 15%);
+}
+
+.upload-form input:active {
+  background-color: #2d5d8c;
+  transform: scale(0.98);
 }
 
 .upload-form input::after {
@@ -273,7 +269,7 @@ input, optgroup, select, textarea {
 input[type='number']:focus {
   outline: none;
   border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0 123 255 0.5);
+  box-shadow: 0 0 5px rgba(0 123 255 / 0.5);
 }
 
 .actual-button button button {
@@ -314,7 +310,7 @@ input[type='number']:focus {
 
 input[type='submit']:hover {
   background-color: #357ab8;
-  box-shadow: 0 4px 8px rgba(0 0 0 0.15);
+  box-shadow: 0 4px 8px rgb(0 0 0 / 15%);
 }
 
 input[type='submit']:active {
@@ -352,7 +348,7 @@ h3 {
 
 #upload:hover {
   background-color: #357ab8;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 8px rgb(0 0 0 / 15%);
 }
 
 #upload:active {
@@ -362,7 +358,7 @@ h3 {
 
 #generatebutton:hover {
   background-color: #357ab8;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 8px rgb(0 0 0 / 15%);
 }
 
 #generatebutton:active {
