@@ -1,4 +1,6 @@
-/* Version: 121225_9:27. */
+/* Version: 121225_10:02. */
+
+/* Fundamental section. */
 
 html, body {
   display: grid;
@@ -19,5 +21,41 @@ body {
 }
 
 main {
-  display:block
+  display:block;
+}
+
+
+/* Text section. */
+
+header {
+  background-color: #333;
+  color: #fff;
+  padding: 1em 2;
+  text-align: center;
+}
+
+p {
+  line-height: 1.6;
+}
+
+a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+b, strong {
+  font-weight:bolder;
+}
+
+code, kbd, samp {
+  font-family:monospace,monospace;
+  font-size:1em;
+}
+
+code {
+  background-color: #041e24;
 }
