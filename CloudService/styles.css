@@ -1,5 +1,3 @@
-/* Version: 121225_10:14. */
-
 /* Fundamental section. */
 
 html, body {
@@ -99,4 +97,309 @@ h1 {
 
 #clipsin {
   width: 4em;
+}
+
+
+/* Form section. */
+
+.actual-button {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+  margin: 0;
+  overflow: visible;
+}
+
+input, optgroup, select, textarea {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.actual-button input {
+  overflow: visible;
+}
+
+.actual-button select {
+  text-transform: none;
+}
+
+[type=button],[type=reset],[type=submit] {
+  -webkit-appearance: button;
+  appearance: button;
+}
+
+.upload-form [type=button]::-moz-focus-inner,
+[type=reset]::-moz-focus-inner,
+[type=submit]::-moz-focus-inner {
+  border-style: none;
+  padding: 0;
+}
+
+.upload-form [type=button]:-moz-focusring,
+[type=reset]:-moz-focusring,
+[type=submit]:-moz-focusring {
+  outline: 1px dotted ButtonText;
+}
+
+::-webkit-file-upload-button {
+  font: inherit;
+  -webkit-appearance: button;
+}
+
+.upload-form {
+  margin-left: auto;
+  margin-right: 2em;
+  display: flex;
+  gap: 1rem;
+  --nf-input-size: 1rem;
+  --nf-input-font-size: calc(var(--nf-input-size)*0.875);
+  --nf-small-font-size: calc(var(--nf-input-size)*0.875);
+  --nf-input-font-family: inherit;
+  --nf-label-font-family: inherit;
+  --nf-input-color: #20242f;
+  --nf-input-border-radius: 0.25rem;
+  --nf-input-placeholder-color: #929292;
+  --nf-input-border-color: #c0c4c9;
+  --nf-input-border-width: 1px;
+  --nf-input-border-style: solid;
+  --nf-input-border-bottom-width: 2px;
+  --nf-input-focus-border-color: #3b4ce2;
+  --nf-input-background-color: #f9fafb;
+  --nf-invalid-input-border-color: var(--nf-input-border-color);
+  --nf-invalid-input-background-color: var(--nf-input-background-color);
+  --nf-invalid-input-color: var(--nf-input-color);
+  --nf-valid-input-border-color: var(--nf-input-border-color);
+  --nf-valid-input-background-color: var(--nf-input-background-color);
+  --nf-valid-input-color: inherit;
+  --nf-invalid-input-border-bottom-color: red;
+  --nf-valid-input-border-bottom-color: green;
+  --nf-label-font-size: var(--nf-small-font-size);
+  --nf-label-color: #374151;
+  --nf-label-font-weight: 500;
+  --nf-slider-track-background: #dfdfdf;
+  --nf-slider-track-height: 0.25rem;
+  --nf-slider-thumb-size: calc(var(--nf-slider-track-height)*4);
+  --nf-slider-track-border-radius: var(--nf-slider-track-height);
+  --nf-slider-thumb-border-width: 2px;
+  --nf-slider-thumb-border-focus-width: 1px;
+  --nf-slider-thumb-border-color: #fff;
+  --nf-slider-thumb-background: var(--nf-input-focus-border-color);
+  display: block;
+  margin-top: calc(var(--nf-input-size)*1.5);
+  line-height: 1;
+  white-space: nowrap;
+  --switch-orb-size: var(--nf-input-size);
+  --switch-orb-offset: calc(var(--nf-input-border-width)*2);
+  --switch-width: calc(var(--nf-input-size)*2.5);
+  --switch-height: calc(var(--nf-input-size)*1.25 + var(--switch-orb-offset));
+  padding-bottom: 6em;
+}
+
+.upload-form input {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.upload-form input:hover {
+  background-color: #357ab8;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.upload-form input:active {
+  background-color: #2d5d8c;
+  transform: scale(0.98);
+}
+
+.upload-form input {
+  appearance: button;
+  background-color: #1899D6;
+  border: solid transparent;
+  border-radius: 16px;
+  border-width: 0 0 4px;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  font-family: din-round,sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  line-height: 20px;
+  margin: 0;
+  outline: none;
+  overflow: visible;
+  padding: 13px 16px;
+  text-align: center;
+  text-transform: uppercase;
+  touch-action: manipulation;
+  transform: translateZ(0);
+  transition: filter .2s;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.upload-form input:after {
+  background-clip: padding-box;
+  background-color: #1CB0F6;
+  border: solid transparent;
+  border-radius: 16px;
+  border-width: 0 0 4px;
+  bottom: -4px;
+  content: '';
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: -1;
+}
+
+.playlist input[type='number'] {
+  width: 3em;
+  padding: 2px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: #4d4c46;
+  color: white;
+}
+
+input[type='number']:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.actual-button button button {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+  margin: 0;
+  overflow: visible;
+  text-transform: none;
+  -webkit-appearance: button;
+  appearance: button;
+  border-style: none;
+  padding: 0;
+  font: inherit;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  background-color: #1899D6;
+  border: solid transparent;
+  border-radius: 16px;
+  border-width: 0 0 4px;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  display: inline-block;
+  font-family: din-round, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  line-height: 20px;
+  margin: 0;
+  outline: none;
+  overflow: visible;
+  padding: 13px 16px;
+  text-align: center;
+  text-transform: uppercase;
+  touch-action: manipulation;
+  transform: translateZ(0);
+  transition: filter .2s;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: middle;
+  white-space: nowrap;
+  font-family:inherit;
+  overflow: visible;
+}
+
+input[type='submit']:hover {
+  background-color: #357ab8;
+  box-shadow: 0 4px 8px rgba(0 0 0 0.15);
+}
+
+input[type='submit']:active {
+  background-color: #2d5d8c;
+  transform: scale(0.98);
+}
+
+input[type='submit']:after {
+  background-clip: padding-box;
+  background-color: #1CB0F6;
+  border: solid transparent;
+  border-radius: 16px;
+  border-width: 0 0 4px;
+  bottom: -4px;
+  content: '';
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: -1;
+}
+
+div.bottom {
+  padding-bottom: 4em;
+}
+
+#gendow {
+  margin-top: 1em;
+  float: right;
+}
+
+h3 {
+  font-size: 0.8em;
+}
+
+#upload:hover {
+  background-color: #357ab8;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+#upload:active {
+  background-color: #2d5d8c;
+  transform: scale(0.98);
+}
+
+#generatebutton:hover {
+  background-color: #357ab8;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+#generatebutton:active {
+  background-color: #2d5d8c;
+  transform: scale(0.98);
+}
+
+#clipsin {
+  width: 6em;
+}
+
+#mindur, #maxdur {
+  width: 5em;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: fit-content;
+  height: auto;
 }
