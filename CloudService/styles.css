@@ -8,7 +8,7 @@ html, body {
 
 html {
   text-size-adjust: 100%;
-  line-height:1.15;
+  line-height: 1.15;
   height: 100%;
 }
 
@@ -21,7 +21,7 @@ body {
 }
 
 main {
-  display:block;
+  display: block;
 }
 
 
@@ -30,7 +30,7 @@ main {
 header {
   background-color: #333;
   color: #fff;
-  padding: 1em 2;
+  padding: 1em 2px;
   text-align: center;
 }
 
@@ -48,12 +48,12 @@ a:hover {
 }
 
 b, strong {
-  font-weight:bolder;
+  font-weight: bolder;
 }
 
 code, kbd, samp {
-  font-family:monospace,monospace;
-  font-size:1em;
+  font-family: monospace;
+  font-size: 1em;
 }
 
 code {
