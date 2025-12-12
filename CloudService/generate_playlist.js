@@ -31,15 +31,14 @@ document.getElementById('generatebutton').addEventListener('click', async () => 
 
     const data = await response.json();
     // Trigger download:
-    const link = document.createElement('a');
+    const link = document.createElement('a')
     link.href = data.download_url
     link.download = 'clips.xspf'
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-
   } catch (err) {
     console.error('Error generating playlist:', err)
     alert('Failed to generate playlist.')
   }
-});
+})

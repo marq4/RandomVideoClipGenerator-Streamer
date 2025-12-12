@@ -6,8 +6,8 @@ new Vue({
     uploadURL: ''
   },
   methods: {
-    onFileChange(e) {
-      let files = e.target.files || e.dataTransfer.files
+    onFileChange (e) {
+      const files = e.target.files || e.dataTransfer.files
       if (!files.length) return
       this.loadTextFile(files[0])
     },
@@ -17,7 +17,7 @@ new Vue({
         // Store the file content (string) directly:
         this.textFile = e.target.result
       }
-      reader.readAsText(file)  // Read as plain text instead of DataURL.
+      reader.readAsText(file) // Read as plain text instead of DataURL.
     },
     uploadFile: async function () {
       console.log('Upload clicked')
@@ -29,7 +29,7 @@ new Vue({
       console.log('Response: ', response)
 
       // Convert text content to Blob:
-      let blobData = new Blob([this.textFile], { type: 'text/plain' })
+      const blobData = new Blob([this.textFile], { type: 'text/plain' })
       console.log('Uploading to: ', response.uploadURL)
       const result = await fetch(response.uploadURL, {
         method: 'PUT',
