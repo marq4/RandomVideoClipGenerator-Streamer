@@ -12,7 +12,7 @@ jobs:
   css-changed:
     runs-on: ubuntu-latest
     outputs:
-      css-stylesheet-changed:
+      css_stylesheet_changed:
         ${{ steps.css_was_updated.outputs.any_changed }}
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
   any-html-changed:
     runs-on: ubuntu-latest
     outputs:
-      html-document-changed:
+      html_document_changed:
         ${{ steps.any_html_document_was_updated.outputs.any_changed }}
     steps:
       - uses: actions/checkout@v4
@@ -39,12 +39,28 @@ jobs:
           files: |
             **/*.html
 
+  # Auxiliary job that checks if any JavaScript scripts changed.
+  any-js-changed:
+    runs-on: ubuntu-latest
+    outputs:
+      js-script-changed:
+        ${{ steps.any_js_script_was_updated.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: any_js_script_was_updated
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            **/*.js
+
   # Lint CSS stylesheet only if it changed in this commit (main branch).
   css-lint:
     needs: css-changed
     if: >-
       github.ref == 'refs/heads/main' &&
-      needs.css-changed.outputs.css-stylesheet-changed == 'true'
+      needs.css-changed.outputs.css_stylesheet_changed == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -67,7 +83,7 @@ jobs:
     needs: any-html-changed
     if: >-
       github.ref == 'refs/heads/main' &&
-      needs.any-html-changed.outputs.html-document-changed == 'true'
+      needs.any-html-changed.outputs.html_document_changed == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -84,3 +100,23 @@ jobs:
           npm list -g --depth=0
           html-validate --version
           html-validate .
+
+  # Lint any JavaScript scripts that changed in this commit (main branch).
+  js-lint:
+    needs: any-js-changed
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      needs.any-js-changed.outputs.js-script-changed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js.
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Lint JavaScript.
+        run: |
+          npm run lint
