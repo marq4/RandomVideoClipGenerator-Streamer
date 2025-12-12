@@ -61,6 +61,19 @@ main {
   display: block;
 }
 
+h1 {
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 2.8rem;
+  font-weight: 700;
+  text-align: center;
+  color: #1899D6;
+  margin: 2rem 0;
+  letter-spacing: -0.5px;
+  opacity: 0;
+  transform: translateY(15px);
+  animation: fade-in-up 0.8s ease forwards;
+}
+
 div.info {
   font-family: Georgia, 'Times New Roman', serif;
   font-size: 1.1rem;
@@ -75,28 +88,11 @@ div.info {
   margin: 1.5rem auto;
 }
 
-h1 {
-  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  font-size: 2.8rem;
-  font-weight: 700;
-  text-align: center;
-  color: #1899D6;
-  margin: 2rem 0;
-  letter-spacing: -0.5px;
-  opacity: 0;
-  transform: translateY(15px);
-  animation: fade-in-up 0.8s ease forwards;
-}
-
 @keyframes fade-in-up {
   to {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-#clipsin {
-  width: 4em;
 }
 
 
@@ -261,7 +257,7 @@ input, optgroup, select, textarea {
 input[type='number']:focus {
   outline: none;
   border-color: #007bff;
-  box-shadow: 0 0 5px rgb(0 123 255 / 0.5);
+  box-shadow: 0 0 5px rgb(0 123 255 / 50%);
 }
 
 .actual-button button button {
@@ -290,7 +286,6 @@ input[type='number']:focus {
   transform: translateZ(0);
   vertical-align: middle;
   white-space: nowrap;
-  font-family:inherit;
 }
 
 input[type='submit']:hover {
@@ -303,18 +298,15 @@ input[type='submit']:active {
   transform: scale(0.98);
 }
 
-input[type='submit']:after {
+input[type='submit']::after {
   background-clip: padding-box;
   background-color: #1CB0F6;
   border: solid transparent;
   border-radius: 16px;
   border-width: 0 0 4px;
-  bottom: -4px;
   content: '';
-  left: 0;
   position: absolute;
-  right: 0;
-  top: 0;
+  inset: 0 0 -4px 0;
   z-index: -1;
 }
 
@@ -352,7 +344,7 @@ h3 {
 }
 
 #clipsin {
-  width: 6em;
+  width: 4em;
 }
 
 #mindur, #maxdur {
