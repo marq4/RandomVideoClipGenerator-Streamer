@@ -29,7 +29,7 @@ document.getElementById('generatebutton').addEventListener('click', async () => 
       throw new Error(`Request failed: ${response.status}`)
     }
 
-    const data = await response.json();
+    const data = await response.json()
     // Trigger download:
     const link = document.createElement('a')
     link.href = data.download_url

@@ -11,8 +11,8 @@ new Vue({
       if (!files.length) return
       this.loadTextFile(files[0])
     },
-    loadTextFile(file) {
-      let reader = new FileReader()
+    loadTextFile (file) {
+      const reader = new FileReader()
       reader.onload = (e) => {
         // Store the file content (string) directly:
         this.textFile = e.target.result
