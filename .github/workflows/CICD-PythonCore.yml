@@ -78,6 +78,7 @@ jobs:
           pyscan
 
   # Runs on Windows: unit + code coverage, integration.
+  # Skip by including this in the commit message: [skiptest].
   code-testing:
     needs: code-quality
     if: >-
@@ -239,8 +240,8 @@ jobs:
       - name: Load AWS credentials from GitHub secrets.
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_2UPLOAD2S3 }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_2UPLOAD2S3 }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEPLOY2S3LAMBDA }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEPLOY2S3LAMBDA }}
           aws-region: ${{ env.REGION }}
 
       - name: Verify AWS CLI is available.
@@ -263,3 +264,22 @@ jobs:
             "${{ env.SUBFOLDER_NAME }}" \
             "${{ env.SCRIPT_NAME }}" \
             "${{ env.BUCKET }}"
+
+  deploy-to-lambda:
+    needs: [deploy-to-s3, core-changed]
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      needs.core-changed.outputs.core-python-script-changed == 'true'
+    runs-on: ubuntu-latest
+    env:
+      REGION: 'us-east-2'
+      BUCKET: 'rvcg-marq-30072025'
+      LAMBDA_FUNCTION_NAME: 'generate_xml_playlist_lambda'
+
+    steps:
+      - name: Deploy to Lambda from S3.
+        run: >
+          aws lambda update-function-code
+          --function-name ${{ env.LAMBDA_FUNCTION_NAME }}
+          --s3-bucket ${{ env.BUCKET }}
+          --s3-key ${{ env.SCRIPT_NAME }}
