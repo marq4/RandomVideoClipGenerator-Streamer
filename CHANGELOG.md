@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v3.0.0 (2025-12-15)
+
+### Features
+
+- Consolidated code and separated functions into common, local, cloud. Testing release: 2.1.0.
+  ([`05d38ec`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/05d38ec4eb609f681797a854c8ef77ccabf33d7d))
+
+
 ## v2.0.1 (2025-12-10)
 
 
