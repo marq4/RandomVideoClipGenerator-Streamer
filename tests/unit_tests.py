@@ -11,7 +11,6 @@ from setup import EXAMPLE_VIDEOS_SUBFOLDER, example_videos_with_durations
 
 from PythonCore import random_video_clip_generator as rvcg
 
-# Tests:
 
 def test_prepend_line(tmp_path: Path) -> None:
     """ Ensure file ends up with correct line at the top. """
@@ -52,7 +51,7 @@ def test_list_files_subfolder(monkeypatch: MonkeyPatch) -> None:
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     monkeypatch.chdir(repo_root)
     monkeypatch.setattr(rvcg, 'SUBFOLDER', EXAMPLE_VIDEOS_SUBFOLDER)
-    files = rvcg.list_files_subfolder()
+    files = rvcg.list_files_subfolder_local()
     expected = set(example_videos_with_durations)
     actual_files_set = set(files)
     assert expected.issubset(actual_files_set), f"Missing files: {expected - actual_files_set}"
@@ -62,7 +61,7 @@ def test_list_files_subfolder(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setattr(rvcg, 'SUBFOLDER', nonexistent_subfolder)
     with pytest.raises(FileNotFoundError,
                        match=f"Subfolder does not exist: {nonexistent_subfolder}. "):
-        rvcg.list_files_subfolder()
+        rvcg.list_files_subfolder_local()
 
 def test_list_files_subfolder_empty(tmp_path: Path, monkeypatch: MonkeyPatch) -> None:
     """ Ensure program exits if subfolder is empty. """
@@ -70,13 +69,13 @@ def test_list_files_subfolder_empty(tmp_path: Path, monkeypatch: MonkeyPatch) ->
     subfolder.mkdir()
     monkeypatch.chdir(tmp_path)
     with pytest.raises(SystemExit):
-        rvcg.list_files_subfolder() # Works with SUBFOLDER global.
+        rvcg.list_files_subfolder_local() # Works with SUBFOLDER global.
 
 def test_select_video_at_random(monkeypatch: MonkeyPatch) -> None:
     """ Ensure returned path is inside subfolder and video name is valid. """
     files = list(example_videos_with_durations.keys())
     monkeypatch.setattr(rvcg, 'CURRENT_DIRECTORY', '/tmp')
-    selected_video_full_path = rvcg.select_video_at_random(files)
+    selected_video_full_path = rvcg.select_video_at_random_local(files)
     video_name = os.path.basename(selected_video_full_path)
     assert video_name in files
     assert 'videos' in selected_video_full_path
@@ -88,35 +87,35 @@ def test_get_video_duration() -> None:
     repo_root = Path(__file__).parent.parent
     for example_video_name, expected_duration in example_videos_with_durations.items():
         absolute_video_path = repo_root / EXAMPLE_VIDEOS_SUBFOLDER / example_video_name
-        actual_duration = rvcg.get_video_duration(0, str(absolute_video_path))
+        actual_duration = rvcg.get_video_duration_local(0, str(absolute_video_path))
         assert expected_duration == actual_duration
 
     # Ensure program exits if a video is not found:
     nonexistent_video_file = 'nonexistent.mp4'
     with(pytest.raises(FileNotFoundError,
                        match=f"Video file not found: {nonexistent_video_file}. ")):
-        rvcg.get_video_duration(0, nonexistent_video_file)
+        rvcg.get_video_duration_local(0, nonexistent_video_file)
 
 def test_choose_starting_point() -> None:
     """ Ensure starting point is valid for example videos. """
     for _, duration in example_videos_with_durations.items():
-        starting_point = rvcg.choose_starting_point(duration)
+        starting_point = rvcg.choose_starting_point_local(duration)
         assert 0 <= starting_point <= duration - 1
 
 def test_choose_starting_point_edge_cases(monkeypatch: MonkeyPatch) -> None:
     """ Ensure videos that are too short are properly handled. """
     # Video is less than 1 second long:
     with pytest.raises(ValueError):
-        rvcg.choose_starting_point(0)
+        rvcg.choose_starting_point_local(0)
 
     # Video duration is less than min interval:
     monkeypatch.setattr(rvcg, 'INTERVAL_MIN', 12)
     with pytest.raises(ValueError):
-        rvcg.choose_starting_point(11)
+        rvcg.choose_starting_point_local(11)
 
     # When video duration is min interval, starting point must be 0:
     monkeypatch.setattr(rvcg, 'INTERVAL_MIN', 12)
-    result = rvcg.choose_starting_point(12)
+    result = rvcg.choose_starting_point_local(12)
     assert result == 0
 
 def test_add_clip_to_tracklist() -> None:
@@ -173,9 +172,9 @@ def test_generate_random_video_clips_playlist_valid_xml(monkeypatch: MonkeyPatch
     """ Ensure function generates a valid XML structure with correct elements. """
     example_dummy_video_list = ['video.mp4']
     # Mock return values from other functions:
-    monkeypatch.setattr(rvcg, 'get_video_duration', lambda *_: 16)
-    monkeypatch.setattr(rvcg, 'choose_starting_point', lambda *_: 0)
-    monkeypatch.setattr(rvcg, 'select_video_at_random', lambda *_: 'video.mp4')
+    monkeypatch.setattr(rvcg, 'get_video_duration_local', lambda *_: 16)
+    monkeypatch.setattr(rvcg, 'choose_starting_point_local', lambda *_: 0)
+    monkeypatch.setattr(rvcg, 'select_video_at_random_local', lambda *_: 'video.mp4')
     monkeypatch.setattr('random.randint', lambda *_: 2)
     playlist = rvcg.generate_playlist_local(example_dummy_video_list)
     assert playlist.tag == 'playlist'

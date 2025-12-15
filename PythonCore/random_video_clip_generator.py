@@ -41,6 +41,101 @@ XML_PLAYLIST_FILE_CLOUD = '/tmp/clips.xspf'
 OUTPUT_BUCKET = 'rvcg-xml-playlist-4download2'
 
 
+# _ Common code section _
+
+def prepend_line(filename: str, line: str) -> None:
+    """ Append line to beginning of file. """
+    if not filename:
+        raise ValueError(f"Cannot prepend line: '{line}' to invalid {filename}. ")
+    if line is not None and len(line) > 0:
+        with open(filename, 'r+', encoding='utf-8') as file:
+            content = file.read()
+            file.seek(0,0)
+            file.write(line.rstrip("\r\n") + "\n" + content)
+
+def add_clip_to_tracklist(track_list: ET.Element, \
+    video: str, start: int, end: int) -> None:
+    """ Add clip (track) to playlist.trackList sub element tree and mute.
+        :param: track_list: Contains the clips.
+        :param: video: The name of the video file to be cut.
+        :param: start: Begin clip from.
+        :param: end: Stop clip at. """
+    assert track_list is not None and video and start >= 0
+    track = ET.SubElement(track_list, 'track')
+    if not running_env_is_lambda():
+        # Convert to absolute path and proper URI format for VLC:
+        abs_path = os.path.abspath(video)
+        # Convert Windows backslashes to forward slashes:
+        video_uri = abs_path.replace("\\", '/')
+    # Ensure proper prefix:
+    if not video_uri.startswith('file:///'):
+        video_uri = f"file:///{video_uri}"
+    ET.SubElement(track, 'location').text = video_uri
+    extension = ET.SubElement(track, 'extension', \
+        application='http://www.videolan.org/vlc/playlist/0')
+    ET.SubElement(extension, 'vlc:option').text = f"start-time={start}"
+    ET.SubElement(extension, 'vlc:option').text = f"stop-time={end}"
+    ET.SubElement(extension, 'vlc:option').text = 'no-audio'
+
+def create_xml_file(playlist_et: ET.Element) -> None:
+    """ Finally write the playlist tree element as an xspf file to disk. """
+    ET.ElementTree(playlist_et).write(XML_PLAYLIST_FILE, encoding='UTF-8', xml_declaration=False)
+    prepend_line(XML_PLAYLIST_FILE, '<?xml version="1.0" encoding="UTF-8"?>')
+
+def generate_random_video_clips_playlist(video_list: list,
+        num_clips: int, min_duration: int, max_duration: int) -> ET.Element:
+    """
+    * Create playlist as an xml element tree.
+    * Create tracklist as subelement of playlist. This contains the clips.
+    * For each clip to be generated:
+        + Select a video at random.
+        + Choose beginning and end of clip from selected video.
+        + Add clip to playlist.
+    """
+    assert video_list
+
+    playlist = ET.Element('playlist', version='1', xmlns='http://xspf.org/ns/0/',
+                          attrib={'xmlns:vlc': 'http://www.videolan.org/vlc/playlist/0'})
+    tracks = ET.SubElement(playlist, 'trackList')
+
+    assert 1 <= num_clips < sys.maxsize, \
+        f"Invalid number of clips: {num_clips}. "
+
+    for iteration in range(num_clips):
+        if running_env_is_lambda():
+            pair = random.choice(video_list)
+            video_file = list(pair.keys())[0]
+            video_file += '.mp4'
+            duration = int(float(list(pair.values())[0].rstrip()))
+        else:
+            video_file = select_video_at_random_local(video_list)
+            duration = get_video_duration_local(iteration, video_file)
+
+        if running_env_is_lambda():
+            begin_at = random.randint(0, duration - max_duration)
+            clip_length = random.randint(min_duration, max_duration)
+        else:
+            begin_at = choose_starting_point_local(duration)
+            clip_length = random.randint(INTERVAL_MIN, INTERVAL_MAX)
+        play_to = begin_at + clip_length
+
+        add_clip_to_tracklist(tracks, video_file, begin_at, play_to)
+
+    return playlist
+
+def verify_intervals_valid() -> None:
+    """
+    * Depending on the environment:
+    * Either:
+    *   Just make sure local users won't shoot themselves on the foot.
+    *   Make sure default values for Cloud make sense.
+    """
+    assert LARGEST_MIN >= INTERVAL_MIN >= 1
+    assert LARGEST_MAX >= INTERVAL_MAX >= 1
+
+
+# _ Cloud code section _
+
 def running_env_is_lambda() -> bool:
     """ Check if this script is running in AWS Lambda. """
     return os.getenv('AWS_LAMBDA_FUNCTION_NAME') is not None
@@ -99,7 +194,7 @@ def parse_into_dictios_cloud(path: str) -> list:
                 result.append(pair)
     return result
 
-def send_final_xml_playlist_to_user(s3: S3Client) -> str:
+def send_final_xml_playlist_to_user_cloud(s3: S3Client) -> str:
     """
     To allow the user's browser to download the resulting file:
         + Upload XML playlist to S3.
@@ -115,29 +210,85 @@ def send_final_xml_playlist_to_user(s3: S3Client) -> str:
                         'ACL': 'public-read'
                     }
     )
-    #url = s3.generate_presigned_url('get_object',
-    #    Params={'Bucket': OUTPUT_BUCKET, 'Key': object_key},
-    #    ExpiresIn=3600)
     url = f"https://{OUTPUT_BUCKET}.s3.us-east-2.amazonaws.com/{object_key}"
     return url
 
-def display_version_and_exit():
+def generate_playlist_cloud(pairs: list,
+                      num_clips: int,
+                      min_duration: int,
+                      max_duration: int) -> None:
+    """ Cloud wrapper for fundamental functionality. """
+    top_element = generate_random_video_clips_playlist(
+        pairs,
+        num_clips,
+        min_duration,
+        max_duration)
+    create_xml_file(top_element)
+
+# Cloud's "main":
+def lambda_handler(event, _context):
+    """ Main function for Cloud Service Lambda environment. """
+
+    s3 = boto3.client('s3')
+    lambda_client = boto3.client('lambda')
+
+    # Bucket name where user's video list text files are uploaded to:
+    bucket_name = 'rvcgstack-s3uploadbucket-bcgfzvlvljdy'
+
+    # Event comes from API GW as json.
+    body = json.loads(event['body'])
+    filename_s3 = body['file']
+    user_num_clips = body['num_clips']
+    user_min_duration = body['min_duration']
+    user_max_duration = body['max_duration']
+
+    local_filename = '/tmp/' + filename_s3
+
+    # Read pairs from S3 object (user-uploaded video list text file):
+    s3.download_file(bucket_name, filename_s3, local_filename)
+
+    pairs = parse_into_dictios_cloud(local_filename)
+
+    num_clips = validate_num_clips_cloud(user_num_clips)
+    min_duration = validate_min_duration_cloud(user_min_duration)
+    max_duration = validate_max_duration_cloud(user_max_duration)
+
+    generate_playlist_cloud(pairs, num_clips, min_duration, max_duration)
+
+    download_url = send_final_xml_playlist_to_user_cloud(s3)
+
+    lambda_client.invoke(
+        FunctionName='DeletePlaylistAfterDownload',
+        InvocationType='Event', # Must be async.
+        Payload=json.dumps({'file_key': "clips.xspf"})
+    )
+
+    return {
+        'statusCode': 200,
+        'headers': {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST',
+            'Access-Control-Allow-Headers': 'Content-Type'
+        },
+        'body': json.dumps({
+            'num_clips': num_clips,
+            'min_duration': min_duration,
+            'max_duration': max_duration,
+            'download_url': download_url
+        })
+    }
+
+
+# _ Local code section _
+
+def display_version_and_exit_local():
     """ Simply print global __version__ value and exit. """
     if len(sys.argv) > 1 and sys.argv[1] in ['--version', '-v', 'version']:
         print(__version__)
         sys.exit(0)
 
-def prepend_line(filename: str, line: str) -> None:
-    """ Append line to beginning of file. """
-    if not filename:
-        raise ValueError(f"Cannot prepend line: '{line}' to invalid {filename}. ")
-    if line is not None and len(line) > 0:
-        with open(filename, 'r+', encoding='utf-8') as file:
-            content = file.read()
-            file.seek(0,0)
-            file.write(line.rstrip("\r\n") + "\n" + content)
-
-def list_files_subfolder() -> list:
+def list_files_subfolder_local() -> list:
     """ Create a list of all files in (global) SUBFOLDER. """
     subfolder_path = Path(SUBFOLDER)
     if not subfolder_path.exists():
@@ -148,14 +299,14 @@ def list_files_subfolder() -> list:
         sys.exit()
     return subfolder_contents
 
-def select_video_at_random(list_of_files: list) -> str:
+def select_video_at_random_local(list_of_files: list) -> str:
     """ Choose a video. :return: Video filename with Win full path. """
     assert list_of_files and SUBFOLDER
     subfolder_path = Path(CURRENT_DIRECTORY) / SUBFOLDER
     selected = random.randint(0, len(list_of_files) - 1)
     return str((subfolder_path / list_of_files[selected]).resolve())
 
-def get_video_duration(num_to_log: int, video: str) -> int:
+def get_video_duration_local(num_to_log: int, video: str) -> int:
     """ Extract video duration with ffprobe and subprocess.Popen.
         :return: Video duration in seconds. """
     assert video
@@ -190,7 +341,7 @@ def get_video_duration(num_to_log: int, video: str) -> int:
     assert INTERVAL_MIN < seconds and seconds > 0, f"Video too short: {video}. "
     return seconds
 
-def choose_starting_point(video_length: int) -> int:
+def choose_starting_point_local(video_length: int) -> int:
     """ Choose beginning of clip.
     :return: Starting point from beginning of video to end of video - max. """
     if video_length < 1:
@@ -200,47 +351,6 @@ def choose_starting_point(video_length: int) -> int:
     if video_length == INTERVAL_MIN:
         return 0
     return random.randint(0, video_length - INTERVAL_MAX)
-
-def add_clip_to_tracklist(track_list: ET.Element, \
-    video: str, start: int, end: int) -> None:
-    """ Add clip (track) to playlist.trackList sub element tree and mute.
-        :param: track_list: Contains the clips.
-        :param: video: The name of the video file to be cut.
-        :param: start: Begin clip from.
-        :param: end: Stop clip at. """
-    assert track_list is not None and video and start >= 0
-    track = ET.SubElement(track_list, 'track')
-    if not running_env_is_lambda():
-        # Convert to absolute path and proper URI format for VLC:
-        abs_path = os.path.abspath(video)
-        # Convert Windows backslashes to forward slashes:
-        video_uri = abs_path.replace("\\", '/')
-    # Ensure proper prefix:
-    if not video_uri.startswith('file:///'):
-        video_uri = f"file:///{video_uri}"
-    ET.SubElement(track, 'location').text = video_uri
-    extension = ET.SubElement(track, 'extension', \
-        application='http://www.videolan.org/vlc/playlist/0')
-    ET.SubElement(extension, 'vlc:option').text = f"start-time={start}"
-    ET.SubElement(extension, 'vlc:option').text = f"stop-time={end}"
-    ET.SubElement(extension, 'vlc:option').text = 'no-audio'
-
-def create_xml_file(playlist_et: ET.Element) -> None:
-    """ Finally write the playlist tree element as an xspf file to disk. """
-    ET.ElementTree(playlist_et).write(XML_PLAYLIST_FILE, encoding='UTF-8', xml_declaration=False)
-    prepend_line(XML_PLAYLIST_FILE, '<?xml version="1.0" encoding="UTF-8"?>')
-
-def generate_playlist_cloud(pairs: list,
-                      num_clips: int,
-                      min_duration: int,
-                      max_duration: int) -> None:
-    """ Cloud wrapper for fundamental functionality. """
-    top_element = generate_random_video_clips_playlist(
-        pairs,
-        num_clips,
-        min_duration,
-        max_duration)
-    create_xml_file(top_element)
 
 def generate_playlist_local(video_list: list) -> ET.Element:
     """ Local wrapper for fundamental functionality. """
@@ -252,48 +362,7 @@ def generate_playlist_local(video_list: list) -> ET.Element:
     create_xml_file(top_element)
     return top_element
 
-def generate_random_video_clips_playlist(video_list: list,
-        num_clips: int, min_duration: int, max_duration: int) -> ET.Element:
-    """
-    * Create playlist as an xml element tree.
-    * Create tracklist as subelement of playlist. This contains the clips.
-    * For each clip to be generated:
-        + Select a video at random.
-        + Choose beginning and end of clip from selected video.
-        + Add clip to playlist.
-    """
-    assert video_list
-
-    playlist = ET.Element('playlist', version='1', xmlns='http://xspf.org/ns/0/',
-                          attrib={'xmlns:vlc': 'http://www.videolan.org/vlc/playlist/0'})
-    tracks = ET.SubElement(playlist, 'trackList')
-
-    assert 1 <= num_clips < sys.maxsize, \
-        f"Invalid number of clips: {num_clips}. "
-
-    for iteration in range(num_clips):
-        if running_env_is_lambda():
-            pair = random.choice(video_list)
-            video_file = list(pair.keys())[0]
-            video_file += '.mp4'
-            duration = int(float(list(pair.values())[0].rstrip()))
-        else:
-            video_file = select_video_at_random(video_list)
-            duration = get_video_duration(iteration, video_file)
-
-        if running_env_is_lambda():
-            begin_at = random.randint(0, duration - max_duration)
-            clip_length = random.randint(min_duration, max_duration)
-        else:
-            begin_at = choose_starting_point(duration)
-            clip_length = random.randint(INTERVAL_MIN, INTERVAL_MAX)
-        play_to = begin_at + clip_length
-
-        add_clip_to_tracklist(tracks, video_file, begin_at, play_to)
-
-    return playlist
-
-def execute_vlc() -> None:
+def execute_vlc_local() -> None:
     """ Call VLC only once and pass it the xspf playlist. """
     # Use absolute path for the playlist:
     playlist_path = os.path.abspath(XML_PLAYLIST_FILE)
@@ -307,82 +376,19 @@ def execute_vlc() -> None:
     with Popen([executable, playlist_path]):
         pass
 
-def verify_intervals_valid() -> None:
-    """
-    * Depending on the environment:
-    * Either:
-    *   Just make sure local users won't shoot themselves on the foot.
-    *   Make sure default values for Cloud make sense.
-    """
-    assert LARGEST_MIN >= INTERVAL_MIN >= 1
-    assert LARGEST_MAX >= INTERVAL_MAX >= 1
-
-
-def lambda_handler(event, _context):
-    """ Main function for Cloud Service Lambda environment. """
-
-    s3 = boto3.client('s3')
-    lambda_client = boto3.client('lambda')
-
-    # Bucket name where user's video list text files are uploaded to:
-    bucket_name = 'rvcgstack-s3uploadbucket-bcgfzvlvljdy'
-
-    # Event comes from API GW as json.
-    body = json.loads(event['body'])
-    filename_s3 = body['file']
-    user_num_clips = body['num_clips']
-    user_min_duration = body['min_duration']
-    user_max_duration = body['max_duration']
-
-    local_filename = '/tmp/' + filename_s3
-
-    # Read pairs from S3 object (user-uploaded video list text file):
-    s3.download_file(bucket_name, filename_s3, local_filename)
-
-    pairs = parse_into_dictios_cloud(local_filename)
-
-    num_clips = validate_num_clips_cloud(user_num_clips)
-    min_duration = validate_min_duration_cloud(user_min_duration)
-    max_duration = validate_max_duration_cloud(user_max_duration)
-
-    generate_playlist_cloud(pairs, num_clips, min_duration, max_duration)
-
-    download_url = send_final_xml_playlist_to_user(s3)
-
-    lambda_client.invoke(
-        FunctionName='DeletePlaylistAfterDownload',
-        InvocationType='Event', # Must be async.
-        Payload=json.dumps({'file_key': "clips.xspf"})
-    )
-
-    return {
-        'statusCode': 200,
-        'headers': {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST',
-            'Access-Control-Allow-Headers': 'Content-Type'
-        },
-        'body': json.dumps({
-            'num_clips': num_clips,
-            'min_duration': min_duration,
-            'max_duration': max_duration,
-            'download_url': download_url
-        })
-    }
-
 def main():
     """
     * Get list of videos.
     * Generate an xml playlist with random clips from those videos.
     * Run VLC with that playlist.
     """
-    display_version_and_exit()
+    # Only if --version passed:
+    display_version_and_exit_local()
     verify_intervals_valid()
-    files = list_files_subfolder()
+    files = list_files_subfolder_local()
     top_element = generate_playlist_local(files)
     create_xml_file(top_element)
-    execute_vlc()
+    execute_vlc_local()
 
 if __name__ == "__main__":
     if not running_env_is_lambda():

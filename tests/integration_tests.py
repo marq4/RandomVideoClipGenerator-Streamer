@@ -46,7 +46,7 @@ def test_verify_example_videos_available(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setattr(rvcg, 'SUBFOLDER', EXAMPLE_VIDEOS_SUBFOLDER)
     subfolder_path = Path(EXAMPLE_VIDEOS_SUBFOLDER)
     assert subfolder_path.exists(), f"Example videos folder missing: {subfolder_path}. "
-    actual_subfolder_contents = rvcg.list_files_subfolder()
+    actual_subfolder_contents = rvcg.list_files_subfolder_local()
     expected_subfolder_contents = aux_get_list_of_absolute_paths_for_example_video_titles_list()
     actual_content_length = len(actual_subfolder_contents)
     expected_content_length = len(expected_subfolder_contents)
