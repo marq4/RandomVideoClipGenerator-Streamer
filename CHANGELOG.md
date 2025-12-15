@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v3.1.0 (2025-12-15)
+
+### Features
+
+- Fixing import boto3 during Release.
+  ([`2e8af04`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/2e8af044cc438a3e0de42de49f80459931ae885a))
+
+
 ## v3.0.0 (2025-12-15)
 
 ### Features
