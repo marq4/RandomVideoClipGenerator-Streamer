@@ -12,6 +12,9 @@ from subprocess import PIPE, Popen
 import boto3
 from mypy_boto3_s3.client import S3Client
 
+RUNNING_ENV_IS_LAMBDA = bool(os.getenv('AWS_LAMBDA_FUNCTION_NAME'))
+
+
 #===============================================================================
 # Please set these values if running the script locally:
 NUMBER_OF_CLIPS = 5
@@ -62,7 +65,7 @@ def add_clip_to_tracklist(track_list: ET.Element, \
         :param: end: Stop clip at. """
     assert track_list is not None and video and start >= 0
     track = ET.SubElement(track_list, 'track')
-    if not running_env_is_lambda():
+    if not RUNNING_ENV_IS_LAMBDA:
         # Convert to absolute path and proper URI format for VLC:
         abs_path = os.path.abspath(video)
         # Convert Windows backslashes to forward slashes:
@@ -102,7 +105,7 @@ def generate_random_video_clips_playlist(video_list: list,
         f"Invalid number of clips: {num_clips}. "
 
     for iteration in range(num_clips):
-        if running_env_is_lambda():
+        if RUNNING_ENV_IS_LAMBDA:
             pair = random.choice(video_list)
             video_file = list(pair.keys())[0]
             video_file += '.mp4'
@@ -111,7 +114,7 @@ def generate_random_video_clips_playlist(video_list: list,
             video_file = select_video_at_random_local(video_list)
             duration = get_video_duration_local(iteration, video_file)
 
-        if running_env_is_lambda():
+        if RUNNING_ENV_IS_LAMBDA:
             begin_at = random.randint(0, duration - max_duration)
             clip_length = random.randint(min_duration, max_duration)
         else:
@@ -135,10 +138,6 @@ def verify_intervals_valid() -> None:
 
 
 # _ Cloud code section _
-
-def running_env_is_lambda() -> bool:
-    """ Check if this script is running in AWS Lambda. """
-    return os.getenv('AWS_LAMBDA_FUNCTION_NAME') is not None
 
 def validate_num_clips_cloud(desired: str) -> int:
     """ TRY to give the user the number of clips they desire. """
@@ -391,5 +390,5 @@ def main():
     execute_vlc_local()
 
 if __name__ == "__main__":
-    if not running_env_is_lambda():
+    if not RUNNING_ENV_IS_LAMBDA:
         main()
