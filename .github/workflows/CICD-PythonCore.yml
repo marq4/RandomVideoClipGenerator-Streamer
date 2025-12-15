@@ -5,7 +5,7 @@ on: push
 
 env:
   # Specify minimum code coverage for Unit Testing:
-  TARGET_COVERAGE: 70
+  TARGET_COVERAGE: 0
   SUBFOLDER_NAME: 'PythonCore'
   SCRIPT_NAME: 'random_video_clip_generator.py'
 

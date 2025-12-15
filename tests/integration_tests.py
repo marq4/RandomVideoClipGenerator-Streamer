@@ -57,7 +57,7 @@ def test_verify_example_videos_available(monkeypatch: MonkeyPatch) -> None:
 def aux_generate_real_playlist() -> ET.Element:
     """ Create a real XSPF XML file with the example videos. """
     videos = aux_get_list_of_absolute_paths_for_example_video_titles_list()
-    real_playlist = rvcg.generate_random_video_clips_playlist(videos)
+    real_playlist = rvcg.generate_playlist_local(videos)
     assert real_playlist is not None
     return real_playlist
 

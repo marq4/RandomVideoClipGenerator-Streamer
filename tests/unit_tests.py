@@ -146,9 +146,9 @@ def test_generate_random_video_clips_playlist_empty_video_list() -> None:
     """ Passing empty list of videos (or None ) makes first assert fail. """
     empty_video_list = ()
     with pytest.raises(AssertionError):
-        rvcg.generate_random_video_clips_playlist(empty_video_list)
+        rvcg.generate_playlist_local(empty_video_list)
     with pytest.raises(AssertionError):
-        rvcg.generate_random_video_clips_playlist(None)
+        rvcg.generate_playlist_local(None)
 
 def test_generate_random_video_clips_playlist_invalid_number_of_clips(
     monkeypatch: MonkeyPatch) -> None:
@@ -160,14 +160,14 @@ def test_generate_random_video_clips_playlist_invalid_number_of_clips(
     monkeypatch.setattr(rvcg, 'NUMBER_OF_CLIPS', too_low_value)
     with(pytest.raises(AssertionError,
                        match=f"Invalid number of clips: {too_low_value}. ")):
-        rvcg.generate_random_video_clips_playlist(example_dummy_video_list)
+        rvcg.generate_playlist_local(example_dummy_video_list)
 
     # Too large:
     too_large_value = sys.maxsize
     monkeypatch.setattr(rvcg, 'NUMBER_OF_CLIPS', too_large_value)
     with(pytest.raises(AssertionError,
                        match=f"Invalid number of clips: {too_large_value}. ")):
-        rvcg.generate_random_video_clips_playlist(example_dummy_video_list)
+        rvcg.generate_playlist_local(example_dummy_video_list)
 
 def test_generate_random_video_clips_playlist_valid_xml(monkeypatch: MonkeyPatch) -> None:
     """ Ensure function generates a valid XML structure with correct elements. """
@@ -177,7 +177,7 @@ def test_generate_random_video_clips_playlist_valid_xml(monkeypatch: MonkeyPatch
     monkeypatch.setattr(rvcg, 'choose_starting_point', lambda *_: 0)
     monkeypatch.setattr(rvcg, 'select_video_at_random', lambda *_: 'video.mp4')
     monkeypatch.setattr('random.randint', lambda *_: 2)
-    playlist = rvcg.generate_random_video_clips_playlist(example_dummy_video_list)
+    playlist = rvcg.generate_playlist_local(example_dummy_video_list)
     assert playlist.tag == 'playlist'
     assert playlist.attrib['version'] == '1'
     assert playlist.attrib['xmlns'] == 'http://xspf.org/ns/0/'
