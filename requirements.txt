@@ -6,4 +6,5 @@ isort==6.0.1
 types-requests~=2.32.4
 pytest-cov~=7.0.0
 pyscan-rs~=0.1.8
-boto3-stubs
+boto3~=1.35
+boto3-stubs~=1.42
