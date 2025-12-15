@@ -164,6 +164,19 @@ jobs:
           echo "Any changed: "
           echo ${{ steps.script_was_updated.outputs.any_changed }}
 
+  # In case Release is skipped, I can see WHY:
+  debug-release-conditions:
+    needs: core-changed
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check conditions.
+        run: |
+          echo "github.ref: ${{ github.ref }}"
+          echo "core-changed output: "
+          echo ${{ needs.core-changed.outputs.core-python-script-changed }}
+          echo "core-changed result: ${{ needs.core-changed.result }}"
+
   # Conventional Commits Release (PSR: Python Semantic Release).
   release:
     needs: [code-testing, core-changed]
