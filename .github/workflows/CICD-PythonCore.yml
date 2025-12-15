@@ -159,6 +159,10 @@ jobs:
         uses: tj-actions/changed-files@v45
         with:
           files: ${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}
+      - name: Show results.
+        run: |
+          echo "Any changed: "
+          echo ${{ steps.script_was_updated.outputs.any_changed }}
 
   # Conventional Commits Release (PSR: Python Semantic Release).
   release:
