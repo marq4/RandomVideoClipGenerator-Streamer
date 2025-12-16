@@ -109,9 +109,10 @@ jobs:
   # Runs on Windows: unit + code coverage, integration.
   python-code-testing:
     needs: python-code-quality
-    # Without the first conditions this job gets skipped IF meta job gets skipped,
-    #   as it depends on it indirectly up the chain, so no Python code tests
-    #   if YAML doesn't change!
+    # Without the first conditions
+    #   this job gets skipped IF meta job gets skipped,
+    #   as it depends on it indirectly up the chain,
+    #   (so no Python code tests if YAML doesn't change).
     # Only test Python code if commit will trigger a Release:
     if: >-
       !failure() && !cancelled() &&
