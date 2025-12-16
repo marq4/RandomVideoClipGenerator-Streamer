@@ -15,9 +15,12 @@ jobs:
         ${{ steps.yaml_was_updated.outputs.any_changed }}
     steps:
       # Fetch all history for version tagging:
-      - uses: ./.github/actions/checkout-my-code
+      - uses: actions/checkout@v4
         with:
-          deep: true
+          fetch-depth: 0
+      #- uses: ./.github/actions/checkout-my-code
+      #  with:
+      #    deep: true
       - id: yaml_was_updated
         uses: ./.github/actions/changed-files
         with:
