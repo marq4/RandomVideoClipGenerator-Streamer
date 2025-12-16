@@ -1,0 +1,40 @@
+---
+# Lint YAML before anything else.
+name: Meta-Code-Quality
+
+on: push
+
+jobs:
+  # TMP: ALWAYS!
+  # Auxiliary job that checks if any YAML file changed.
+  any-yaml-changed:
+    if: always()
+    runs-on: ubuntu-latest
+    outputs:
+      any_yaml_files_changed:
+        ${{ steps.yaml_was_updated.outputs.any_changed }}
+    steps:
+      # Fetch all history for version tagging:
+      - uses: ./.github/actions/CheckoutMyCode
+        with:
+          deep: true
+      - id: yaml_was_updated
+        uses: ./.github/actions/ChangedFiles
+        with:
+          files: "**/*.{yml,yaml}"
+      - run: |
+          echo 'Did any YAML file(s) change in this commit: '
+          echo ${{ steps.yaml_was_updated.outputs.any_changed }}
+
+  meta-code-quality:
+    needs: any-yaml-changed
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    #if: always()
+    if: needs.any-yaml-changed.outputs.any_yaml_files_changed == 'true'
+
+    steps:
+      - uses: ./.github/actions/CheckoutMyCode
+
+      - name: Lint YAML files.
+        uses: frenck/action-yamllint@v1

@@ -1,0 +1,15 @@
+---
+# Single place to update version of changed-files action.
+name: Files changed
+description: Check if files were updated in current commit.
+inputs:
+  files:
+    description: Which files to check.
+    required: false
+runs:
+  using: composite
+  steps:
+    # Change changed-files action version here:
+    - uses: tj-actions/changed-files@v45
+      with:
+        files: ${{ inputs.files }}
