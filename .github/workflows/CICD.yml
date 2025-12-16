@@ -7,7 +7,7 @@ on: push
 
 env:
   # Specify minimum code coverage for Unit Testing:
-  TARGET_COVERAGE: 0
+  TARGET_COVERAGE: 40
   SUBFOLDER_NAME: 'PythonCore'
   SCRIPT_NAME: 'random_video_clip_generator.py'
   # Single place to update Python version for this workflow:
@@ -74,6 +74,7 @@ jobs:
 
   # Python lint, type-checking, import order.
   # Dependency audit.
+  # Only runs if any Python files changed.
   python-code-quality:
     needs: any-python-changed
     # Run even if ANY upstream was skipped (like meta), but not if it failed:
@@ -107,6 +108,7 @@ jobs:
         run: pyscan
 
   # Runs on Windows: unit + code coverage, integration.
+  # Only for a potential release and if code quality cleared.
   python-code-testing:
     needs: python-code-quality
     # Without the first conditions
@@ -179,9 +181,12 @@ jobs:
           echo ${{ steps.script_was_updated.outputs.any_changed }}
 
   # Conventional Commits Release (PSR: Python Semantic Release).
+  # Only if core Python script changed, special commit message.
   release:
     needs: [python-code-testing, core-changed]
     if: >-
+      !failure() && !cancelled() &&
+      needs.python-code-testing.result == 'success' &&
       needs.core-changed.outputs.core_python_script_changed == 'true' &&
       (contains(github.event.head_commit.message, 'feat!:') ||
       contains(github.event.head_commit.message, 'feat:') ||
@@ -221,6 +226,7 @@ jobs:
   deploy-to-s3-and-lambda:
     needs: [release, core-changed]
     if: >-
+      !failure() && !cancelled() &&
       needs.release.result == 'success' &&
       needs.core-changed.outputs.core_python_script_changed == 'true'
     runs-on: ubuntu-latest
