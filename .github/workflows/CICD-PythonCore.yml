@@ -181,7 +181,7 @@ jobs:
 
   # Conventional Commits Release (PSR: Python Semantic Release).
   release:
-    needs: core-changed
+    needs: [core-changed, code-testing]
     if: >-
       github.ref == 'refs/heads/main' &&
       needs.core-changed.outputs.core-python-script-changed == 'true'
