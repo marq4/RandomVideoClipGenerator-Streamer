@@ -60,4 +60,3 @@ def create_fake_example_videos() -> None:
         ], check=True, capture_output=True)
 
 create_fake_example_videos()
-
