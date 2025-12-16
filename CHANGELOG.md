@@ -2,6 +2,31 @@
 
 <!-- version list -->
 
+## v4.0.0 (2025-12-16)
+
+### Bug Fixes
+
+- Expecting v3.3.3 to be deployed to S3 and Lambda.
+  ([`5080fc2`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/5080fc2ee64387ad883c67b72c778f1db90bd94e))
+
+### Features
+
+- Added comments to init py.
+  ([`4d94382`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/4d94382e7ff983f6fadf254238d750d32fc3db05))
+
+- No real changes. No Release should happen.
+  ([`d12d31a`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/d12d31a4fc0665501aafe1c54d6733dd6d0cebbf))
+
+- Now linting YAML locally before pushing.
+  ([`3e9e6bc`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/3e9e6bcb165761ee7fccf9e9c59500689cf1bec8))
+
+- Python tests should run IF YAML lint passes.
+  ([`5b23476`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/5b234768f2352b2d5017cfe1fb665e324772479b))
+
+- Since I havent fixed the dependency issye on python-code-testing, tests wont run.
+  ([`b12f319`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/b12f319ff689e2c7a2193b892d8820d1308158f9))
+
+
 ## v3.3.2 (2025-12-16)
 
 ### Bug Fixes
