@@ -146,11 +146,13 @@ jobs:
           PYTHONPATH: .
         run: pytest -vvv tests/integration_tests.py
 
+  # TMP: SKIPPING!
   # Auxiliary job that checks if core Python script changed.
   core-changed:
     needs: code-testing
     # Run even if code testing was skipped:
-    if: always()
+    #if: always()
+    if: false
     runs-on: ubuntu-latest
     outputs:
       core-python-script-changed:
@@ -302,11 +304,6 @@ jobs:
 
       - name: Deploy to Lambda.
         run: |
-          script="${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}"
-          zipfile=packaged.zip
-          echo $file
-          zip -v $zipfile $script
-          ls -ltrA
-          aws lambda update-function-code
-          --function-name ${{ env.LAMBDA_FUNCTION_NAME }}
-          --zip-file fileb://$zipfile
+          pwd
+          ls -la
+          ls -la ${{ env.SUBFOLDER_NAME }}/
