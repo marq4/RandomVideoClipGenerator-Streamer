@@ -10,6 +10,7 @@ env:
   TARGET_COVERAGE: 0
   SUBFOLDER_NAME: 'PythonCore'
   SCRIPT_NAME: 'random_video_clip_generator.py'
+  PYTHON_VERSION: '3.10'
 
 
 jobs:
@@ -47,15 +48,56 @@ jobs:
       - name: Lint YAML files.
         uses: frenck/action-yamllint@v1
 
-  dummy:
+  # Auxiliary job that checks if any Python file changed.
+  any-python-changed:
     needs: meta-code-quality
-    # I'm trying to skip this job if YAML lint failed.
-    # But ALSO run it it SUC, OR was skipped.
-    #if: success() && always()
+    # Run even if upstream was skipped, but not if it failed:
     if: ${{ !failure() && !cancelled() }}
     runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      any_python_files_changed:
+        ${{ steps.python_was_updated.outputs.any_changed }}
     steps:
-      - run: |
-          echo 'Does this really run even if YAML lint is skipped?'
+      # Fetch all history for version tagging:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-          
+      - id: python_was_updated
+        uses: ./.github/actions/changed-files
+        with:
+          files: "**/*.py"
+
+      - run: |
+          echo 'Did any Python file(s) change in this commit: '
+          echo ${{ steps.python_was_updated.outputs.any_changed }}
+
+  python-code-quality:
+    needs: any-python-changed
+    if: needs.any-python-changed.outputs.any_python_files_changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    env:
+      PYTHONPATH: .
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/set-up-python
+        with:
+          project-version: ${{ env.PYTHON_VERSION }}
+
+      - uses: ./.github/actions/install-dependencies
+
+      - name: Lint Python code.
+        run: pylint .
+
+      - name: Type checking.
+        run: mypy .
+
+      - name: Import ordering.
+        run: isort --check --verbose .
+
+      - name: Dependency security audit.
+        run: pyscan

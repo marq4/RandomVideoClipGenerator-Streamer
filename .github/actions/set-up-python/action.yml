@@ -1,0 +1,15 @@
+---
+# Single place to update version of setup-python action.
+name: Setup Python
+description: Setup Python with version.
+inputs:
+  project-version:
+    description: The project's preferred Python version.
+    required: true
+runs:
+  using: composite
+  steps:
+    # Change setup-python action version here:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: project-version
