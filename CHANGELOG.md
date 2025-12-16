@@ -2,6 +2,20 @@
 
 <!-- version list -->
 
+## v3.3.0 (2025-12-16)
+
+### Bug Fixes
+
+- Trying to confirm that if Release job needs code-testing, AND testing is skipped, then Release is
+  ALSO SKIPPED (doesn't even evaluate the if: conditions) [skiptest].
+  ([`a467d00`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/a467d006146d2a1b08fdd1ad03bb38b65085bcd9))
+
+### Features
+
+- Expected: tests skipped, Release runs (v3.3.0), deploy to Lambda fails. [skiptest].
+  ([`7a5489d`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/7a5489db38eb99a430998cd24677e8e5d3a7557a))
+
+
 ## v3.2.0 (2025-12-16)
 
 ### Features
