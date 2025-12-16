@@ -1,15 +1,23 @@
 ---
-# Lint YAML before anything else.
-name: Meta-Code-Quality
+# DO NOT even think about multiple workflows!
+
+name: CICD
 
 on: push
 
+env:
+  # Specify minimum code coverage for Unit Testing:
+  TARGET_COVERAGE: 0
+  SUBFOLDER_NAME: 'PythonCore'
+  SCRIPT_NAME: 'random_video_clip_generator.py'
+
+
 jobs:
-  # TMP: ALWAYS!
   # Auxiliary job that checks if any YAML file changed.
   any-yaml-changed:
     if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     outputs:
       any_yaml_files_changed:
         ${{ steps.yaml_was_updated.outputs.any_changed }}
@@ -26,11 +34,11 @@ jobs:
           echo 'Did any YAML file(s) change in this commit: '
           echo ${{ steps.yaml_was_updated.outputs.any_changed }}
 
+  # Lint YAML.
   meta-code-quality:
     needs: any-yaml-changed
     runs-on: ubuntu-latest
-    timeout-minutes: 3
-    #if: always()
+    timeout-minutes: 5
     if: needs.any-yaml-changed.outputs.any_yaml_files_changed == 'true'
 
     steps:
@@ -38,3 +46,11 @@ jobs:
 
       - name: Lint YAML files.
         uses: frenck/action-yamllint@v1
+
+  dummy:
+    needs: meta-code-quality
+    if: success() || skipped()
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo 'Does this really run even if YAML lint is skipped?'

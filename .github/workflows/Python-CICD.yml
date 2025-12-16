@@ -1,16 +1,12 @@
 ---
-# Python code only.
 # Quality: lint, type-checking, import order.
 # Dependency audit.
 # Testing: unit, coverage, integration.
 name: Python-CICD
 
-on:
-  workflow_run:
-    workflows:
-      - Meta-Code-Quality
-    types:
-      - completed
+# DO NOT even attempt to workflow_run Meta-Code-Quality completed.
+# Or it will fail silently and not show up in the repo's main page.
+on: workflow_dispatch
 
 env:
   # Specify minimum code coverage for Unit Testing:
@@ -19,14 +15,6 @@ env:
   SCRIPT_NAME: 'random_video_clip_generator.py'
 
 jobs:
-  dummy:
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo 'Upstream conclusion: '
-          echo ${{ github.event.workflow_run.conclusion }}
-
   # Auxiliary job that checks if any Python file changed.
   any-python-changed:
     #if: always()
@@ -42,7 +30,7 @@ jobs:
         with:
           fetch-depth: 0
       - id: python_was_updated
-        uses: ./.github/actions/ChangedFiles
+        uses: ./.github/actions/changed-files
         with:
           files: "**/*.py"
       - run: |
@@ -57,8 +45,6 @@ jobs:
         python-versions: ['3.10']
     timeout-minutes: 9
     if: false
-    # Skip job if meta-code quality failed:
-    #if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -105,8 +91,6 @@ jobs:
     # even indirectly dependent jobs (like Release) to
     # also be skipped!
     if: false
-    # Skip job if meta-code quality failed:
-    #if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: windows-latest
     strategy:
       matrix:
@@ -168,8 +152,6 @@ jobs:
     # Run even if code testing was skipped:
     #if: always()
     if: false
-    # Skip job if meta-code quality failed:
-    #if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     outputs:
       core_python_script_changed:
@@ -180,7 +162,7 @@ jobs:
         with:
           fetch-depth: 0
       - id: script_was_updated
-        uses: ./.github/actions/ChangedFiles
+        uses: ./.github/actions/changed-files
         with:
           files: ${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}
       - run: |
@@ -197,8 +179,6 @@ jobs:
     #if: >-
     #  github.ref == 'refs/heads/main' &&
     #  needs.core-changed.outputs.core-python-script-changed == 'true'
-    # Skip job if meta-code quality failed:
-    #if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     # Allow commits, tags, pushes:
     permissions:
@@ -239,8 +219,6 @@ jobs:
   deploy-to-s3:
     needs: [release, core-changed]
     if: false
-    # Skip job if meta-code quality failed:
-    #if: ${{ github.event.workflow_run.conclusion == 'success' }}
     #if: always()
     #if: >-
     #  github.ref == 'refs/heads/main' &&
@@ -306,8 +284,6 @@ jobs:
   deploy-to-lambda:
     needs: [deploy-to-s3, core-changed]
     if: false
-    # Skip job if meta-code quality failed:
-    #if: ${{ github.event.workflow_run.conclusion == 'success' }}
     #if: always()
     #if: >-
     #  github.ref == 'refs/heads/main' &&
