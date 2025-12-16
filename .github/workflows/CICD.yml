@@ -82,7 +82,8 @@ jobs:
       needs.any-python-changed.outputs.any_python_files_changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 9
-    # PYTHONPATH at this level breaks pylint.
+    env:
+      PYTHONPATH: .
 
     steps:
       - uses: actions/checkout@v4
@@ -94,8 +95,6 @@ jobs:
       - uses: ./.github/actions/install-dependencies
 
       - name: Lint Python code.
-        env:
-          PYTHONPATH: .
         run: pylint .
 
       - name: Type checking.
