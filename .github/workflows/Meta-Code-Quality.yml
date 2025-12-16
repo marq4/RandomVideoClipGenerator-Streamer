@@ -15,11 +15,11 @@ jobs:
         ${{ steps.yaml_was_updated.outputs.any_changed }}
     steps:
       # Fetch all history for version tagging:
-      - uses: ./.github/actions/CheckoutMyCode
+      - uses: ./.github/actions/checkout-my-code
         with:
           deep: true
       - id: yaml_was_updated
-        uses: ./.github/actions/ChangedFiles
+        uses: ./.github/actions/changed-files
         with:
           files: "**/*.{yml,yaml}"
       - run: |
@@ -34,7 +34,7 @@ jobs:
     if: needs.any-yaml-changed.outputs.any_yaml_files_changed == 'true'
 
     steps:
-      - uses: ./.github/actions/CheckoutMyCode
+      - uses: ./.github/actions/checkout-my-code
 
       - name: Lint YAML files.
         uses: frenck/action-yamllint@v1
