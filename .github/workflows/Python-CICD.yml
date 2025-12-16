@@ -19,6 +19,14 @@ env:
   SCRIPT_NAME: 'random_video_clip_generator.py'
 
 jobs:
+  dummy:
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo 'Upstream conclusion: '
+          echo ${{ github.event.workflow_run.conclusion }}
+
   # Auxiliary job that checks if any Python file changed.
   any-python-changed:
     #if: always()
