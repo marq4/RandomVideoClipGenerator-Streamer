@@ -2,6 +2,35 @@
 
 <!-- version list -->
 
+## v3.2.0 (2025-12-16)
+
+### Features
+
+- Testing deploy to Lambda (running tests).....
+  ([`b2246b3`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/b2246b3137f418b3b21e77082bf6d32520926ab8))
+
+- Testing deploy to Lambda [skiptest].
+  ([`14c053e`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/14c053e830e2424fbba2ed078f150c1cdb78975c))
+
+- Testing deploy to lambda [skiptest].
+  ([`fcd4a4a`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/fcd4a4aaa6f9ca86d23fa1b85862544006bf8ca8))
+
+- Testing deploy to lambda [skiptest]. YAML lint.
+  ([`e984216`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/e98421647a818d38a2b679bf3b1915a51943fcfd))
+
+- Testing deploy to Lambda [skiptest]..
+  ([`7f16851`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/7f1685147a67dffdaac0ccbd8a75c151c6aa78b2))
+
+- Testing deploy to Lambda [skiptest]...
+  ([`c21e45a`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/c21e45a634ae17bf811feded73a54ea34fd14fab))
+
+- Testing deploy to Lambda [skiptest]....
+  ([`c816630`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/c816630f6d9ed95cc30c7e9979a10b57594b02f6))
+
+- Testing deploy to Lambda [skiptest].....
+  ([`395915c`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/395915c9893fe6464945b5fa732fa3886c966fed))
+
+
 ## v3.1.0 (2025-12-15)
 
 ### Features
