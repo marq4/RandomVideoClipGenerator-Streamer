@@ -49,7 +49,7 @@ jobs:
 
   dummy:
     needs: meta-code-quality
-    if: success() || skipped()
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - run: |
