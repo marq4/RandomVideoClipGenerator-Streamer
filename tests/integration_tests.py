@@ -2,19 +2,13 @@
 
 import os
 import subprocess
-import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from subprocess import CompletedProcess
 
 from _pytest.monkeypatch import MonkeyPatch
 
-# Add project root to path:
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from PythonCore import random_video_clip_generator as rvcg
-# Do not remove this comment or code quality breaks:
-# pylint: disable=wrong-import-position
 from tests.setup import EXAMPLE_VIDEOS_SUBFOLDER, example_video_titles
 
 # start-time, stop-time, no-audio:
