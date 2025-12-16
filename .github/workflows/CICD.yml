@@ -286,7 +286,7 @@ jobs:
           script="${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}"
           zipfile=packaged.zip
           zip -v --junk-paths $zipfile $script
-          ls -ltrA
+          ls -ltA
           aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
           --zip-file fileb://$zipfile
