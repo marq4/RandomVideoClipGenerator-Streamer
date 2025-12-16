@@ -1,5 +1,5 @@
 ---
-name: CICD for Cloud Service.
+name: Web-CICD
 
 on: push
 

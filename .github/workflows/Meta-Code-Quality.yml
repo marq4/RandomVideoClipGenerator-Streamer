@@ -2,7 +2,7 @@
 # Lint YAML before anything else.
 name: Meta-Code-Quality
 
-on: push
+on: push 
 
 jobs:
   # TMP: ALWAYS!
@@ -38,3 +38,5 @@ jobs:
 
       - name: Lint YAML files.
         uses: frenck/action-yamllint@v1
+  
+

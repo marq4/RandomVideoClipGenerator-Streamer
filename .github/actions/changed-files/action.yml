@@ -6,10 +6,18 @@ inputs:
   files:
     description: Which files to check.
     required: false
+# Composite actions can't directly pass through outputs.
+# The output from inner step isn't automatically
+#   available to the caller.
+outputs:
+  any_changed:
+    description: Explicit output definition required.
+    value: ${{ steps.changed.outputs.any_changed }}
 runs:
   using: composite
   steps:
     # Change changed-files action version here:
-    - uses: tj-actions/changed-files@v45
+    - id: changed
+      uses: tj-actions/changed-files@v45
       with:
         files: ${{ inputs.files }}
