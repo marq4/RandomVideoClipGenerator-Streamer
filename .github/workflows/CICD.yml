@@ -10,6 +10,7 @@ env:
   TARGET_COVERAGE: 0
   SUBFOLDER_NAME: 'PythonCore'
   SCRIPT_NAME: 'random_video_clip_generator.py'
+  # Single place to update Python version for this workflow:
   PYTHON_VERSION: '3.10'
 
 
@@ -73,6 +74,8 @@ jobs:
           echo 'Did any Python file(s) change in this commit: '
           echo ${{ steps.python_was_updated.outputs.any_changed }}
 
+  # Python lint, type-checking, import order.
+  # Dependency audit.
   python-code-quality:
     needs: any-python-changed
     if: needs.any-python-changed.outputs.any_python_files_changed == 'true'
@@ -101,3 +104,175 @@ jobs:
 
       - name: Dependency security audit.
         run: pyscan
+
+  # Runs on Windows: unit + code coverage, integration.
+  python-code-testing:
+    needs: python-code-quality
+    # Only test Python code if commit will trigger a Release:
+    if: >-
+      contains(github.event.head_commit.message, 'feat!:') ||
+      contains(github.event.head_commit.message, 'feat:') ||
+      contains(github.event.head_commit.message, 'fix:')
+    runs-on: windows-latest
+    timeout-minutes: 13
+    env:
+      PYTHONPATH: .
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install FFMpeg, VLC.
+        # To verify VLC installation:
+        # & "C:\Program Files\VideoLAN\VLC\vlc-cache-gen.exe" --version
+        run: |
+          choco install ffmpeg -y
+          choco install vlc -y
+
+      - uses: ./.github/actions/set-up-python
+        with:
+          project-version: ${{ env.PYTHON_VERSION }}
+
+      - uses: ./.github/actions/install-dependencies
+
+      - name: Setup (create fake example videos).
+        run: python tests/setup.py
+
+      - name: Unit testing.
+        run: pytest -vvv tests/unit_tests.py
+
+      - name: Code coverage.
+        run: >
+          pytest --cov=${{ env.SUBFOLDER_NAME }}
+          --cov-fail-under=${{ env.TARGET_COVERAGE }}
+          tests/unit_tests.py
+
+      - name: Integration testing.
+        run: pytest -vvv tests/integration_tests.py
+
+  # Auxiliary job that checks if core Python script changed.
+  core-changed:
+    needs: meta-code-quality
+    # Run even if upstream was skipped, but not if it failed:
+    if: ${{ !failure() && !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      core_python_script_changed:
+        ${{ steps.script_was_updated.outputs.any_changed }}
+    steps:
+      # Fetch all history for version tagging:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: script_was_updated
+        uses: ./.github/actions/changed-files
+        with:
+          files: ${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}
+      - run: |
+          echo 'Did core script change in this commit: '
+          echo ${{ steps.script_was_updated.outputs.any_changed }}
+
+  # Conventional Commits Release (PSR: Python Semantic Release).
+  release:
+    needs: [python-code-testing, core-changed]
+    if: >-
+      needs.core-changed.outputs.core_python_script_changed == 'true' &&
+      (contains(github.event.head_commit.message, 'feat!:') ||
+      contains(github.event.head_commit.message, 'feat:') ||
+      contains(github.event.head_commit.message, 'fix:'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    env:
+      PYTHONPATH: .
+    # Allow commits, tags, pushes:
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/set-up-python
+        with:
+          project-version: ${{ env.PYTHON_VERSION }}
+
+      - run: python -m pip install python-semantic-release
+
+      - name: Configure Git.
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+
+      # Bump version, commit, tag, publish GitHub Release:
+      - name: Semantic Release.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Locally do: python -m semantic_release
+        run: |
+          # semantic-release --verbose --strict --noop --version
+          semantic-release --verbose --strict --config pyproject.toml \
+            version --skip-build --vcs-release
+
+  deploy-to-s3-and-lambda:
+    needs: [release, core-changed]
+    if: >-
+      needs.release.result == 'success' &&
+      needs.core-changed.outputs.core_python_script_changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    env:
+      PYTHONPATH: .
+      BUCKET: 'rvcg-marq-30072025'
+      REGION: 'us-east-2'
+      VERIFY_BASH_SCRIPT: '.github/scripts/verify_deployed_version.sh'
+      LAMBDA_FUNCTION_NAME: 'generate_xml_playlist_lambda'
+
+    steps:
+      - name: Checkout code (deep, main).
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Pull release.
+        run: git pull origin main
+
+      - uses: ./.github/actions/set-up-python
+        with:
+          project-version: ${{ env.PYTHON_VERSION }}
+
+      # No need to install AWS CLI.
+      # These are needed or import breaks (script is executed to verify version).
+      - run: python -m pip install boto3 boto3-stubs boto3-stubs[s3]
+
+      - name: Load AWS credentials from GitHub secrets.
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEPLOY2S3LAMBDA }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEPLOY2S3LAMBDA }}
+          aws-region: ${{ env.REGION }}
+
+      - name: Upload script to S3.
+        run: >
+          aws s3 cp ${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}
+          s3://${{ env.BUCKET }}/${{ env.SCRIPT_NAME }}
+          --content-type 'text/x-python'
+          --content-disposition "attachment; filename=${{ env.SCRIPT_NAME }}"
+          --metadata-directive REPLACE
+
+      - name: Verify correct version is live (for script users).
+        run: |
+          chmod +x ${{ env.VERIFY_BASH_SCRIPT }}
+          ${{ env.VERIFY_BASH_SCRIPT }} \
+            "${{ env.SUBFOLDER_NAME }}" \
+            "${{ env.SCRIPT_NAME }}" \
+            "${{ env.BUCKET }}"
+
+      - name: Deploy to Lambda (website / Cloud service users).
+        run: |
+          script="${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}"
+          zipfile=packaged.zip
+          zip -v --junk-paths $zipfile $script
+          ls -ltrA
+          aws lambda update-function-code \
+          --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+          --zip-file fileb://$zipfile
