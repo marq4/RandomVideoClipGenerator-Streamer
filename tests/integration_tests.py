@@ -131,3 +131,5 @@ def test_vlc_cannot_parse_malformed_playlist() -> None:
                    "can't read xml stream", 'invalid', 'malformed']
     assert any(hint in all_output for hint in error_hints) \
         or result.returncode == VLC_CRASHED_ERROR_CODE
+
+# TMP: Arbitrary change to trigger quality.
