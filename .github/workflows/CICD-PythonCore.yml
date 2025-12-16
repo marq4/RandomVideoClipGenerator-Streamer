@@ -10,6 +10,11 @@ env:
   SCRIPT_NAME: 'random_video_clip_generator.py'
 
 jobs:
+  # How to skip jobs in GitHub Actions:
+  #   * Skip a job: if false.
+  #   * Add to any downstream jobs: if always().
+  # Otherwise (even indirectly) dependent jobs are also skipped!
+
   # TMP: SKIPPING!
   # Python: linting, type-checking, import order, dependency audit.
   # YAML: linting.
@@ -81,7 +86,6 @@ jobs:
 
   # TMP: SKIPPING!
   # Runs on Windows: unit + code coverage, integration.
-  # Skip: if false + Release: always().
   code-testing:
     needs: code-quality
     # Removed functionality: skip-tests as that causes
@@ -296,9 +300,13 @@ jobs:
             ${{ secrets.AWS_SECRET_ACCESS_KEY_DEPLOY2S3LAMBDA }}
           aws-region: ${{ env.REGION }}
 
-      - name: Deploy to Lambda from S3.
+      - name: Deploy to Lambda.
         run: >
+          script="${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}"
+          zipfile=packaged.zip
+          echo $file
+          zip -v $zipfile $script
+          ls -ltrA
           aws lambda update-function-code
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }}
-          --s3-bucket ${{ env.BUCKET }}
-          --s3-key ${{ env.SCRIPT_NAME }}
+          --zip-file fileb://$zipfile
