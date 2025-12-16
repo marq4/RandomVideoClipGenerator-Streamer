@@ -12,11 +12,10 @@ from _pytest.monkeypatch import MonkeyPatch
 # Add project root to path:
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from PythonCore import random_video_clip_generator as rvcg
 # Do not remove this comment or code quality breaks:
 # pylint: disable=wrong-import-position
 from tests.setup import EXAMPLE_VIDEOS_SUBFOLDER, example_video_titles
-
-from PythonCore import random_video_clip_generator as rvcg
 
 # start-time, stop-time, no-audio:
 EXPECTED_NUM_OPTIONS = 3
