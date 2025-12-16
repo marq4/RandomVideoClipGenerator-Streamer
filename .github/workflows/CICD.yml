@@ -241,14 +241,16 @@ jobs:
           project-version: ${{ env.PYTHON_VERSION }}
 
       # No need to install AWS CLI.
-      # These are needed or import breaks (script is executed to verify version).
+      # These are needed or import breaks
+      #   (script is executed to verify version).
       - run: python -m pip install boto3 boto3-stubs boto3-stubs[s3]
 
       - name: Load AWS credentials from GitHub secrets.
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEPLOY2S3LAMBDA }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEPLOY2S3LAMBDA }}
+          aws-secret-access-key: >
+            ${{ secrets.AWS_SECRET_ACCESS_KEY_DEPLOY2S3LAMBDA }}
           aws-region: ${{ env.REGION }}
 
       - name: Upload script to S3.
