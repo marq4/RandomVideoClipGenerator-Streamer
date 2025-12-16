@@ -181,12 +181,10 @@ jobs:
 
   # Conventional Commits Release (PSR: Python Semantic Release).
   release:
-    needs: [code-testing, core-changed]
+    needs: core-changed
     if: >-
       github.ref == 'refs/heads/main' &&
-      needs.core-changed.outputs.core-python-script-changed == 'true' &&
-      (needs.code-testing.result == 'success' ||
-      needs.code-testing.result == 'skipped')
+      needs.core-changed.outputs.core-python-script-changed == 'true'
     runs-on: ubuntu-latest
     # Allow commits, tags, pushes:
     permissions:
