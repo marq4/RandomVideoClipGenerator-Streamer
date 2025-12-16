@@ -384,7 +384,6 @@ def main():
     # Only if --version passed:
     display_version_and_exit_local()
     verify_intervals_valid()
-
     files = list_files_subfolder_local()
     top_element = generate_playlist_local(files)
     create_xml_file(top_element)
