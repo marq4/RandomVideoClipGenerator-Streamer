@@ -166,7 +166,7 @@ jobs:
 
   # In case Release is skipped, I can see WHY:
   debug-release-conditions:
-    needs: core-changed
+    needs: [code-testing, core-changed]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -176,6 +176,8 @@ jobs:
           echo "core-changed output: "
           echo ${{ needs.core-changed.outputs.core-python-script-changed }}
           echo "core-changed result: ${{ needs.core-changed.result }}"
+          echo "code-testing result: "
+          echo ${{ needs.code-testing.result }}
 
   # Conventional Commits Release (PSR: Python Semantic Release).
   release:
