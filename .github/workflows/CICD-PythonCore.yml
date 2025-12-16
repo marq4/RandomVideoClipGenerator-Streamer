@@ -315,6 +315,10 @@ jobs:
 
       - name: Deploy to Lambda.
         run: |
-          pwd
-          ls -la
-          ls -la ${{ env.SUBFOLDER_NAME }}/
+          script="${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}"
+          zipfile=packaged.zip
+          zip -v $zipfile $script
+          ls -ltrA
+          aws lambda update-function-code \
+          --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+          --zip-file fileb://$zipfile
