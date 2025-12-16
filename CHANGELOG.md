@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v3.3.1 (2025-12-16)
+
+### Bug Fixes
+
+- Trying to deploy to Lambda direcly (zip).
+  ([`edce196`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/edce196dc3b79b675797fa4022af36ba578ff24b))
+
+
 ## v3.3.0 (2025-12-16)
 
 ### Bug Fixes
