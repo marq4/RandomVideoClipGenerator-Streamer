@@ -49,7 +49,10 @@ jobs:
 
   dummy:
     needs: meta-code-quality
-    if: always()
+    # I'm trying to skip this job if YAML lint failed.
+    # But ALSO run it it SUC, OR was skipped.
+    #if: success() && always()
+    if: ${{ !failure() && !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - run: |
