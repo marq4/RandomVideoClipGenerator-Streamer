@@ -30,9 +30,9 @@ jobs:
         ${{ steps.python_was_updated.outputs.any_changed }}
     steps:
       # Fetch all history for version tagging:
-      - uses: ./.github/actions/CheckoutMyCode
+      - uses: actions/checkout@v4
         with:
-          deep: true
+          fetch-depth: 0
       - id: python_was_updated
         uses: ./.github/actions/ChangedFiles
         with:
@@ -53,7 +53,7 @@ jobs:
     #if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
-      - uses: ./.github/actions/CheckoutMyCode
+      - uses: actions/checkout@v4
 
       - name: Setup Python ${{ matrix.python-versions }}.
         uses: actions/setup-python@v5
@@ -106,7 +106,7 @@ jobs:
     timeout-minutes: 13
 
     steps:
-      - uses: ./.github/actions/CheckoutMyCode
+      - uses: actions/checkout@v4
 
       - name: Install FFMpeg, VLC.
         run: |
@@ -168,9 +168,9 @@ jobs:
         ${{ steps.script_was_updated.outputs.any_changed }}
     steps:
       # Fetch all history for version tagging:
-      - uses: ./.github/actions/CheckoutMyCode
+      - uses: actions/checkout@v4
         with:
-          deep: true
+          fetch-depth: 0
       - id: script_was_updated
         uses: ./.github/actions/ChangedFiles
         with:
@@ -244,7 +244,7 @@ jobs:
       VERIFY_BASH_SCRIPT: '.github/scripts/verify_deployed_version.sh'
 
     steps:
-      - name: Checkout code (deep).
+      - name: Checkout code (deep, main).
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -311,7 +311,7 @@ jobs:
       LAMBDA_FUNCTION_NAME: 'generate_xml_playlist_lambda'
 
     steps:
-      - name: Checkout code (deep).
+      - name: Checkout code (deep, main).
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
