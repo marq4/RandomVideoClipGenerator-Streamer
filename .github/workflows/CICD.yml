@@ -101,7 +101,7 @@ jobs:
         run: mypy .
 
       - name: Import ordering.
-        run: isort --check --verbose .
+        run: isort --check .
 
       - name: Dependency security audit.
         run: pyscan
@@ -109,11 +109,15 @@ jobs:
   # Runs on Windows: unit + code coverage, integration.
   python-code-testing:
     needs: python-code-quality
+    # Without the first conditions this job gets skipped IF meta job gets skipped,
+    #   as it depends on it indirectly up the chain, so no Python code tests
+    #   if YAML doesn't change!
     # Only test Python code if commit will trigger a Release:
     if: >-
-      contains(github.event.head_commit.message, 'feat!:') ||
+      !failure() && !cancelled() &&
+      (contains(github.event.head_commit.message, 'feat!:') ||
       contains(github.event.head_commit.message, 'feat:') ||
-      contains(github.event.head_commit.message, 'fix:')
+      contains(github.event.head_commit.message, 'fix:'))
     runs-on: windows-latest
     timeout-minutes: 13
     env:
