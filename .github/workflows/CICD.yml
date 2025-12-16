@@ -279,3 +279,6 @@ jobs:
           aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
           --zip-file fileb://$zipfile
+
+# Arbitrary change while I figure out how to run
+# Python quality job without changing YAML.

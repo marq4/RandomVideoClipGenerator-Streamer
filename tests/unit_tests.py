@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
-from setup import EXAMPLE_VIDEOS_SUBFOLDER, example_videos_with_durations
+from tests.setup import EXAMPLE_VIDEOS_SUBFOLDER, example_videos_with_durations
 
 from PythonCore import random_video_clip_generator as rvcg
 

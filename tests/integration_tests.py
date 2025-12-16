@@ -14,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Do not remove this comment or code quality breaks:
 # pylint: disable=wrong-import-position
-from setup import EXAMPLE_VIDEOS_SUBFOLDER, example_video_titles
+from tests.setup import EXAMPLE_VIDEOS_SUBFOLDER, example_video_titles
 
 from PythonCore import random_video_clip_generator as rvcg
 
