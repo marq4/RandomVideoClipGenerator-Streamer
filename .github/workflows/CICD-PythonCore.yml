@@ -301,7 +301,7 @@ jobs:
           aws-region: ${{ env.REGION }}
 
       - name: Deploy to Lambda.
-        run: >
+        run: |
           script="${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}"
           zipfile=packaged.zip
           echo $file
