@@ -10,7 +10,7 @@ env:
   SCRIPT_NAME: 'random_video_clip_generator.py'
 
 jobs:
-  # SKIPPING!
+  # TMP: SKIPPING!
   # Python: linting, type-checking, import order, dependency audit.
   # YAML: linting.
   code-quality:
@@ -79,7 +79,7 @@ jobs:
         run: |
           pyscan
 
-  # SKIPPING!
+  # TMP: SKIPPING!
   # Runs on Windows: unit + code coverage, integration.
   # Skip: if false + Release: always().
   code-testing:
@@ -288,6 +288,14 @@ jobs:
       LAMBDA_FUNCTION_NAME: 'generate_xml_playlist_lambda'
 
     steps:
+      - name: Load AWS credentials from GitHub secrets.
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEPLOY2S3LAMBDA }}
+          aws-secret-access-key: >-
+            ${{ secrets.AWS_SECRET_ACCESS_KEY_DEPLOY2S3LAMBDA }}
+          aws-region: ${{ env.REGION }}
+
       - name: Deploy to Lambda from S3.
         run: >
           aws lambda update-function-code
