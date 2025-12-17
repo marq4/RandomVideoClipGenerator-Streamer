@@ -42,6 +42,8 @@ DEFAULT_INTERVAL_MIN_CLOUD = 2
 DEFAULT_INTERVAL_MAX_CLOUD = 2
 XML_PLAYLIST_FILE_CLOUD = '/tmp/clips.xspf'
 OUTPUT_BUCKET = 'rvcg-xml-playlist-4download2'
+OK_STATUS_CODE = 200
+NOT_FOUND_STATUS_CODE = 404
 
 
 # _ Common code section _
@@ -224,12 +226,40 @@ def generate_playlist_cloud(pairs: list,
         max_duration)
     create_xml_file(top_element)
 
-# Cloud's "main":
-def lambda_handler(event, _context):
-    """ Main function for Cloud Service Lambda environment. """
-
-    s3 = boto3.client('s3')
+def delete_playlist_after_download_cloud() -> None:
+    """ Immediately delete the generated XML so no other user accidentally gets it. """
     lambda_client = boto3.client('lambda')
+    lambda_client.invoke(
+        FunctionName='DeletePlaylistAfterDownload',
+        InvocationType='Event', # Must be async.
+        Payload=json.dumps({'file_key': "clips.xspf"})
+    )
+
+def prepare_response_cloud(status_ok: bool, method: str, body: str) -> dict:
+    """ Return JSON-like dictionary to return to Lambda caller (APIGW). """
+    headers = {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type'
+    }
+    if method != '':
+        headers['Access-Control-Allow-Methods'] = method
+    return {
+        'statusCode': OK_STATUS_CODE if status_ok else NOT_FOUND_STATUS_CODE,
+        'headers': headers,
+        'body': body
+    }
+
+def get_version_response_cloud() -> dict:
+    """ Just return the version to be displayed in the webpage. """
+    body = json.dumps({
+        'version': __version__
+    })
+    return prepare_response_cloud(True, 'GET', body)
+
+def get_playlist_response_cloud(event: dict) -> dict:
+    """ Handle XML playlist generation for web users. """
+    s3 = boto3.client('s3')
 
     # Bucket name where user's video list text files are uploaded to:
     bucket_name = 'rvcgstack-s3uploadbucket-bcgfzvlvljdy'
@@ -256,27 +286,39 @@ def lambda_handler(event, _context):
 
     download_url = send_final_xml_playlist_to_user_cloud(s3)
 
-    lambda_client.invoke(
-        FunctionName='DeletePlaylistAfterDownload',
-        InvocationType='Event', # Must be async.
-        Payload=json.dumps({'file_key': "clips.xspf"})
-    )
-
-    return {
-        'statusCode': 200,
-        'headers': {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST',
-            'Access-Control-Allow-Headers': 'Content-Type'
-        },
-        'body': json.dumps({
+    body = json.dumps({
             'num_clips': num_clips,
             'min_duration': min_duration,
             'max_duration': max_duration,
             'download_url': download_url
-        })
-    }
+    })
+    return prepare_response_cloud(True, 'POST', body)
+
+def get_invalid_response_cloud() -> dict:
+    """ Tell user what went wrong. """
+    body = json.dumps({
+        'error': 'Not Found',
+        'message': 'The requested path does not exist.',
+        'available_endpoints': ['/version', '/generate']
+    })
+    return prepare_response_cloud(False, '', body)
+
+# Cloud's "main":
+def lambda_handler(event, _context):
+    """ Main function for Cloud Service Lambda environment. """
+
+    # Check which route was called (generate | version):
+    route = event.get('path', '')
+
+    if route.endswith('/version'):
+        return get_version_response_cloud()
+
+    if route.endswith('/generate'):
+        playlist_response = get_playlist_response_cloud(event)
+        delete_playlist_after_download_cloud()
+        return playlist_response
+
+    return get_invalid_response_cloud()
 
 
 # _ Local code section _
