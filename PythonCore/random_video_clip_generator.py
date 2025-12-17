@@ -303,8 +303,7 @@ def get_invalid_response_cloud() -> dict:
     })
     return prepare_response_cloud(False, '', body)
 
-# Cloud's "main":
-def lambda_handler(event, _context):
+def cloud_main(event, _context):
     """ Main function for Cloud Service Lambda environment. """
 
     # Check which route was called (generate | version):
