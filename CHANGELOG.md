@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v4.1.0 (2025-12-17)
+
+### Bug Fixes
+
+- This commit should only be tested but not released.
+  ([`71440c4`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/71440c414561d92230d2098dd4cb6af22d05a7e4))
+
+### Features
+
+- Trying to display version on main webpage.
+  ([`f06097f`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/f06097f1ac3ada0fa8d9b62d36c3baee3c3a89a0))
+
+
 ## v4.0.0 (2025-12-16)
 
 ### Bug Fixes
