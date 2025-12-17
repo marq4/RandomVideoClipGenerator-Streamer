@@ -1,45 +1,52 @@
 ---
-# DO NOT even think about multiple workflows!
+# DO NOT even think about multiple workflows for CICD!
 
 name: CICD
 
 on: push
 
 env:
+  # Python section:
   # Specify minimum code coverage for Unit Testing:
   TARGET_COVERAGE: 40
-  SUBFOLDER_NAME: 'PythonCore'
+  CORE_SUBFOLDER: 'PythonCore'
   SCRIPT_NAME: 'random_video_clip_generator.py'
   # Single place to update Python version for this workflow:
   PYTHON_VERSION: '3.10'
+  # Web/Cloud section:
+  CLOUD_SUBFOLDER: 'CloudService'
+  CSS_STYLESHEET: 'styles.css'
+  CLOUDFRONT_DISTRIBUTION_ID: '%%%'
 
 
 jobs:
+
+  # _ Meta-code _
+
   # Auxiliary job that checks if any YAML file(s) changed.
   any-yaml-changed:
-    if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 3
     outputs:
-      any_yaml_files_changed:
-        ${{ steps.yaml_was_updated.outputs.any_changed }}
+      any_yaml_files_were_updated:
+        ${{ steps.detect_yaml_diff.outputs.any_changed }}
     steps:
       # Fetch all history for version tagging:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - id: yaml_was_updated
+      - id: detect_yaml_diff
         uses: ./.github/actions/changed-files
         with:
           files: "**/*.{yml,yaml}"
       - run: |
           echo 'Did any YAML file(s) change in this commit: '
-          echo ${{ steps.yaml_was_updated.outputs.any_changed }}
+          echo ${{ steps.detect_yaml_diff.outputs.any_changed }}
 
   # Lint YAML.
   meta-code-quality:
     needs: any-yaml-changed
-    if: needs.any-yaml-changed.outputs.any_yaml_files_changed == 'true'
+    if: needs.any-yaml-changed.outputs.any_yaml_files_were_updated == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -49,6 +56,9 @@ jobs:
       - name: Lint YAML files.
         uses: frenck/action-yamllint@v1
 
+
+  # _ Python _
+
   # Auxiliary job that checks if any Python file(s) changed.
   any-python-changed:
     needs: meta-code-quality
@@ -57,20 +67,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     outputs:
-      any_python_files_changed:
-        ${{ steps.python_was_updated.outputs.any_changed }}
+      any_python_files_were_updated:
+        ${{ steps.detect_python_diff.outputs.any_changed }}
     steps:
-      # Fetch all history for version tagging:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - id: python_was_updated
+      - id: detect_python_diff
         uses: ./.github/actions/changed-files
         with:
           files: '**/*.py'
       - run: |
           echo 'Did any Python file(s) change in this commit: '
-          echo ${{ steps.python_was_updated.outputs.any_changed }}
+          echo ${{ steps.detect_python_diff.outputs.any_changed }}
 
   # Python lint, type-checking, import order.
   # Dependency audit.
@@ -80,7 +89,7 @@ jobs:
     # Run even if ANY upstream was skipped (like meta), but not if it failed:
     if: >
       !failure() && !cancelled() &&
-      needs.any-python-changed.outputs.any_python_files_changed == 'true'
+      needs.any-python-changed.outputs.any_python_files_were_updated == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 9
     env:
@@ -150,44 +159,42 @@ jobs:
 
       - name: Code coverage.
         run: >
-          pytest --cov=${{ env.SUBFOLDER_NAME }}
+          pytest --cov=${{ env.CORE_SUBFOLDER }}
           --cov-fail-under=${{ env.TARGET_COVERAGE }}
           tests/unit_tests.py
 
       - name: Integration testing.
         run: pytest -vvv tests/integration_tests.py
 
-  # Auxiliary job that checks if core Python script changed.
+  # Auxiliary job that checks if core Python script changed specifically.
   core-changed:
     needs: meta-code-quality
-    # Run even if upstream was skipped, but not if it failed:
     if: ${{ !failure() && !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 3
     outputs:
-      core_python_script_changed:
-        ${{ steps.script_was_updated.outputs.any_changed }}
+      core_python_script_was_updated:
+        ${{ steps.detect_core_python_script_diff.outputs.any_changed }}
     steps:
-      # Fetch all history for version tagging:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - id: script_was_updated
+      - id: detect_core_python_script_diff
         uses: ./.github/actions/changed-files
         with:
-          files: ${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}
+          files: ${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME }}
       - run: |
-          echo 'Did core script change in this commit: '
-          echo ${{ steps.script_was_updated.outputs.any_changed }}
+          echo 'Did the core Python script change in this commit: '
+          echo ${{ steps.detect_core_python_script_diff.outputs.any_changed }}
 
   # Conventional Commits Release (PSR: Python Semantic Release).
-  # Only if core Python script changed, special commit message.
+  # Only runs if core Python script changed + special commit message.
   release:
     needs: [python-code-testing, core-changed]
     if: >-
       !failure() && !cancelled() &&
       needs.python-code-testing.result == 'success' &&
-      needs.core-changed.outputs.core_python_script_changed == 'true' &&
+      needs.core-changed.outputs.core_python_script_was_updated == 'true' &&
       (contains(github.event.head_commit.message, 'feat!:') ||
       contains(github.event.head_commit.message, 'feat:') ||
       contains(github.event.head_commit.message, 'fix:'))
@@ -228,7 +235,7 @@ jobs:
     if: >-
       !failure() && !cancelled() &&
       needs.release.result == 'success' &&
-      needs.core-changed.outputs.core_python_script_changed == 'true'
+      needs.core-changed.outputs.core_python_script_was_updated == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 16
     env:
@@ -253,8 +260,8 @@ jobs:
           project-version: ${{ env.PYTHON_VERSION }}
 
       # No need to install AWS CLI.
-      # These are needed or import breaks
-      #   (script is executed to verify version).
+      # These are needed or import breaks.
+      # (Script is executed to verify version).
       - run: python -m pip install boto3 boto3-stubs boto3-stubs[s3]
 
       - name: Load AWS credentials from GitHub secrets.
@@ -267,7 +274,7 @@ jobs:
 
       - name: Upload script to S3.
         run: >
-          aws s3 cp ${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}
+          aws s3 cp ${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME }}
           s3://${{ env.BUCKET }}/${{ env.SCRIPT_NAME }}
           --content-type 'text/x-python'
           --content-disposition "attachment; filename=${{ env.SCRIPT_NAME }}"
@@ -277,16 +284,139 @@ jobs:
         run: |
           chmod +x ${{ env.VERIFY_BASH_SCRIPT }}
           ${{ env.VERIFY_BASH_SCRIPT }} \
-            "${{ env.SUBFOLDER_NAME }}" \
+            "${{ env.CORE_SUBFOLDER }}" \
             "${{ env.SCRIPT_NAME }}" \
             "${{ env.BUCKET }}"
 
       - name: Deploy to Lambda (website / Cloud service users).
         run: |
-          script="${{ env.SUBFOLDER_NAME }}/${{ env.SCRIPT_NAME }}"
+          script="${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME }}"
           zipfile=packaged.zip
           zip -v --junk-paths $zipfile $script
           ls -ltA
           aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
           --zip-file fileb://$zipfile
+
+
+  # _ Web _
+
+  # Auxiliary job that checks if the CSS stylesheet changed specifically.
+  css-changed:
+    needs: meta-code-quality
+    if: ${{ !failure() && !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      css_stylesheet_was_updated:
+        ${{ steps.detect_css_stylesheet_diff.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: detect_css_stylesheet_diff
+        uses: ./.github/actions/changed-files
+        with:
+          files: ${{ env.CLOUD_SUBFOLDER }}/${{ env.CSS_STYLESHEET }}
+      - run: |
+          echo 'Did the CSS stylesheet change in this commit: '
+          echo ${{ steps.detect_css_stylesheet_diff.outputs.any_changed }}
+
+  # Auxiliary job that checks if any HTML document(s) changed.
+  any-html-changed:
+    needs: meta-code-quality
+    if: ${{ !failure() && !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      any_html_documents_were_updated:
+        ${{ steps.detect_html_diff.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: detect_html_diff
+        uses: ./.github/actions/changed-files
+        with:
+          files: '**/*.html'
+      - run: |
+          echo 'Did any HTML document(s) change in this commit: '
+          echo ${{ steps.detect_html_diff.outputs.any_changed }}
+
+  # Auxiliary job that checks if any JavaScript file(s) changed.
+  any-js-changed:
+    needs: meta-code-quality
+    if: ${{ !failure() && !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      any_js_files_were_updated:
+        ${{ steps.detect_js_diff.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: detect_js_diff
+        uses: ./.github/actions/changed-files
+        with:
+          files: '**/*.js'
+      - run: |
+          echo 'Did any JavaScript file(s) change in this commit: '
+          echo ${{ steps.detect_js_diff.outputs.any_changed }}
+
+  # Lint CSS.
+  css-style-quality:
+    needs: css-changed
+    if: needs.css-changed.outputs.css_stylesheet_was_updated == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Lint CSS.
+        run: |
+          npm install --global stylelint stylelint-config-standard
+          npx stylelint ${{ env.CLOUD_SUBFOLDER }}/${{ env.CSS_STYLESHEET }}
+
+  # Lint HTML.
+  html-style-quality:
+    needs: any-html-changed
+    if: needs.any-html-changed.outputs.any_html_documents_were_updated == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Lint HTML.
+        run: |
+          npm install --global html-validate
+          html-validate .
+
+  # Only lint JS for now. I MAY add automated testing later.
+  # Only runs if any JS files changed.
+  js-code-quality:
+    needs: any-js-changed
+    if: needs.any-js-changed.outputs.any_js_files_were_updated == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Lint JavaScript.
+        run: |
+          npm install --global standard
+          npx standard
