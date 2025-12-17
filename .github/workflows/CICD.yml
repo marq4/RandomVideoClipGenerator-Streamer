@@ -431,9 +431,9 @@ jobs:
       - js-code-quality
     if: >-
       !failure() && !cancelled() &&
-      (needs.css-style-quality.result != 'failure' &&
-      needs.html-style-quality.result != 'failure' &&
-      needs.js-code-quality.result != 'failure')
+      (needs.css-style-quality.result == 'success' ||
+      needs.html-style-quality.result == 'success' ||
+      needs.js-code-quality.result == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
