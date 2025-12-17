@@ -285,7 +285,7 @@ jobs:
           ${{ env.VERIFY_BASH_SCRIPT }} \
             "${{ env.CORE_SUBFOLDER }}" \
             "${{ env.SCRIPT_NAME }}" \
-            "${{ env.BUCKET }}"
+            "${{ env.BUCKET_FOR_SCRIPT }}"
 
       - name: Deploy to Lambda (website / Cloud service users).
         run: |
