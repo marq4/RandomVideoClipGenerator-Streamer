@@ -366,7 +366,9 @@ jobs:
   # Lint CSS.
   css-style-quality:
     needs: css-changed
-    if: needs.css-changed.outputs.css_stylesheet_was_updated == 'true'
+    if: >
+      !failure() && !cancelled() &&
+      needs.css-changed.outputs.css_stylesheet_was_updated == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 4
 
@@ -385,7 +387,9 @@ jobs:
   # Lint HTML.
   html-style-quality:
     needs: any-html-changed
-    if: needs.any-html-changed.outputs.any_html_documents_were_updated == 'true'
+    if: >
+      !failure() && !cancelled() &&
+      needs.any-html-changed.outputs.any_html_documents_were_updated == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -404,7 +408,9 @@ jobs:
   # Only runs if any JS files changed.
   js-code-quality:
     needs: any-js-changed
-    if: needs.any-js-changed.outputs.any_js_files_were_updated == 'true'
+    if: >
+      !failure() && !cancelled() &&
+      needs.any-js-changed.outputs.any_js_files_were_updated == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 7
 
