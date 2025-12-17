@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.2.1 (2025-12-17)
+
+### Bug Fixes
+
+- I DO need a release to deploy this new function name to Lambda.
+  ([`5e1edb6`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/5e1edb63b7a049439a06735aee5d339e6be27a79))
+
+
 ## v4.2.0 (2025-12-17)
 
 ### Bug Fixes

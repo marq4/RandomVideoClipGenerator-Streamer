@@ -27,7 +27,7 @@ LARGEST_MAX = 25
 
 
 # DO NOT CHANGE THIS or CD breaks:
-__version__ = '4.2.0'
+__version__ = '4.2.1'
 
 
 # Globals for local script:
