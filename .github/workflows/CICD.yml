@@ -6,17 +6,17 @@ name: CICD
 on: push
 
 env:
-  # Python section:
+  # _ Python _
   # Specify minimum code coverage for Unit Testing:
   TARGET_COVERAGE: 40
   CORE_SUBFOLDER: 'PythonCore'
   SCRIPT_NAME: 'random_video_clip_generator.py'
   # Single place to update Python version for this workflow:
   PYTHON_VERSION: '3.10'
-  # Web/Cloud section:
+  # _ Cloud + Web _
+  REGION: 'us-east-2'
   CLOUD_SUBFOLDER: 'CloudService'
   CSS_STYLESHEET: 'styles.css'
-  CLOUDFRONT_DISTRIBUTION_ID: '%%%'
 
 
 jobs:
@@ -240,8 +240,7 @@ jobs:
     timeout-minutes: 16
     env:
       PYTHONPATH: .
-      BUCKET: 'rvcg-marq-30072025'
-      REGION: 'us-east-2'
+      BUCKET_FOR_SCRIPT: 'rvcg-marq-30072025'
       VERIFY_BASH_SCRIPT: '.github/scripts/verify_deployed_version.sh'
       LAMBDA_FUNCTION_NAME: 'generate_xml_playlist_lambda'
 
@@ -267,15 +266,15 @@ jobs:
       - name: Load AWS credentials from GitHub secrets.
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEPLOY2S3LAMBDA }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_RVCGS }}
           aws-secret-access-key: >
-            ${{ secrets.AWS_SECRET_ACCESS_KEY_DEPLOY2S3LAMBDA }}
+            ${{ secrets.AWS_SECRET_ACCESS_KEY_RVCGS }}
           aws-region: ${{ env.REGION }}
 
       - name: Upload script to S3.
         run: >
           aws s3 cp ${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME }}
-          s3://${{ env.BUCKET }}/${{ env.SCRIPT_NAME }}
+          s3://${{ env.BUCKET_FOR_SCRIPT }}/${{ env.SCRIPT_NAME }}
           --content-type 'text/x-python'
           --content-disposition "attachment; filename=${{ env.SCRIPT_NAME }}"
           --metadata-directive REPLACE
@@ -420,3 +419,46 @@ jobs:
         run: |
           npm install --global standard
           npx standard
+
+  # Upload web files to RVCG.com bucket + invalidate CloudFront distribution.
+  deploy-web-assets:
+    needs:
+      - css-changed
+      - any-html-changed
+      - any-js-changed
+      - css-style-quality
+      - html-style-quality
+      - js-code-quality
+    if: >-
+      !failure() && !cancelled() &&
+      (needs.css-style-quality.result != 'failure' &&
+      needs.html-style-quality.result != 'failure' &&
+      needs.js-code-quality.result != 'failure')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BUCKET_WEB: 'randomvideoclipgenerator.com'
+      CLOUDFRONT_DISTRIBUTION: 'EWDPJFG1ZNBMV'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load AWS credentials from GitHub secrets.
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_RVCGS }}
+          aws-secret-access-key: >
+            ${{ secrets.AWS_SECRET_ACCESS_KEY_RVCGS }}
+          aws-region: ${{ env.REGION }}
+
+      - name: Sync web assets to S3.
+        run: >
+          aws s3 sync ${{ env.CLOUD_SUBFOLDER }}
+          s3://${{ env.BUCKET_WEB }}
+          --delete
+
+      - name: Invalidate CloudFront cache.
+        run: >
+          aws cloudfront create-invalidation
+          --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION }}
+          --paths '/*'
