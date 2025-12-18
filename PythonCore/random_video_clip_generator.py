@@ -309,9 +309,6 @@ def cloud_main(event, _context):
     # Check which route was called (generate | version):
     route = event.get('rawPath', '')
 
-    print(f"DEBUG: Received path: '{route}'")
-    print(f"DEBUG: Full event: {json.dumps(event)}")
-
     if route.endswith('/version'):
         return get_version_response_cloud()
 

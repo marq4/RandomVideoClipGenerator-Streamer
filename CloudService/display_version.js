@@ -7,7 +7,7 @@ async function fetchAndDisplayVersion () {
   } catch (error) {
     console.error('Failed to fetch version:', error)
     // Fallback to hardcoded version if API fails:
-    document.getElementById('app-version').textContent = '4.0.0'
+    document.getElementById('app-version').textContent = '4.2.0'
   }
 }
 // Call when page loads:

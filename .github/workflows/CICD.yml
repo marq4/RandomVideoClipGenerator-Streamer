@@ -44,11 +44,9 @@ jobs:
           echo ${{ steps.detect_yaml_diff.outputs.any_changed }}
 
   # Lint YAML.
-  # TMP: SKIPPING!
   meta-code-quality:
     needs: any-yaml-changed
-    if: false
-    # if: needs.any-yaml-changed.outputs.any_yaml_files_were_updated == 'true'
+    if: needs.any-yaml-changed.outputs.any_yaml_files_were_updated == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -86,14 +84,12 @@ jobs:
   # Python lint, type-checking, import order.
   # Dependency audit.
   # Only runs if any Python files changed.
-  # TMP: SKIPPING!
   python-code-quality:
     needs: any-python-changed
     # Run even if ANY upstream was skipped (like meta), but not if it failed:
-    if: false
-    # if: >
-    #  !failure() && !cancelled() &&
-    #  needs.any-python-changed.outputs.any_python_files_were_updated == 'true'
+    if: >
+      !failure() && !cancelled() &&
+      needs.any-python-changed.outputs.any_python_files_were_updated == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 9
     env:
@@ -236,14 +232,12 @@ jobs:
           semantic-release --verbose --strict --config pyproject.toml \
             version --skip-build --vcs-release
 
-  # TMP: ALWAYS!
   deploy-to-s3-and-lambda:
     needs: [release, core-changed]
-    if: always()
-    # if: >-
-    #  !failure() && !cancelled() &&
-    #  needs.release.result == 'success' &&
-    #  needs.core-changed.outputs.core_python_script_was_updated == 'true'
+    if: >-
+      !failure() && !cancelled() &&
+      needs.release.result == 'success' &&
+      needs.core-changed.outputs.core_python_script_was_updated == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 16
     env:
