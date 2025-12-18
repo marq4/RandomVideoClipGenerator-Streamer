@@ -293,31 +293,48 @@ def get_test_values_response_cloud(body: dict) -> dict:
     return prepare_response_cloud(True, 'POST', body_json)
 
 def extract_parameters_cloud(body: dict) -> tuple[int, int, int]:
-    """ Convert them from string to int. """
+    """
+    Convert them from string to int.
+    If empty: default.
+    Otherwise:
+        If invalid: default.
+        Clamp floor to 1.
+        Convert to int.
+    """
     extracted_num_clips = body.get('num_clips')
     extracted_min_duration = body.get('min_duration')
     extracted_max_duration = body.get('max_duration')
-    if extracted_num_clips is None:
-        extracted_num_clips = ''
-    if extracted_min_duration is None:
-        extracted_min_duration = ''
-    if extracted_max_duration is None:
-        extracted_max_duration = ''
-    try:
-        int_num_clips = int(extracted_num_clips)
-    except ValueError:
-        int_num_clips = 0
-    try:
-        int_min_duration = int(extracted_min_duration)
-    except ValueError:
-        int_min_duration = 0
-    try:
-        int_max_duration = int(extracted_max_duration)
-    except ValueError:
-        int_max_duration = 0
-    int_num_clips = max(int_num_clips, 1)
-    int_min_duration = max(int_min_duration, 1)
-    int_max_duration = max(int_max_duration, 1)
+
+    # Number of clips:
+    if extracted_num_clips is None or extracted_num_clips == '':
+        int_num_clips = DEFAULT_NUMBER_OF_CLIPS_CLOUD
+    else:
+        try:
+            int_num_clips = int(extracted_num_clips)
+            int_num_clips = max(int_num_clips, 1)
+        except ValueError:
+            int_num_clips = DEFAULT_NUMBER_OF_CLIPS_CLOUD
+
+    # Min interval:
+    if extracted_min_duration is None or extracted_min_duration == '':
+        int_min_duration = DEFAULT_INTERVAL_MIN_CLOUD
+    else:
+        try:
+            int_min_duration = int(extracted_min_duration)
+            int_min_duration = max(int_min_duration, 1)
+        except ValueError:
+            int_min_duration = DEFAULT_INTERVAL_MIN_CLOUD
+
+    # Max interval:
+    if extracted_max_duration is None or extracted_max_duration == '':
+        int_max_duration = DEFAULT_INTERVAL_MAX_CLOUD
+    else:
+        try:
+            int_max_duration = int(extracted_max_duration)
+            int_max_duration = max(int_max_duration, 1)
+        except ValueError:
+            int_max_duration = DEFAULT_INTERVAL_MAX_CLOUD
+
     return (int_num_clips, int_min_duration, int_max_duration)
 
 def validate_and_get_parameters_cloud(body: dict) -> tuple[int, int, int]:
