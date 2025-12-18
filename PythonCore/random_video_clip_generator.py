@@ -15,7 +15,6 @@ from subprocess import PIPE, Popen
 import boto3
 from mypy_boto3_s3.client import S3Client
 
-
 #===============================================================================
 # Please set these values if running the script locally:
 NUMBER_OF_CLIPS = 5
