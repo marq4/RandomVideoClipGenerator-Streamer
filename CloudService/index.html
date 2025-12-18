@@ -123,11 +123,13 @@
           <li>
             Download the <a href="https://rvcg-marq-30072025.s3.us-east-2.amazonaws.com/GenerateList.ps1">PoweShell script</a>.
           </li>
-          <li>Move it to <code>C:\Videos</code> folder.</li>
+          <li>Move it to <code>C:\Videos</code> folder. (⚠️ NOT videos subfolder 😉.)</li>
           <li>Run it:</li>
           <li>
             <ol>
               <li>Open an elevated PowerShell window by pressing <code>WIN+X</code> and selecting Windows PowerShell (Admin).
+                (Select "yes" to User Account Control's dialog: Do you want to allow this app to make
+                changes to your device?)
               </li>
               <li>
                 Change-directory into your Videos folder: <code>cd C:\Videos</code>
@@ -141,7 +143,17 @@
             </ol>
           </li>
           <li>
-            Upload <code>list_videos.txt</code> bellow (Browse + Upload).
+            Do me a solid and verify the video list text file makes sense before uploading
+            as every time the AWS Lambda function runs it costs me money 😆.
+            (Open it with Notepad by double-clicking it [list_videos.txt].)
+            (This text file should contain your video titles with full paths and their durations.)
+          </li>
+          <li>
+            Upload your <code>list_videos.txt</code> to this web service.
+            (Click the gray over blue "Browse... [No file selected]" button.)
+            (Then select the text file, click "Open" button in your browser's "File Upload"
+            window.)
+            (Then click the new "Upload" button that will appear here.)
           </li>
           <li>
             After uploading your list of videos, click the <code>Generate Playlist</code> button in the next page.

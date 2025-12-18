@@ -118,7 +118,6 @@ jobs:
 
   # Runs on Windows: unit + code coverage, integration.
   # Only for a potential release and if code quality cleared.
-  # TMP: SKIPPING!
   python-code-testing:
     needs: python-code-quality
     # Without the first conditions
@@ -126,12 +125,11 @@ jobs:
     #   as it depends on it indirectly up the chain,
     #   (so no Python code tests if YAML doesn't change).
     # Only test Python code if commit will trigger a Release:
-    if: false
-    # if: >-
-    #  !failure() && !cancelled() &&
-    #  (contains(github.event.head_commit.message, 'feat!:') ||
-    #  contains(github.event.head_commit.message, 'feat:') ||
-    #  contains(github.event.head_commit.message, 'fix:'))
+    if: >-
+      !failure() && !cancelled() &&
+      (contains(github.event.head_commit.message, 'feat!:') ||
+      contains(github.event.head_commit.message, 'feat:') ||
+      contains(github.event.head_commit.message, 'fix:'))
     runs-on: windows-latest
     timeout-minutes: 13
     env:

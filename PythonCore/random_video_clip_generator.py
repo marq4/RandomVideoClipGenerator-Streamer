@@ -1,4 +1,7 @@
-""" Random video clips player for Win10. """
+""" Random video clips player for:
+    * Windows 10 (local with python command).
+    * Web/Cloud service: https://www.randomvideoclipgenerator.com
+"""
 
 import json
 import os
@@ -12,8 +15,6 @@ from subprocess import PIPE, Popen
 import boto3
 from mypy_boto3_s3.client import S3Client
 
-RUNNING_ENV_IS_LAMBDA = bool(os.getenv('AWS_LAMBDA_FUNCTION_NAME'))
-
 
 #===============================================================================
 # Please set these values if running the script locally:
@@ -26,13 +27,19 @@ LARGEST_MAX = 25
 #===============================================================================
 
 
+RUNNING_ENV_IS_LAMBDA = bool(os.getenv('AWS_LAMBDA_FUNCTION_NAME'))
+
+XML_PLAYLIST_FILE = 'clips.xspf'
+if RUNNING_ENV_IS_LAMBDA:
+    XML_PLAYLIST_FILE = '/tmp/' + XML_PLAYLIST_FILE
+
+
 # DO NOT CHANGE THIS or CD breaks:
 __version__ = '4.2.1'
 
 
 # Globals for local script:
 CURRENT_DIRECTORY = os.path.dirname( os.path.abspath(__file__) )
-XML_PLAYLIST_FILE = 'clips.xspf'
 VLC_BATCH_FILE = 'exevlc.bat'
 
 # Globals for Cloud Service:
@@ -40,7 +47,6 @@ DEFAULT_NUMBER_OF_CLIPS_CLOUD = 55
 MAX_NUM_CLIPS_CLOUD = 1_000
 DEFAULT_INTERVAL_MIN_CLOUD = 2
 DEFAULT_INTERVAL_MAX_CLOUD = 2
-XML_PLAYLIST_FILE_CLOUD = '/tmp/clips.xspf'
 OUTPUT_BUCKET = 'rvcg-xml-playlist-4download2'
 OK_STATUS_CODE = 200
 NOT_FOUND_STATUS_CODE = 404
@@ -72,6 +78,8 @@ def add_clip_to_tracklist(track_list: ET.Element, \
         abs_path = os.path.abspath(video)
         # Convert Windows backslashes to forward slashes:
         video_uri = abs_path.replace("\\", '/')
+    else:
+        video_uri = video
     # Ensure proper prefix:
     if not video_uri.startswith('file:///'):
         video_uri = f"file:///{video_uri}"
@@ -305,6 +313,10 @@ def get_invalid_response_cloud() -> dict:
 
 def cloud_main(event, _context):
     """ Main function for Cloud Service Lambda environment. """
+
+    assert RUNNING_ENV_IS_LAMBDA is True, 'God help us. '
+    assert XML_PLAYLIST_FILE.startswith('/tmp/'), \
+        'AWS Lambda fs is read-only except for /tmp. '
 
     # Check which route was called (generate | version):
     route = event.get('rawPath', '')
