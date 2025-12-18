@@ -287,6 +287,12 @@ def extract_parameters_cloud(body: dict) -> tuple[int, int, int]:
     extracted_num_clips = body['num_clips']
     extracted_min_duration = body['min_duration']
     extracted_max_duration = body['max_duration']
+    if extracted_num_clips is None:
+        extracted_num_clips = ''
+    if extracted_min_duration is None:
+        extracted_min_duration = ''
+    if extracted_max_duration is None:
+        extracted_max_duration = ''
     try:
         int_num_clips = int(extracted_num_clips)
     except ValueError:
@@ -299,11 +305,11 @@ def extract_parameters_cloud(body: dict) -> tuple[int, int, int]:
         int_max_duration = int(extracted_max_duration)
     except ValueError:
         int_max_duration = 0
-    if int_num_clips is None or int_num_clips < 1:
+    if int_num_clips < 1:
         int_num_clips = DEFAULT_NUMBER_OF_CLIPS_CLOUD
-    if int_min_duration is None or int_num_clips < 1:
+    if int_num_clips < 1:
         int_min_duration = DEFAULT_INTERVAL_MIN_CLOUD
-    if int_max_duration is None or int_max_duration < 1:
+    if int_max_duration < 1:
         int_max_duration = DEFAULT_INTERVAL_MAX_CLOUD
     return (int_num_clips, int_min_duration, int_max_duration)
 
