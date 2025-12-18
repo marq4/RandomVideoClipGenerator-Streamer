@@ -294,9 +294,9 @@ def get_test_values_response_cloud(body: dict) -> dict:
 
 def extract_parameters_cloud(body: dict) -> tuple[int, int, int]:
     """ Convert them from string to int. """
-    extracted_num_clips = body['num_clips']
-    extracted_min_duration = body['min_duration']
-    extracted_max_duration = body['max_duration']
+    extracted_num_clips = body.get('num_clips')
+    extracted_min_duration = body.get('min_duration')
+    extracted_max_duration = body.get('max_duration')
     if extracted_num_clips is None:
         extracted_num_clips = ''
     if extracted_min_duration is None:
@@ -317,7 +317,7 @@ def extract_parameters_cloud(body: dict) -> tuple[int, int, int]:
         int_max_duration = 0
     if int_num_clips < 1:
         int_num_clips = DEFAULT_NUMBER_OF_CLIPS_CLOUD
-    if int_num_clips < 1:
+    if int_min_duration < 1:
         int_min_duration = DEFAULT_INTERVAL_MIN_CLOUD
     if int_max_duration < 1:
         int_max_duration = DEFAULT_INTERVAL_MAX_CLOUD
@@ -517,5 +517,3 @@ def main():
 if __name__ == "__main__":
     if not RUNNING_ENV_IS_LAMBDA:
         main()
-
-# Forgot to pull!!!
