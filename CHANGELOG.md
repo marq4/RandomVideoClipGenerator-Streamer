@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.4.1 (2025-12-18)
+
+### Bug Fixes
+
+- Trying to get rid of 500 error for stupid values.
+  ([`4eecd8c`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/4eecd8cb5ce40ca6b7c6d4c4c0c700625bade4bd))
+
+
 ## v4.4.0 (2025-12-18)
 
 ### Features
