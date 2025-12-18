@@ -315,12 +315,9 @@ def extract_parameters_cloud(body: dict) -> tuple[int, int, int]:
         int_max_duration = int(extracted_max_duration)
     except ValueError:
         int_max_duration = 0
-    if int_num_clips < 1:
-        int_num_clips = 1
-    if int_min_duration < 1:
-        int_min_duration = 1
-    if int_max_duration < 1:
-        int_max_duration = 1
+    int_num_clips = max(int_num_clips, 1)
+    int_min_duration = max(int_min_duration, 1)
+    int_max_duration = max(int_max_duration, 1)
     return (int_num_clips, int_min_duration, int_max_duration)
 
 def validate_and_get_parameters_cloud(body: dict) -> tuple[int, int, int]:
