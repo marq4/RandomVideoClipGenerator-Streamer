@@ -307,7 +307,7 @@ def cloud_main(event, _context):
     """ Main function for Cloud Service Lambda environment. """
 
     # Check which route was called (generate | version):
-    route = event.get('path', '')
+    route = event.get('rawPath', '')
 
     print(f"DEBUG: Received path: '{route}'")
     print(f"DEBUG: Full event: {json.dumps(event)}")
