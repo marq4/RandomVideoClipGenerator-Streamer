@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.4.2 (2025-12-18)
+
+### Bug Fixes
+
+- Is was a JSONDecodeError..
+  ([`d78c469`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/d78c4697e18abbb0cb36cbdcdd24ec2288e5648d))
+
+
 ## v4.4.1 (2025-12-18)
 
 ### Bug Fixes
