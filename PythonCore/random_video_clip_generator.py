@@ -282,6 +282,16 @@ def get_version_response_cloud() -> dict:
     })
     return prepare_response_cloud(True, 'GET', body)
 
+def get_test_values_response_cloud(body: dict) -> dict:
+    """ Validate clips, min, max. """
+    values = validate_and_get_parameters_cloud(body)
+    body_json = json.dumps({
+        'num_clips': values[0],
+        'min_duration': values[1],
+        'max_duration': values[2]
+    })
+    return prepare_response_cloud(True, 'POST', body_json)
+
 def extract_parameters_cloud(body: dict) -> tuple[int, int, int]:
     """ Convert them from string to int. """
     extracted_num_clips = body['num_clips']
@@ -381,6 +391,10 @@ def cloud_main(event, _context):
 
     if route.endswith('/version'):
         return get_version_response_cloud()
+
+    if route.endswith('/testvalues'):
+        body = json.loads(event['body'])
+        return get_test_values_response_cloud(body)
 
     if route.endswith('/generate'):
         playlist_response = get_playlist_response_cloud(event)
