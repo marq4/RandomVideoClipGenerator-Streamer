@@ -2,6 +2,31 @@
 
 <!-- version list -->
 
+## v4.3.0 (2025-12-18)
+
+### Bug Fixes
+
+- Default fallback version is 4.2.0.
+  ([`8b58057`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/8b580578de30c5d2a1a14416f26da95ff4a56666))
+
+- Deploying dependencies to Lambda.
+  ([`4ba92f2`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/4ba92f231665eabe90df153960e6936c85bb0f60))
+
+- Deploying dependencies to Lambda..
+  ([`b3b088d`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/b3b088db06aeca177e89876a0e67821772bb7485))
+
+- Deploying dependencies to Lambda...
+  ([`677080d`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/677080dcedfb2b90aed7c57c8f365023cf4f2ed0))
+
+### Features
+
+- Fixing basic Cloud functionality. Manually testing on Win.
+  ([`f506858`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/f5068586e17608ffe5c2c3c124129ed3902995b7))
+
+- Isort >_<.
+  ([`e248525`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/e24852524f32225f301996f73e6682428420fe4b))
+
+
 ## v4.2.1 (2025-12-17)
 
 ### Bug Fixes
