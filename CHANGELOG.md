@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v4.3.1 (2025-12-18)
+
+### Bug Fixes
+
+- Improved JS AND Python handling of invalid user choices.
+  ([`8f62102`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/8f62102ab02bf81fb2ea8b2d48dc04b0f85eed95))
+
+- JS lint, Mypy fixes.
+  ([`fb41eb6`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/fb41eb6baa1ec30913b2293f16cf9e8709733e0d))
+
+
 ## v4.3.0 (2025-12-18)
 
 ### Bug Fixes
