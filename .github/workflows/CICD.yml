@@ -236,12 +236,14 @@ jobs:
           semantic-release --verbose --strict --config pyproject.toml \
             version --skip-build --vcs-release
 
+  # TMP: ALWAYS!
   deploy-to-s3-and-lambda:
     needs: [release, core-changed]
-    if: >-
-      !failure() && !cancelled() &&
-      needs.release.result == 'success' &&
-      needs.core-changed.outputs.core_python_script_was_updated == 'true'
+    if: always()
+    # if: >-
+    #  !failure() && !cancelled() &&
+    #  needs.release.result == 'success' &&
+    #  needs.core-changed.outputs.core_python_script_was_updated == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 16
     env:
