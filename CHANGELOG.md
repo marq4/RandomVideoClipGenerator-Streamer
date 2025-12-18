@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.4.4 (2025-12-18)
+
+### Bug Fixes
+
+- Empty payload should return defaults.
+  ([`72dd011`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/72dd011e1712318f7bd04a1bfba9bfb37394e011))
+
+
 ## v4.4.3 (2025-12-18)
 
 ### Bug Fixes
