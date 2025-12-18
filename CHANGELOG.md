@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v4.4.3 (2025-12-18)
+
+### Bug Fixes
+
+- Pylint.
+  ([`ccbdfe9`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/ccbdfe9100e163b2f8ba6aba189aed2f4262c1a2))
+
+- Setting 0 to 1.
+  ([`9545c34`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/9545c34b697ddfb918e28b5a8b18482eabe2eecf))
+
+
 ## v4.4.2 (2025-12-18)
 
 ### Bug Fixes
