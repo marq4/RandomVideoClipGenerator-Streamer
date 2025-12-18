@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.3.2 (2025-12-18)
+
+### Bug Fixes
+
+- Skipping tests. If extracted param is None set to empty string.
+  ([`ac83484`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/ac83484475f1b785db8bc38c47b92b93772f6cf4))
+
+
 ## v4.3.1 (2025-12-18)
 
 ### Bug Fixes
