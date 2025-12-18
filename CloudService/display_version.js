@@ -1,7 +1,7 @@
 // Fetch version on page load.
 async function fetchAndDisplayVersion () {
   try {
-    const response = await fetch('https://swo0pk82b9.execute-api.us-east-2.amazonaws.com/prod/version')
+    const response = await fetch('https://AAAAAAAAAswo0pk82b9.execute-api.us-east-2.amazonaws.com/prod/version')
     const data = await response.json()
     document.getElementById('app-version').textContent = data.version
   } catch (error) {
@@ -11,4 +11,4 @@ async function fetchAndDisplayVersion () {
   }
 }
 // Call when page loads:
-//window.addEventListener('DOMContentLoaded', fetchAndDisplayVersion)
+window.addEventListener('DOMContentLoaded', fetchAndDisplayVersion)
