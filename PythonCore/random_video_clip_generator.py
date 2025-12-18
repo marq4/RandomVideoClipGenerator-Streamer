@@ -106,6 +106,9 @@ def generate_random_video_clips_playlist(video_list: list,
     """
     assert video_list
 
+    assert min_duration <= max_duration, \
+        f"{min_duration=}, {max_duration=}"
+
     playlist = ET.Element('playlist', version='1', xmlns='http://xspf.org/ns/0/',
                           attrib={'xmlns:vlc': 'http://www.videolan.org/vlc/playlist/0'})
     tracks = ET.SubElement(playlist, 'trackList')
@@ -160,7 +163,7 @@ def validate_num_clips_cloud(desired: str) -> int:
         return 1
     return num_clips
 
-def validate_min_duration_cloud(desired: str) -> int:
+def validate_min_duration_independent_cloud(desired: str) -> int:
     """ Shortest clip in playlist can be between 1 and LARGEST_MIN seconds. """
     try:
         shortest = int(desired)
@@ -172,7 +175,7 @@ def validate_min_duration_cloud(desired: str) -> int:
         return LARGEST_MIN
     return shortest
 
-def validate_max_duration_cloud(desired: str) -> int:
+def validate_max_duration_independent_cloud(desired: str) -> int:
     """ Longest clip in playlist can be between 1 and LARGEST_MAX seconds. """
     try:
         longest = int(desired)
@@ -183,6 +186,21 @@ def validate_max_duration_cloud(desired: str) -> int:
     if longest > LARGEST_MAX:
         return LARGEST_MAX
     return longest
+
+def validate_minmax_durations_together_cloud(
+    independently_correct_min: int,
+    independently_correct_max: int
+) -> tuple[int, int]:
+    """
+    Intervals are NOT independent.
+    Just going for defaults for now.
+    """
+    min_interval = independently_correct_min
+    max_interval = independently_correct_max
+    if max_interval < min_interval:
+        min_interval = DEFAULT_INTERVAL_MIN_CLOUD
+        max_interval = DEFAULT_INTERVAL_MAX_CLOUD
+    return (min_interval, max_interval)
 
 def parse_into_dictios_cloud(path: str) -> list:
     """
@@ -278,6 +296,13 @@ def get_playlist_response_cloud(event: dict) -> dict:
     user_min_duration = body['min_duration']
     user_max_duration = body['max_duration']
 
+    if user_num_clips is None:
+        user_num_clips = DEFAULT_NUMBER_OF_CLIPS_CLOUD
+    if user_min_duration is None:
+        user_min_duration = DEFAULT_INTERVAL_MIN_CLOUD
+    if user_max_duration is None:
+        user_max_duration = DEFAULT_INTERVAL_MAX_CLOUD
+
     local_filename = '/tmp/' + filename_s3
 
     # Read pairs from S3 object (user-uploaded video list text file):
@@ -286,8 +311,13 @@ def get_playlist_response_cloud(event: dict) -> dict:
     pairs = parse_into_dictios_cloud(local_filename)
 
     num_clips = validate_num_clips_cloud(user_num_clips)
-    min_duration = validate_min_duration_cloud(user_min_duration)
-    max_duration = validate_max_duration_cloud(user_max_duration)
+    min_duration_independent = validate_min_duration_independent_cloud(user_min_duration)
+    max_duration_independent = validate_max_duration_independent_cloud(user_max_duration)
+
+    (min_duration, max_duration) = validate_minmax_durations_together_cloud(
+        min_duration_independent,
+        max_duration_independent
+    )
 
     generate_playlist_cloud(pairs, num_clips, min_duration, max_duration)
 

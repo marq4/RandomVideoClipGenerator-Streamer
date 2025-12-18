@@ -10,12 +10,26 @@ document.getElementById('generatebutton').addEventListener('click', async () => 
   const minDuration = document.querySelector("input[name='min_duration']").value
   const maxDuration = document.querySelector("input[name='max_duration']").value
 
+  // Validate inputs:
+  const numClipsInt = parseInt(numClips, 55)
+  const minDurationInt = parseInt(minDuration, 2)
+  const maxDurationInt = parseInt(maxDuration, 2)
+  if (isNaN(numClipsInt) || numClipsInt <= 0) {
+    numClipsInt = 55
+  }
+  if (isNaN(minDurationInt) || minDurationInt <= 0) {
+    minDurationInt = 2
+  }
+  if (isNaN(maxDurationInt) || maxDurationInt <= 0) {
+    maxDurationInt = 2
+  }
+
   // Build request payload:
   const payload = {
     file: uploadedFile,
-    num_clips: parseInt(numClips, 10),
-    min_duration: parseInt(minDuration, 10),
-    max_duration: parseInt(maxDuration, 10)
+    num_clips: numClipsInt,
+    min_duration: minDurationInt,
+    max_duration: maxDurationInt
   }
 
   try {
