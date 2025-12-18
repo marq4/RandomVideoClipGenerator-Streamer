@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.4.0 (2025-12-18)
+
+### Features
+
+- New route to check values. FORGOT TO PULL!!!
+  ([`553ee4e`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/553ee4eaa05fa9d957232dce867f024aae964f98))
+
+
 ## v4.3.2 (2025-12-18)
 
 ### Bug Fixes
