@@ -11,9 +11,9 @@ document.getElementById('generatebutton').addEventListener('click', async () => 
   const maxDuration = document.querySelector("input[name='max_duration']").value
 
   // Validate inputs:
-  const numClipsInt = parseInt(numClips, 55)
-  const minDurationInt = parseInt(minDuration, 2)
-  const maxDurationInt = parseInt(maxDuration, 2)
+  var numClipsInt = parseInt(numClips, 55)
+  var minDurationInt = parseInt(minDuration, 2)
+  var maxDurationInt = parseInt(maxDuration, 2)
   if (isNaN(numClipsInt) || numClipsInt <= 0) {
     numClipsInt = 55
   }

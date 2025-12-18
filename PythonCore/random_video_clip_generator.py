@@ -151,7 +151,7 @@ def verify_intervals_valid() -> None:
 
 # _ Cloud code section _
 
-def validate_num_clips_cloud(desired: str) -> int:
+def validate_num_clips_cloud(desired: int) -> int:
     """ TRY to give the user the number of clips they desire. """
     try:
         num_clips = int(desired)
@@ -163,7 +163,7 @@ def validate_num_clips_cloud(desired: str) -> int:
         return 1
     return num_clips
 
-def validate_min_duration_independent_cloud(desired: str) -> int:
+def validate_min_duration_independent_cloud(desired: int) -> int:
     """ Shortest clip in playlist can be between 1 and LARGEST_MIN seconds. """
     try:
         shortest = int(desired)
@@ -175,7 +175,7 @@ def validate_min_duration_independent_cloud(desired: str) -> int:
         return LARGEST_MIN
     return shortest
 
-def validate_max_duration_independent_cloud(desired: str) -> int:
+def validate_max_duration_independent_cloud(desired: int) -> int:
     """ Longest clip in playlist can be between 1 and LARGEST_MAX seconds. """
     try:
         longest = int(desired)
@@ -282,6 +282,45 @@ def get_version_response_cloud() -> dict:
     })
     return prepare_response_cloud(True, 'GET', body)
 
+def extract_parameters_cloud(body: dict) -> tuple[int, int, int]:
+    """ Convert them from string to int. """
+    extracted_num_clips = body['num_clips']
+    extracted_min_duration = body['min_duration']
+    extracted_max_duration = body['max_duration']
+    try:
+        int_num_clips = int(extracted_num_clips)
+    except ValueError:
+        int_num_clips = 0
+    try:
+        int_min_duration = int(extracted_min_duration)
+    except ValueError:
+        int_min_duration = 0
+    try:
+        int_max_duration = int(extracted_max_duration)
+    except ValueError:
+        int_max_duration = 0
+    if int_num_clips is None or int_num_clips < 1:
+        int_num_clips = DEFAULT_NUMBER_OF_CLIPS_CLOUD
+    if int_min_duration is None or int_num_clips < 1:
+        int_min_duration = DEFAULT_INTERVAL_MIN_CLOUD
+    if int_max_duration is None or int_max_duration < 1:
+        int_max_duration = DEFAULT_INTERVAL_MAX_CLOUD
+    return (int_num_clips, int_min_duration, int_max_duration)
+
+def validate_and_get_parameters_cloud(body: dict) -> tuple[int, int, int]:
+    """
+    Extract and validate user parameters from request body.
+    Returns: (num_clips, min_duration, max_duration).
+    """
+    (user_num_clips, user_min_duration, user_max_duration) = extract_parameters_cloud(body)
+    num_clips = validate_num_clips_cloud(user_num_clips)
+    min_duration_independent = validate_min_duration_independent_cloud(user_min_duration)
+    max_duration_independent = validate_max_duration_independent_cloud(user_max_duration)
+    (ok_min, ok_max) = \
+        validate_minmax_durations_together_cloud(min_duration_independent, max_duration_independent)
+    result = (num_clips, ok_min, ok_max)
+    return result
+
 def get_playlist_response_cloud(event: dict) -> dict:
     """ Handle XML playlist generation for web users. """
     s3 = boto3.client('s3')
@@ -292,16 +331,6 @@ def get_playlist_response_cloud(event: dict) -> dict:
     # Event comes from API GW as json.
     body = json.loads(event['body'])
     filename_s3 = body['file']
-    user_num_clips = body['num_clips']
-    user_min_duration = body['min_duration']
-    user_max_duration = body['max_duration']
-
-    if user_num_clips is None:
-        user_num_clips = DEFAULT_NUMBER_OF_CLIPS_CLOUD
-    if user_min_duration is None:
-        user_min_duration = DEFAULT_INTERVAL_MIN_CLOUD
-    if user_max_duration is None:
-        user_max_duration = DEFAULT_INTERVAL_MAX_CLOUD
 
     local_filename = '/tmp/' + filename_s3
 
@@ -310,14 +339,8 @@ def get_playlist_response_cloud(event: dict) -> dict:
 
     pairs = parse_into_dictios_cloud(local_filename)
 
-    num_clips = validate_num_clips_cloud(user_num_clips)
-    min_duration_independent = validate_min_duration_independent_cloud(user_min_duration)
-    max_duration_independent = validate_max_duration_independent_cloud(user_max_duration)
-
-    (min_duration, max_duration) = validate_minmax_durations_together_cloud(
-        min_duration_independent,
-        max_duration_independent
-    )
+    # Validate parameters:
+    (num_clips, min_duration, max_duration) = validate_and_get_parameters_cloud(body)
 
     generate_playlist_cloud(pairs, num_clips, min_duration, max_duration)
 
