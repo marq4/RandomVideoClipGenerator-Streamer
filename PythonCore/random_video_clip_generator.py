@@ -433,5 +433,3 @@ def main():
 if __name__ == "__main__":
     if not RUNNING_ENV_IS_LAMBDA:
         main()
-
-# I DO need a release to deploy to Lambda with this new name.
