@@ -305,6 +305,7 @@ jobs:
           zipfile=packaged.zip
           zip -v -r ../$zipfile . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
+          cd ..
           ls -ltA
           aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
