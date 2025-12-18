@@ -393,7 +393,11 @@ def cloud_main(event, _context):
         return get_version_response_cloud()
 
     if route.endswith('/testvalues'):
-        body = json.loads(event['body'])
+        try:
+            body = json.loads(event['body'])
+        except (json.JSONDecodeError, KeyError):
+            error_body = json.dumps({'error': 'Invalid JSON in request body.'})
+            return prepare_response_cloud(False, '', error_body)
         return get_test_values_response_cloud(body)
 
     if route.endswith('/generate'):
