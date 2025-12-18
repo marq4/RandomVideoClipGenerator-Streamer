@@ -316,11 +316,11 @@ def extract_parameters_cloud(body: dict) -> tuple[int, int, int]:
     except ValueError:
         int_max_duration = 0
     if int_num_clips < 1:
-        int_num_clips = DEFAULT_NUMBER_OF_CLIPS_CLOUD
+        int_num_clips = 1
     if int_min_duration < 1:
-        int_min_duration = DEFAULT_INTERVAL_MIN_CLOUD
+        int_min_duration = 1
     if int_max_duration < 1:
-        int_max_duration = DEFAULT_INTERVAL_MAX_CLOUD
+        int_max_duration = 1
     return (int_num_clips, int_min_duration, int_max_duration)
 
 def validate_and_get_parameters_cloud(body: dict) -> tuple[int, int, int]:
@@ -521,5 +521,3 @@ def main():
 if __name__ == "__main__":
     if not RUNNING_ENV_IS_LAMBDA:
         main()
-
-# PULL!!!
