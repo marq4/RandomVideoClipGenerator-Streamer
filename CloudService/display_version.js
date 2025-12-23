@@ -10,5 +10,6 @@ async function fetchAndDisplayVersion () {
     document.getElementById('app-version').textContent = '4.2.0'
   }
 }
+
 // Call when page loads:
 window.addEventListener('DOMContentLoaded', fetchAndDisplayVersion)
