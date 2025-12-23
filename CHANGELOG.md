@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.4.5 (2025-12-23)
+
+### Bug Fixes
+
+- Removed JS param validation, just sending strings to backend.
+  ([`c506220`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/c506220c2c3e1d233daf61713ebb580223373cb2))
+
+
 ## v4.4.4 (2025-12-18)
 
 ### Bug Fixes
