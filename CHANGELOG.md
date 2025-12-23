@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v4.4.6 (2025-12-23)
+
+### Bug Fixes
+
+- I hope the Lambda bill is not too much but I do want to confirm the version on the webpage when
+  doing tests.
+  ([`99cd588`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/99cd588ad9480b0fc1356f225512cb1306545699))
+
+- I hope the Lambda bill is not too much but I do want to confirm the version on the webpage when
+  doing tests.. Forgot to update core.
+  ([`f0876dd`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/f0876dd789828a8e8ddf4766ea8b50316ca642c7))
+
+
 ## v4.4.5 (2025-12-23)
 
 ### Bug Fixes
