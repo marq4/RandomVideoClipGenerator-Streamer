@@ -394,7 +394,10 @@ def get_invalid_response_cloud() -> dict:
     return prepare_response_cloud(False, '', body)
 
 def cloud_main(event, _context):
-    """ Main function for Cloud Service Lambda environment. """
+    """
+    Default (original) name: lambda_handler.
+    Main function for Cloud Service Lambda environment.
+    """
 
     assert RUNNING_ENV_IS_LAMBDA is True, 'God help us. '
     assert XML_PLAYLIST_FILE.startswith('/tmp/'), \
@@ -509,7 +512,6 @@ def execute_vlc_local() -> None:
     # Use absolute path for the playlist:
     playlist_path = os.path.abspath(XML_PLAYLIST_FILE)
     executable = Path(CURRENT_DIRECTORY) / VLC_BATCH_FILE
-    print(f"{executable=}")#TMP
     assert Path(executable).exists(), f"""\n
         Windows Batch script that calls VLC: {VLC_BATCH_FILE} is missing.
         This file must exist in the same location as this script.
@@ -518,7 +520,7 @@ def execute_vlc_local() -> None:
     with Popen([executable, playlist_path]):
         pass
 
-def main():
+def local_main():
     """
     * Get list of videos.
     * Generate an xml playlist with random clips from those videos.
@@ -534,4 +536,4 @@ def main():
 
 if __name__ == "__main__":
     if not RUNNING_ENV_IS_LAMBDA:
-        main()
+        local_main()
