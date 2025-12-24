@@ -95,6 +95,25 @@ div.info {
   }
 }
 
+h3 a[href="/about"] {
+  float: right;
+  margin-top: 20px;
+  margin-right: 20px;
+  font-size: 0.9em;
+  text-decoration: none;
+  color: #666;
+  transition: color 0.2s;
+}
+
+h3 a[href="/about"]:hover {
+  color: #000;
+  text-decoration: underline;
+}
+
+.tab {
+  margin-bottom: 40px;
+}
+
 
 /* Form section. */
 
@@ -357,7 +376,7 @@ h3 {
 }
 
 
-/* Tabs (Core|Cloud|Docker) section: */
+/* Tabs (Core|Cloud|Docker) section. */
 
 .tab-buttons {
   display: flex;
@@ -393,4 +412,21 @@ h3 {
 
 .hidden {
   display: none;
+}
+
+
+/* About page. */
+
+h2.subtitle {
+  font-size: 2em;
+  font-weight: 300;
+  color: #333;
+  margin: 40px 0 30px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.links a {
+  display: block;
+  margin-bottom: 10px;
 }
