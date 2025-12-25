@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.4.7 (2025-12-25)
+
+### Bug Fixes
+
+- Added new acronym URLs to daily curl checks.
+  ([`b3701c2`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/b3701c25a0d3cbb3743d54b1f1bb372591d86521))
+
+
 ## v4.4.6 (2025-12-23)
 
 ### Bug Fixes
