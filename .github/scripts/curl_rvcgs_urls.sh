@@ -12,7 +12,7 @@ URLS=(
     https://rvcg.me
     http://rvcg.me
     http://www.rvcg.me
-    https://www.rvcgs.me
+    https://www.rvcg.me
 )
 #======================================================================================
 
