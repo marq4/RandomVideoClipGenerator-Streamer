@@ -336,22 +336,32 @@ h3 {
   font-size: 0.8em;
 }
 
+#generatebutton,
+#upload {
+  background-color: #1899D6;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  border: solid transparent;
+  border-width: 0 0 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s;
+  font-family: din-round, sans-serif;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  outline: none;
+}
+
+#generatebutton:hover,
 #upload:hover {
   background-color: #357ab8;
   box-shadow: 0 4px 8px rgb(0 0 0 / 15%);
 }
 
+#generatebutton:active,
 #upload:active {
-  background-color: #2d5d8c;
-  transform: scale(0.98);
-}
-
-#generatebutton:hover {
-  background-color: #357ab8;
-  box-shadow: 0 4px 8px rgb(0 0 0 / 15%);
-}
-
-#generatebutton:active {
   background-color: #2d5d8c;
   transform: scale(0.98);
 }
