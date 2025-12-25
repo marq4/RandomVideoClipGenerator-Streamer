@@ -9,6 +9,10 @@ URLS=(
     http://randomvideoclipgenerator.com
     http://www.randomvideoclipgenerator.com
     https://www.randomvideoclipgenerator.com
+    https://rvcg.me
+    http://rvcg.me
+    http://www.rvcg.me
+    https://www.rvcgs.me
 )
 #======================================================================================
 
