@@ -3,7 +3,7 @@
 import json
 
 
-def lambda_handler(_event, _context):
+def cloud_main(_event, _context):
     """ Send response to JS (loadSuggestedMusicVideoList). """
     return {
         'statusCode': 200,
