@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v4.5.0 (2025-12-26)
+
+### Features
+
+- Display suggested video list in main webpage.
+  ([`f7d400c`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/f7d400ced5bb9283ef627a414631762f1c3d9293))
+
+- Display suggested video list in main webpage..
+  ([`9395008`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/9395008f274043d6bed1daba08d9534ce20db1b4))
+
+
 ## v4.4.7 (2025-12-25)
 
 ### Bug Fixes
