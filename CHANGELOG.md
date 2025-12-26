@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.5.4 (2025-12-26)
+
+### Bug Fixes
+
+- Adding fallback videos to JS. API responds with 404/500 if err.
+  ([`50831d9`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/50831d9ca58f076f5d2af222b86050f36455d5fb))
+
+
 ## v4.5.3 (2025-12-26)
 
 ### Bug Fixes
