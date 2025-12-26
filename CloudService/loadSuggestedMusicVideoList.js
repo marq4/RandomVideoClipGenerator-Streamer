@@ -22,8 +22,7 @@ document.getElementById('loadSuggestedMusicVideoList').addEventListener('click',
     container.innerHTML = '<p>Music Video List will be rendered here!</p>'
   } catch (error) {
     // Handle error in UI:
-    const msg = 'Failed to load videos. ' +
-                'I will greatly appreciate it if you contact me and let me know.'
+    const msg = 'Failed to load videos. Please contact me.'
     alert(msg)
   }
 })

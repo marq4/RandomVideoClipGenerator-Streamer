@@ -297,7 +297,7 @@ jobs:
             "${{ env.SCRIPT_NAME }}" \
             "${{ env.BUCKET_FOR_SCRIPT }}"
 
-      - name: Deploy to Lambda (website / Cloud service users).
+      - name: Deploy core to Lambda (website / Cloud service users).
         run: |
           script="${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME }}"
           mkdir lambda-package
@@ -311,6 +311,16 @@ jobs:
           ls -ltA
           aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+          --zip-file fileb://$zipfile
+
+      - name: Deploy YT video list code to Lambda.
+        run: |
+          script="${{ env.CLOUD_SUBFOLDER }}/send_suggested_yt_video_list.py"
+          zipfile=packaged.zip
+          zip -v $zipfile  $script
+          ls -ltA
+          aws lambda update-function-code \
+          --function-name respond_with_listmd_as_json \
           --zip-file fileb://$zipfile
 
 
