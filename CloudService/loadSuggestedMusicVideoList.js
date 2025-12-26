@@ -78,11 +78,12 @@ document.getElementById('load-suggested-music-video-list-button').addEventListen
       console.log('Invalid video list, using fallback.')
       content = getFallbackVideos()
     }
-    const { html, count } = parseVideoListToHTML(content)
-    if (count === 0) {
+    const { list, count } = parseVideoListToHTML(content)
+    console.log('List: ', list) // TMP
+    if (count === 0 || !list) {
       content = getFallbackVideos()
     } else {
-      content = html
+      content = list
     }
   } catch (error) {
     console.log('API error, using fallback: ', error)

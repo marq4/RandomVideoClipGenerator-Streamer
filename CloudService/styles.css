@@ -488,9 +488,12 @@ img {
 }
 
 .load-suggested-music-video-list-button {
-  padding: 0.45rem 0.9rem;
-  font-size: 0.85rem;
-  letter-spacing: 0.4px;
+  text-transform: none;
+  font-size: 0.7rem;
+  padding: 0.3rem 0.6rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  border-radius: 0.35rem;
 }
 
 .music-video-list-section {
