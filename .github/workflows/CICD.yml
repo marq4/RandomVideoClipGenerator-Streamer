@@ -317,7 +317,7 @@ jobs:
         run: |
           script="${{ env.CLOUD_SUBFOLDER }}/send_suggested_yt_video_list.py"
           zipfile=listmdfunctionality.zip
-          zip -v --junk-paths $zipfile  $script
+          zip -v --junk-paths $zipfile  $script List.md
           ls -ltA
           aws lambda update-function-code \
           --function-name respond_with_listmd_as_json \
