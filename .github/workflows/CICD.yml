@@ -300,11 +300,11 @@ jobs:
       - name: Deploy core to Lambda (website / Cloud service users).
         run: |
           script="${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME }}"
-          mkdir lambda-package
-          cd lambda-package
+          mkdir main-lambda-package
+          cd main-lambda-package
           python -m pip install boto3 mypy-boto3-s3 -t .
           cp ../$script .
-          zipfile=packaged.zip
+          zipfile=mainplaylistfunctionality.zip
           zip -v -r ../$zipfile . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
@@ -316,8 +316,8 @@ jobs:
       - name: Deploy YT video list code to Lambda.
         run: |
           script="${{ env.CLOUD_SUBFOLDER }}/send_suggested_yt_video_list.py"
-          zipfile=packaged.zip
-          zip -v $zipfile  $script
+          zipfile=listmdfunctionality.zip
+          zip -v --junk-paths $zipfile  $script
           ls -ltA
           aws lambda update-function-code \
           --function-name respond_with_listmd_as_json \
