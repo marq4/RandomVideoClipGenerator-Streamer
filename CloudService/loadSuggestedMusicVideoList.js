@@ -64,8 +64,8 @@ function parseVideoListToHTML (content) {
   return { unorderedList, count }
 }
 
-document.getElementById('loadSuggestedMusicVideoList').addEventListener('click', async () => {
-  const container = document.getElementById('musicVideoListContainer')
+document.getElementById('load-suggested-music-video-list-button').addEventListener('click', async () => {
+  const container = document.getElementById('music-video-list-container')
   let content = ''
   try {
     const data = await getSuggestedMusicVideoListJSON()

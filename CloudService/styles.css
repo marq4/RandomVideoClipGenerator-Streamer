@@ -478,7 +478,23 @@ img {
 
 /* YT music video list section. */
 
+.musicVideoListSection label {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #d1d5db;
+  margin-bottom: 0.35rem;
+  display: block;
+}
+
+.load-suggested-music-video-list-button {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.4px;
+}
+
 .music-video-list-section {
+  margin-top: 4rem;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -528,4 +544,11 @@ img {
 
 #music-video-list-container ul.video-list li a:hover {
   text-decoration: underline;
+}
+
+
+/* Footer section. */
+
+footer {
+  margin-top: 4rem;
 }
