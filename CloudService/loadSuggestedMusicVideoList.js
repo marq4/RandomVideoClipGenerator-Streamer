@@ -31,11 +31,11 @@ function parseVideoListToHTML (content) {
     if (match) {
       const titleArtist = match[1].trim()
       const url = match[2].trim()
-      unorderedList += '<li>' +
-        '<a href="${url}" target="_blank" rel="noopener noreferrer">' +
-        titleArtist +
-        '</a>' +
-        '</li>'
+      unorderedList += `<li>
+        <a href="${url}" target="_blank" rel="noopener noreferrer">
+        ${titleArtist}
+        </a>
+        </li>`
     }
   })
   unorderedList += '</ul>'
