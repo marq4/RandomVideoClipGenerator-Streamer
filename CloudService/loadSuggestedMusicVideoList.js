@@ -12,11 +12,11 @@ async function getSuggestedMusicVideoListJSON () {
   }
 }
 
-function isValidVideoList(content) {
+function isValidVideoList (content) {
   return content && content.includes('youtube.com/watch')
 }
 
-function getFallbackVideos() {
+function getFallbackVideos () {
   return `* Learn to Fly - Foo Fighters Rockin'1000 https://www.youtube.com/watch?v=JozAmXo2bDE
 * Future - Life Is Good ft. Drake https://www.youtube.com/watch?v=l0U7SxXHkPY
 * OK Go - The One Moment https://www.youtube.com/watch?v=QvW61K2s0tA`
@@ -24,10 +24,11 @@ function getFallbackVideos() {
 
 document.getElementById('loadSuggestedMusicVideoList').addEventListener('click', async () => {
   const container = document.getElementById('musicVideoListContainer')
+  let content = ''
   try {
     const data = await getSuggestedMusicVideoListJSON()
     console.log('Received data: ', data)
-    let content = data.content
+    content = data.content
     if (!isValidVideoList(content)) {
       console.log('Invalid video list, using fallback.')
       content = getFallbackVideos()
