@@ -22,24 +22,24 @@ function getFallbackVideos () {
 * OK Go - The One Moment https://www.youtube.com/watch?v=QvW61K2s0tA`
 }
 
-function parseVideoListToHTML(content) {
+function parseVideoListToHTML (content) {
   const lines = content.split('\n').filter(line => line.trim())
-  let unordered_list = '<ul class="video-list">'
+  let unorderedList = '<ul class="video-list">'
   lines.forEach(line => {
     // Match pattern: * Title URL:
     const match = line.match(/^\*\s*(.+?)\s+(https:\/\/[^\s]+)$/)
     if (match) {
-      const title_artist = match[1].trim()
+      const titleArtist = match[1].trim()
       const url = match[2].trim()
-      unordered_list += `<li>` +
-        `<a href="${url}" target="_blank" rel="noopener noreferrer">` +
-        title_artist +
-        `</a>` +
-        `</li>`
+      unorderedList += '<li>' +
+        '<a href="${url}" target="_blank" rel="noopener noreferrer">' +
+        titleArtist +
+        '</a>' +
+        '</li>'
     }
   })
-  unordered_list += '</ul>'
-  return unordered_list
+  unorderedList += '</ul>'
+  return unorderedList
 }
 
 document.getElementById('loadSuggestedMusicVideoList').addEventListener('click', async () => {
@@ -57,6 +57,6 @@ document.getElementById('loadSuggestedMusicVideoList').addEventListener('click',
     console.log('API error, using fallback: ', error)
     content = getFallbackVideos()
   } finally {
-    container.innerHTML = `<p>${content}</p>`
+    container.innerHTML = parseVideoListToHTML(content)
   }
 })
