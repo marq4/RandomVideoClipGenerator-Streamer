@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.5.5 (2025-12-26)
+
+### Bug Fixes
+
+- Trying to make the list look nice.
+  ([`b9cb0ca`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/b9cb0ca8fecd22d3c915754a45e99cf504c417e1))
+
+
 ## v4.5.4 (2025-12-26)
 
 ### Bug Fixes
