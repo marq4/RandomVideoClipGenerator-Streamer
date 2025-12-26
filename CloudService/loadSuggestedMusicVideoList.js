@@ -17,7 +17,6 @@ async function getSuggestedMusicVideoListJSON () {
 document.getElementById('loadSuggestedMusicVideoList').addEventListener('click', async () => {
   try {
     const musicVideoListJSON = await getSuggestedMusicVideoListJSON()
-    console.log(musicVideoListJSON) // TMP
     const container = document.getElementById('musicVideoListContainer')
     container.innerHTML = '<p>Music Video List will be rendered here!</p>'
   } catch (error) {
