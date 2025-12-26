@@ -17,9 +17,11 @@ function isValidVideoList (content) {
 }
 
 function getFallbackVideos () {
-  return `* Learn to Fly - Foo Fighters Rockin'1000 https://www.youtube.com/watch?v=JozAmXo2bDE
-* Future - Life Is Good ft. Drake https://www.youtube.com/watch?v=l0U7SxXHkPY
-* OK Go - The One Moment https://www.youtube.com/watch?v=QvW61K2s0tA`
+  return `<ul>
+    <li>Learn to Fly - Foo Fighters Rockin'1000 https://www.youtube.com/watch?v=JozAmXo2bDE</li>
+    <li>Future - Life Is Good ft. Drake https://www.youtube.com/watch?v=l0U7SxXHkPY</li>
+    <li>OK Go - The One Moment https://www.youtube.com/watch?v=QvW61K2s0tA</li>
+  </ul>`
 }
 
 function parseVideoListToHTML (content) {
