@@ -2,6 +2,7 @@
 
 import json
 
+
 def lambda_handler(_event, _context):
     """ Send response to JS (loadSuggestedMusicVideoList). """
     return {
