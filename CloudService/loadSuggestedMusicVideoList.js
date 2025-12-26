@@ -1,5 +1,3 @@
-/* eslint-env browser */
-
 async function getSuggestedMusicVideoListJSON () {
   try {
     const response = await fetch('https://swo0pk82b9.execute-api.us-east-2.amazonaws.com/prod/list')
@@ -14,14 +12,30 @@ async function getSuggestedMusicVideoListJSON () {
   }
 }
 
+function isValidVideoList(content) {
+  return content && content.includes('youtube.com/watch')
+}
+
+function getFallbackVideos() {
+  return `* Learn to Fly - Foo Fighters Rockin'1000 https://www.youtube.com/watch?v=JozAmXo2bDE
+* Future - Life Is Good ft. Drake https://www.youtube.com/watch?v=l0U7SxXHkPY
+* OK Go - The One Moment https://www.youtube.com/watch?v=QvW61K2s0tA`
+}
+
 document.getElementById('loadSuggestedMusicVideoList').addEventListener('click', async () => {
+  const container = document.getElementById('musicVideoListContainer')
   try {
-    const musicVideoListJSON = await getSuggestedMusicVideoListJSON()
-    const container = document.getElementById('musicVideoListContainer')
-    container.innerHTML = '<p>Music Video List will be rendered here!</p>'
+    const data = await getSuggestedMusicVideoListJSON()
+    console.log('Received data: ', data)
+    let content = data.content
+    if (!isValidVideoList(content)) {
+      console.log('Invalid video list, using fallback.')
+      content = getFallbackVideos()
+    }
   } catch (error) {
-    // Handle error in UI:
-    const msg = 'Failed to load videos. Please contact me.'
-    alert(msg)
+    console.log('API error, using fallback: ', error)
+    content = getFallbackVideos()
+  } finally {
+    container.innerHTML = `<p>${content}</p>`
   }
 })
