@@ -39,6 +39,7 @@ function parseVideoListToHTML (content) {
     }
   })
   unorderedList += '</ul>'
+  console.log('unorderedList:', unorderedList) // TMP
   return unorderedList
 }
 
@@ -49,6 +50,7 @@ document.getElementById('loadSuggestedMusicVideoList').addEventListener('click',
     const data = await getSuggestedMusicVideoListJSON()
     console.log('Received data: ', data)
     content = data.content
+    console.log('Content: ', content) // TMP
     if (!isValidVideoList(content)) {
       console.log('Invalid video list, using fallback.')
       content = getFallbackVideos()
