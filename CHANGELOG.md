@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.5.2 (2025-12-26)
+
+### Bug Fixes
+
+- Zip junk paths.
+  ([`7585266`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/758526609c95f670fdc467983da5ea367cf287b3))
+
+
 ## v4.5.1 (2025-12-26)
 
 ### Bug Fixes
