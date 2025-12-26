@@ -23,6 +23,7 @@ function getFallbackVideos () {
 }
 
 function parseVideoListToHTML (content) {
+  let count = 0
   const lines = content.split('\n').filter(line => line.trim())
   let unorderedList = '<ul class="video-list">'
   lines.forEach(line => {
@@ -36,11 +37,12 @@ function parseVideoListToHTML (content) {
         ${titleArtist}
         </a>
         </li>`
+      count++
     }
   })
   unorderedList += '</ul>'
   console.log('unorderedList:', unorderedList) // TMP
-  return unorderedList
+  return { unorderedList, count }
 }
 
 document.getElementById('loadSuggestedMusicVideoList').addEventListener('click', async () => {
@@ -55,10 +57,16 @@ document.getElementById('loadSuggestedMusicVideoList').addEventListener('click',
       console.log('Invalid video list, using fallback.')
       content = getFallbackVideos()
     }
+    const { html, count } = parseVideoListToHTML(content)
+    if (count === 0) {
+      content = getFallbackVideos()
+    } else {
+      content = html
+    }
   } catch (error) {
     console.log('API error, using fallback: ', error)
     content = getFallbackVideos()
   } finally {
-    container.innerHTML = parseVideoListToHTML(content)
+    container.innerHTML = content
   }
 })
