@@ -43,22 +43,24 @@ function getFallbackVideos () {
 
 function parseVideoListToHTML (content) {
   let count = 0
-  const lines = content.split('\n').filter(line => line.trim())
+  const lines = content.split('\n').map(l => l.trim()).filter(Boolean)
   let unorderedList = '<ul class="video-list">'
-  lines.forEach(line => {
-    // Match pattern: * Title URL:
-    const match = line.match(/^\*\s*(.+?)\s+(https:\/\/[^\s]+)$/)
-    if (match) {
-      const titleArtist = match[1].trim()
-      const url = match[2].trim()
-      unorderedList += `<li>
-        <a href="${url}" target="_blank" rel="noopener noreferrer">
-        ${titleArtist}
-        </a>
-        </li>`
-      count++
+  for (let i = 0; i < lines.length - 1; i++) {
+    // Title (Artist - Song-Name) line:
+    if (lines[i].startsWith('* ')) {
+      const titleArtist = lines[i].slice(2).trim()
+      const url = lines[i + 1]
+      if (url.startsWith('https://')) {
+        unorderedList += `<li>
+          <a href="${url}" target="_blank" rel="noopener noreferrer">
+          ${titleArtist}
+          </a>
+          </li>`
+        count++
+        i++ // Skip URL line.
+      }
     }
-  })
+  }
   unorderedList += '</ul>'
   console.log('unorderedList:', unorderedList) // TMP
   return { unorderedList, count }
