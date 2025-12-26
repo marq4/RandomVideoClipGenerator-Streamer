@@ -407,59 +407,6 @@ button.actual-button:active {
   transform: scale(0.98);
 }
 
-.musicVideoListSection {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  margin-left: auto;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 1rem;
-  line-height: 1.3;
-  color: white;
-  background-color: black;
-  padding: 1.5rem 2rem;
-  border-left: 4px solid #8c8c8c;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgb(0 0 0);
-  max-width: 700px;
-  margin: 1.5rem auto;
-}
-
-#musicVideoListContainer {
-  margin-top: 1rem;
-  max-width: 420px;
-}
-
-#musicVideoListContainer ul.video-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-#musicVideoListContainer ul.video-list li {
-  margin-bottom: 0.6rem;
-  background-color: #2a2a2a;
-  border-radius: 0.5rem;
-  transition: background-color 0.2s ease, transform 0.15s ease;
-}
-
-#musicVideoListContainer ul.video-list li:hover {
-  background-color: #333;
-  transform: translateX(-2px);
-}
-
-#musicVideoListContainer ul.video-list li a {
-  display: block;
-  padding: 0.6rem 0.8rem;
-  color: #1899D6;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-#musicVideoListContainer ul.video-list li a:hover {
-  text-decoration: underline;
-}
-
 
 /* Tabs (Core|Cloud|Docker) section. */
 
@@ -526,4 +473,60 @@ img {
   height: auto;
   display: block;
   margin: 20px 0;
+}
+
+
+/* YT music video list section. */
+
+.music-video-list-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-left: auto;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1rem;
+  line-height: 1.3;
+  color: white;
+  background-color: black;
+  padding: 1.5rem 2rem;
+  border-left: 4px solid #8c8c8c;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgb(0 0 0);
+  max-width: 700px;
+  margin: 1.5rem auto;
+}
+
+#music-video-list-container {
+  margin-top: 1rem;
+  max-width: 420px;
+}
+
+#music-video-list-container ul.video-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#music-video-list-container ul.video-list li {
+  margin-bottom: 0.6rem;
+  background-color: #2a2a2a;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+#music-video-list-container ul.video-list li:hover {
+  background-color: #333;
+  transform: translateX(-2px);
+}
+
+#music-video-list-container ul.video-list li a {
+  display: block;
+  padding: 0.6rem 0.8rem;
+  color: #1899D6;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+#music-video-list-container ul.video-list li a:hover {
+  text-decoration: underline;
 }
