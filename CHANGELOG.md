@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.5.1 (2025-12-26)
+
+### Bug Fixes
+
+- IAM user was missing permission for new Lambda..
+  ([`65f2652`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/65f26529d8cc891566365131d8344be8f39aaab9))
+
+
 ## v4.5.0 (2025-12-26)
 
 ### Features
