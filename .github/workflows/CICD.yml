@@ -17,6 +17,8 @@ env:
   REGION: 'us-east-2'
   CLOUD_SUBFOLDER: 'CloudService'
   CSS_STYLESHEET: 'styles.css'
+  # Terraform:
+  TF_MIN_VERSION: '1.13'
 
 
 jobs:
@@ -43,8 +45,27 @@ jobs:
           echo 'Did any YAML file(s) change in this commit: '
           echo ${{ steps.detect_yaml_diff.outputs.any_changed }}
 
+  # Auxiliary job that checks if any Terraform file(s) changed.
+  any-tf-changed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      any_tf_files_were_updated:
+        ${{ steps.detect_tf_diff.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: detect_tf_diff
+        uses: ./.github/actions/changed-files
+        with:
+          files: "**/*.tf"
+      - run: |
+          echo 'Did any Terraform file(s) change in this commit: '
+          echo ${{ steps.detect_tf_diff.outputs.any_changed }}
+
   # Lint YAML.
-  meta-code-quality:
+  yaml-style-quality:
     needs: any-yaml-changed
     if: needs.any-yaml-changed.outputs.any_yaml_files_were_updated == 'true'
     runs-on: ubuntu-latest
@@ -56,12 +77,46 @@ jobs:
       - name: Lint YAML files.
         uses: frenck/action-yamllint@v1
 
+  # Lint + validate (+ format) Terraform:
+  tf-style-quality:
+    needs: any-tf-changed
+    if: needs.any-tf-changed.outputs.any_tf_files_were_updated == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 11
+    defaults:
+      run:
+        working-directory: ./Terraform
+    env:
+      TFLINT_URL: >-
+        'https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_MIN_VERSION }}
+
+      - name: Install TFlint.
+        run: curl -s  ${{ env.TFLINT_URL }} | bash
+
+      - run: terraform fmt -check -recursive
+        continue-on-error: false
+
+      - run: terraform init -backend=false
+        env:
+          AWS_REGION: ${{ env.REGION }}
+
+      - run: terraform validate
+
+      - run: tflint --init && tflint
+
 
   # _ Python _
 
   # Auxiliary job that checks if any Python file(s) changed.
   any-python-changed:
-    needs: meta-code-quality
+    needs: yaml-style-quality
     # Run even if upstream was skipped, but not if it failed:
     if: ${{ !failure() && !cancelled() }}
     runs-on: ubuntu-latest
@@ -86,7 +141,8 @@ jobs:
   # Only runs if any Python files changed.
   python-code-quality:
     needs: any-python-changed
-    # Run even if ANY upstream was skipped (like meta), but not if it failed:
+    # Run even if ANY upstream was skipped (like yaml-lint),
+    #   but not if it failed:
     if: >
       !failure() && !cancelled() &&
       needs.any-python-changed.outputs.any_python_files_were_updated == 'true'
@@ -122,7 +178,7 @@ jobs:
   python-code-testing:
     needs: python-code-quality
     # Without the first conditions
-    #   this job gets skipped IF meta job gets skipped,
+    #   this job gets skipped IF yaml-lint job gets skipped,
     #   as it depends on it indirectly up the chain,
     #   (so no Python code tests if YAML doesn't change).
     # Only test Python code if commit will trigger a Release:
@@ -178,7 +234,7 @@ jobs:
 
   # Auxiliary job that checks if core Python script changed specifically.
   core-changed:
-    needs: meta-code-quality
+    needs: yaml-style-quality
     if: ${{ !failure() && !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 3
@@ -328,7 +384,7 @@ jobs:
 
   # Auxiliary job that checks if the CSS stylesheet changed specifically.
   css-changed:
-    needs: meta-code-quality
+    needs: yaml-style-quality
     if: ${{ !failure() && !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 2
@@ -349,7 +405,7 @@ jobs:
 
   # Auxiliary job that checks if any HTML document(s) changed.
   any-html-changed:
-    needs: meta-code-quality
+    needs: yaml-style-quality
     if: ${{ !failure() && !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 3
@@ -370,7 +426,7 @@ jobs:
 
   # Auxiliary job that checks if any JavaScript file(s) changed.
   any-js-changed:
-    needs: meta-code-quality
+    needs: yaml-style-quality
     if: ${{ !failure() && !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 3

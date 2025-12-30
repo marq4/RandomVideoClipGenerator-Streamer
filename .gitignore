@@ -11,6 +11,7 @@ __pycache__
 *.webm
 *.mkv
 clips.xspf
+*.xspf
 log.txt
 Instructions4Myself.txt
 example_videos/*
@@ -24,3 +25,17 @@ commands.txt
 .coverage
 .BKP*
 
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform.lock.hcl
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
