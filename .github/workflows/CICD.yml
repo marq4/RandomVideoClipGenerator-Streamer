@@ -96,7 +96,7 @@ jobs:
       - name: Verify no state files committed.
         run: |
           if find . -name "*.tfstate*" -o -name "*.tfvars" \
-          -o -name "testtfsfailjob.txt" | grep -q .
+          | grep -q .
           then
             echo '!!! Caution !!! '
             echo 'Found potentially sensitive Terraform state file in commit. '
