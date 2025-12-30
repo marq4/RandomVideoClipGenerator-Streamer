@@ -93,6 +93,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Verify no state files committed.
+        run: |
+          if find . -name "*.tfstate*" -o -name "*.tfvars" \
+          -o -name "testtfsfailjob.txt" | grep -q .
+          then
+            echo '!!! Caution !!! '
+            echo 'Found potentially sensitive Terraform state file in commit. '
+            echo 'Aborting. '
+            exit 1
+          fi
+
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_MIN_VERSION }}

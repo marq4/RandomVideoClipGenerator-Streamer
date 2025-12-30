@@ -1,15 +1,9 @@
-locals {
-  common_tags = {
-    ManagedBy = "Terraform"
-    Project   = var.project
-  }
-}
-
 # Main project's Region:
 provider "aws" {
   region = var.ohio-code
   alias  = "ohio"
 
+  # All resources that use this provider will get the project tags:
   default_tags {
     tags = local.common_tags
   }
