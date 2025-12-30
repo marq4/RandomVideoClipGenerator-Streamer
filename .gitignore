@@ -30,7 +30,6 @@ commands.txt
 *.tfstate
 *.tfstate.*
 *.tfvars
-.terraform.lock.hcl
 crash.log
 crash.*.log
 override.tf

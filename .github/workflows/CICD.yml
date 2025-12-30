@@ -77,7 +77,7 @@ jobs:
       - name: Lint YAML files.
         uses: frenck/action-yamllint@v1
 
-  # Lint + validate (+ format) Terraform:
+  # Format + Validate + Lint Terraform:
   tf-style-quality:
     needs: any-tf-changed
     if: needs.any-tf-changed.outputs.any_tf_files_were_updated == 'true'
