@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.5.7 (2025-12-31)
+
+### Bug Fixes
+
+- Forgot to update ARN in IAM permission for GitHubBot to be able to write to new scripts bucket.
+  ([`c5cdfa7`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/c5cdfa7349a263b9eebefff0ba123cd8cd19c6d4))
+
+
 ## v4.5.6 (2025-12-31)
 
 ### Bug Fixes
