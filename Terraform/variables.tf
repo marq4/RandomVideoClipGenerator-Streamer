@@ -41,3 +41,9 @@ variable "playlist-bucket-name" {
   description = "Name of the S3 bucket where Lambda writes clips.xspf to."
   default     = "rvcgs-marq-xspf-playlist-31122025"
 }
+
+variable "main-dot-com-apex-url" {
+  type        = string
+  description = "Apex.com domain URL"
+  default     = "randomvideoclipgenerator.com"
+}

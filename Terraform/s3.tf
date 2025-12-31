@@ -106,3 +106,169 @@ resource "aws_s3_bucket_policy" "policy-for-playlist" {
     ]
   })
 }
+
+
+# Website-hosting buckets:
+
+# 1.- Apex.com: randomvideoclipgenerator.com:
+
+resource "aws_s3_bucket" "apex-dot-com-bucket" {
+  bucket   = var.main-dot-com-apex-url
+  provider = aws.ohio
+
+  tags = {
+    Purpose = "Contains assets for website hosting"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "public-access-for-apex" {
+  bucket = aws_s3_bucket.apex-dot-com-bucket.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_ownership_controls" "enable-acls-apex" {
+  bucket = aws_s3_bucket.apex-dot-com-bucket.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_website_configuration" "web-hosting" {
+  bucket = aws_s3_bucket.apex-dot-com-bucket.id
+
+  index_document {
+    suffix = "index.html"
+  }
+}
+
+resource "aws_s3_bucket_policy" "policy-for-apex-dot-com" {
+  bucket = aws_s3_bucket.apex-dot-com-bucket.id
+
+  depends_on = [aws_s3_bucket_public_access_block.public-access-for-apex]
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "PublicReadGetObject",
+        "Effect" : "Allow",
+        "Principal" : "*",
+        "Action" : "s3:GetObject",
+        "Resource" : "${aws_s3_bucket.apex-dot-com-bucket.arn}/*"
+      }
+    ]
+  })
+}
+
+# 2.- WWW.com: www.randomvideoclipgenerator.com:
+
+resource "aws_s3_bucket" "www-dot-com-bucket" {
+  bucket   = "www.randomvideoclipgenerator.com"
+  provider = aws.ohio
+
+  tags = {
+    Purpose = "Redirect to apex domain"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "public-access-for-www-com" {
+  bucket = aws_s3_bucket.www-dot-com-bucket.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_ownership_controls" "enable-acls-www-com" {
+  bucket = aws_s3_bucket.www-dot-com-bucket.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_website_configuration" "www-redirect" {
+  bucket = aws_s3_bucket.www-dot-com-bucket.id
+
+  redirect_all_requests_to {
+    host_name = var.main-dot-com-apex-url
+  }
+}
+
+# 3.- Apex-acronym.me: rvcg.me:
+
+resource "aws_s3_bucket" "apex-acronym-dot-me-bucket" {
+  bucket   = "rvcg.me"
+  provider = aws.ohio
+
+  tags = {
+    Purpose = "Redirect to main site"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "public-access-for-acronym" {
+  bucket = aws_s3_bucket.apex-acronym-dot-me-bucket.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_ownership_controls" "enable-acls-acronym" {
+  bucket = aws_s3_bucket.apex-acronym-dot-me-bucket.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_website_configuration" "acronym-redirect" {
+  bucket = aws_s3_bucket.apex-acronym-dot-me-bucket.id
+
+  redirect_all_requests_to {
+    host_name = var.main-dot-com-apex-url
+  }
+}
+
+# 4.- WWW-acronym.me: www.rvcg.me:
+
+resource "aws_s3_bucket" "www-acronym-dot-me-bucket" {
+  bucket   = "www.rvcg.me"
+  provider = aws.ohio
+
+  tags = {
+    Purpose = "Redirect to main site"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "public-access-for-www-acronym" {
+  bucket = aws_s3_bucket.www-acronym-dot-me-bucket.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_ownership_controls" "enable-acls-www-acronym" {
+  bucket = aws_s3_bucket.www-acronym-dot-me-bucket.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_website_configuration" "www-acronym-redirect" {
+  bucket = aws_s3_bucket.www-acronym-dot-me-bucket.id
+
+  redirect_all_requests_to {
+    host_name = var.main-dot-com-apex-url
+  }
+}
