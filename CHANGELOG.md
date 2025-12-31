@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.5.8 (2025-12-31)
+
+### Bug Fixes
+
+- Replaced playlist bucket.
+  ([`caa8edd`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/caa8edd3785efdda6069147928f46115c73e59e7))
+
+
 ## v4.5.7 (2025-12-31)
 
 ### Bug Fixes
