@@ -29,3 +29,9 @@ variable "backend-bucket-name" {
   description = "Name of the S3 bucket used to store remote state."
   default     = "rvcgs-marq-remote-state-backend-30122025"
 }
+
+variable "scripts-bucket-name" {
+  type        = string
+  description = "Name of the S3 bucket that hosts core Python, and PowerShell scripts."
+  default     = "rvcgs-marq-scripts-30122025"
+}

@@ -317,7 +317,7 @@ jobs:
     timeout-minutes: 16
     env:
       PYTHONPATH: .
-      BUCKET_FOR_SCRIPT: 'rvcg-marq-30072025'
+      BUCKET_FOR_SCRIPT: 'rvcgs-marq-scripts-30122025'
       VERIFY_BASH_SCRIPT: '.github/scripts/verify_deployed_version.sh'
       LAMBDA_FUNCTION_NAME: 'generate_xml_playlist_lambda'
 
