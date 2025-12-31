@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v4.5.6 (2025-12-31)
+
+### Bug Fixes
+
+- Updated name of script bucket in HTML, CICD YAML. Arbitrary update to core to get Release and
+  deploy. Added new scripts bucket (managed by Terraform).
+  ([`acac5fe`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/acac5fefc5755fd81f63c778610044da28497f2e))
+
+
 ## v4.5.5 (2025-12-26)
 
 ### Bug Fixes
