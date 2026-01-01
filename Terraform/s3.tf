@@ -2,8 +2,7 @@
 
 # Store tfstate remotely:
 resource "aws_s3_bucket" "rvcgs-backend-bucket" {
-  bucket   = var.backend-bucket-name
-  provider = aws.ohio
+  bucket = var.backend-bucket-name
   lifecycle {
     prevent_destroy = true
   }
@@ -20,8 +19,7 @@ resource "aws_s3_bucket_versioning" "versioning-for-backend" {
 # Scripts bucket:
 
 resource "aws_s3_bucket" "scripts-bucket" {
-  bucket   = var.scripts-bucket-name
-  provider = aws.ohio
+  bucket = var.scripts-bucket-name
   lifecycle {
     prevent_destroy = true
   }
@@ -71,8 +69,7 @@ resource "aws_s3_bucket_policy" "policy-for-scripts" {
 # Playlist bucket:
 
 resource "aws_s3_bucket" "playlist-bucket" {
-  bucket   = var.playlist-bucket-name
-  provider = aws.ohio
+  bucket = var.playlist-bucket-name
   lifecycle {
     prevent_destroy = true
   }
@@ -113,8 +110,7 @@ resource "aws_s3_bucket_policy" "policy-for-playlist" {
 # 1.- Apex.com: randomvideoclipgenerator.com:
 
 resource "aws_s3_bucket" "apex-dot-com-bucket" {
-  bucket   = var.main-dot-com-apex-url
-  provider = aws.ohio
+  bucket = var.main-dot-com-apex-url
 
   tags = {
     Purpose = "Contains assets for website hosting"
@@ -168,8 +164,7 @@ resource "aws_s3_bucket_policy" "policy-for-apex-dot-com" {
 # 2.- WWW.com: www.randomvideoclipgenerator.com:
 
 resource "aws_s3_bucket" "www-dot-com-bucket" {
-  bucket   = "www.randomvideoclipgenerator.com"
-  provider = aws.ohio
+  bucket = "www.randomvideoclipgenerator.com"
 
   tags = {
     Purpose = "Redirect to apex domain"
@@ -204,8 +199,7 @@ resource "aws_s3_bucket_website_configuration" "www-redirect" {
 # 3.- Apex-acronym.me: rvcg.me:
 
 resource "aws_s3_bucket" "apex-acronym-dot-me-bucket" {
-  bucket   = "rvcg.me"
-  provider = aws.ohio
+  bucket = "rvcg.me"
 
   tags = {
     Purpose = "Redirect to main site"
@@ -240,8 +234,7 @@ resource "aws_s3_bucket_website_configuration" "acronym-redirect" {
 # 4.- WWW-acronym.me: www.rvcg.me:
 
 resource "aws_s3_bucket" "www-acronym-dot-me-bucket" {
-  bucket   = "www.rvcg.me"
-  provider = aws.ohio
+  bucket = "www.rvcg.me"
 
   tags = {
     Purpose = "Redirect to main site"

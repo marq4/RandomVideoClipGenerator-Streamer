@@ -1,7 +1,6 @@
-# Main project's Region:
+# Main project's Region (default = no alias):
 provider "aws" {
   region = var.ohio-code
-  alias  = "ohio"
 
   # All resources that use this provider will get the project tags:
   default_tags {

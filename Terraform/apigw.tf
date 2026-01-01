@@ -1,0 +1,78 @@
+# Single API for this project:
+resource "aws_apigatewayv2_api" "rvcgs-http-api" {
+  name          = "RVCGS-API"
+  protocol_type = "HTTP"
+
+  cors_configuration {
+    allow_origins = ["https://randomvideoclipgenerator.com"]
+    allow_methods = ["GET", "POST", "OPTIONS"]
+    allow_headers = ["content-type"]
+  }
+
+  tags = {
+    Purpose = "HTTP API for Lambda functions"
+  }
+
+  description = "Version 2 (HTTP)."
+}
+
+# Single stage PROD:
+resource "aws_apigatewayv2_stage" "prod-stage" {
+  api_id      = aws_apigatewayv2_api.rvcgs-http-api.id
+  name        = "prod"
+  auto_deploy = true
+
+  tags = {
+    Environment = "Production"
+  }
+}
+
+# Routes:
+
+# /generate:
+resource "aws_apigatewayv2_route" "generate-playlist-route" {
+  api_id    = aws_apigatewayv2_api.rvcgs-http-api.id
+  route_key = "POST /generate"
+  target    = "integrations/${aws_apigatewayv2_integration.core-integration.id}"
+}
+
+# /testvalues:
+resource "aws_apigatewayv2_route" "test-values-route" {
+  api_id    = aws_apigatewayv2_api.rvcgs-http-api.id
+  route_key = "POST /testvalues"
+  target    = "integrations/${aws_apigatewayv2_integration.core-integration.id}"
+}
+
+# /version:
+resource "aws_apigatewayv2_route" "get-version-route" {
+  api_id    = aws_apigatewayv2_api.rvcgs-http-api.id
+  route_key = "GET /version"
+  target    = "integrations/${aws_apigatewayv2_integration.core-integration.id}"
+}
+
+# /list:
+resource "aws_apigatewayv2_route" "get-suggested-music-video-list-route" {
+  api_id    = aws_apigatewayv2_api.rvcgs-http-api.id
+  route_key = "GET /list"
+  target    = "integrations/${aws_apigatewayv2_integration.list-integration.id}"
+}
+
+# Integrations (with Lambda):
+
+# Lambda integration for core (used by 3 routes):
+resource "aws_apigatewayv2_integration" "core-integration" {
+  api_id                 = aws_apigatewayv2_api.rvcgs-http-api.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = data.aws_lambda_function.generate_playlist.invoke_arn
+  integration_method     = "POST"
+  payload_format_version = "2.0"
+}
+
+# Lambda integration for /list:
+resource "aws_apigatewayv2_integration" "list-integration" {
+  api_id                 = aws_apigatewayv2_api.rvcgs-http-api.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = data.aws_lambda_function.send_suggested_music_video_list.invoke_arn
+  integration_method     = "POST"
+  payload_format_version = "2.0"
+}
