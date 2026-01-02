@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.5.12 (2026-01-02)
+
+### Bug Fixes
+
+- Updated permissions for IAM GitHubBot user.
+  ([`9f8be4b`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/9f8be4b8296ad2d6fb8a36640c9bbe52af6e1be6))
+
+
 ## v4.5.11 (2026-01-02)
 
 ### Bug Fixes
