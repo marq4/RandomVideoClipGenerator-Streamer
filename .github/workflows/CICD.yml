@@ -354,10 +354,11 @@ jobs:
 
       - name: Upload script to S3.
         run: >
+          file=${{ env.SCRIPT_NAME_CORE }}
           aws s3 cp ${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME_CORE }}
           s3://${{ env.BUCKET_FOR_SCRIPT }}/${{ env.SCRIPT_NAME_CORE }}
           --content-type 'text/x-python'
-          --content-disposition "attachment; filename=${{ env.SCRIPT_NAME_CORE }}"
+          --content-disposition "attachment; filename=$file"
           --metadata-directive REPLACE
 
       - name: Verify correct version is live (for script users).
