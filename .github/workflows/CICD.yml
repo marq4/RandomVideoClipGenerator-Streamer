@@ -377,7 +377,7 @@ jobs:
           python -m pip install boto3 mypy-boto3-s3 -t .
           cp ../$script .
           zipfile=corefunctionality.zip
-          zip -r ../$zipfile . \
+          zip --quiet -r ../$zipfile . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
           ls -ltAh
@@ -389,7 +389,7 @@ jobs:
         run: |
           script="${{ env.CLOUD_SUBFOLDER }}/${{ env.SCRIPT_NAME_LIST }}"
           zipfile=listmdfunctionality.zip
-          zip --junk-paths $zipfile $script List.md
+          zip --quiet --junk-paths $zipfile $script List.md
           ls -ltAh
           aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME_LIST }} \
@@ -403,7 +403,7 @@ jobs:
           cd cleanup-lambda-package
           python -m pip install boto3 -t .
           cp ../$script .
-          zip -r ../$zipfile . \
+          zip --quiet -r ../$zipfile . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
           ls -ltAh
