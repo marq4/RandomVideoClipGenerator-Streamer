@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.5.10 (2026-01-02)
+
+### Bug Fixes
+
+- Terraform: Lambda....
+  ([`b65b0b4`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/b65b0b4891cd9eea172638ef9a32a5a8f54c8689))
+
+
 ## v4.5.9 (2026-01-02)
 
 ### Bug Fixes
