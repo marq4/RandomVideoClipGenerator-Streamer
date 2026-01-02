@@ -1,8 +1,9 @@
 """ Delete clips.xspf (S3) after user download. """
 
-import boto3
 import json
 from time import sleep
+
+import boto3
 
 BUCKET = 'rvcgs-marq-xspf-playlist-31122025'
 KEY = 'clips.xspf'
