@@ -38,3 +38,7 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
+
+main-lambda-package/
+cleanup-lambda-package/
+*.zip

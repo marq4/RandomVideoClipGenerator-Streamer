@@ -47,3 +47,9 @@ variable "main-dot-com-apex-url" {
   description = "Apex.com domain URL"
   default     = "randomvideoclipgenerator.com"
 }
+
+variable "lambda-runtime" {
+  type        = string
+  description = "All 3 functions share the same runtime"
+  default     = "python3.10"
+}

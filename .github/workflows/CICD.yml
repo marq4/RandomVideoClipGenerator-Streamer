@@ -10,7 +10,7 @@ env:
   # Specify minimum code coverage for Unit Testing:
   TARGET_COVERAGE: 40
   CORE_SUBFOLDER: 'PythonCore'
-  SCRIPT_NAME: 'random_video_clip_generator.py'
+  SCRIPT_NAME_CORE: 'random_video_clip_generator.py'
   # Single place to update Python version for this workflow:
   PYTHON_VERSION: '3.10'
   # _ Cloud + Web _
@@ -259,7 +259,7 @@ jobs:
       - id: detect_core_python_script_diff
         uses: ./.github/actions/changed-files
         with:
-          files: ${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME }}
+          files: ${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME_CORE }}
       - run: |
           echo 'Did the core Python script change in this commit: '
           echo ${{ steps.detect_core_python_script_diff.outputs.any_changed }}
@@ -319,7 +319,11 @@ jobs:
       PYTHONPATH: .
       BUCKET_FOR_SCRIPT: 'rvcgs-marq-scripts-30122025'
       VERIFY_BASH_SCRIPT: '.github/scripts/verify_deployed_version.sh'
-      LAMBDA_FUNCTION_NAME: 'generate_xml_playlist_lambda'
+      LAMBDA_FUNCTION_NAME_CORE: 'rvcgs-core'
+      LAMBDA_FUNCTION_NAME_LIST: 'rvcgs-send-suggestions-list'
+      LAMBDA_FUNCTION_NAME_CLEANUP: 'rvcgs-cleanup-s3-playlist'
+      SCRIPT_NAME_LIST: 'send_suggested_yt_video_list.py'
+      SCRIPT_NAME_CLEANUP: 's3_cleanup.py'
 
     steps:
       - name: Checkout code (deep, main).
@@ -350,10 +354,10 @@ jobs:
 
       - name: Upload script to S3.
         run: >
-          aws s3 cp ${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME }}
-          s3://${{ env.BUCKET_FOR_SCRIPT }}/${{ env.SCRIPT_NAME }}
+          aws s3 cp ${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME_CORE }}
+          s3://${{ env.BUCKET_FOR_SCRIPT }}/${{ env.SCRIPT_NAME_CORE }}
           --content-type 'text/x-python'
-          --content-disposition "attachment; filename=${{ env.SCRIPT_NAME }}"
+          --content-disposition "attachment; filename=${{ env.SCRIPT_NAME_CORE }}"
           --metadata-directive REPLACE
 
       - name: Verify correct version is live (for script users).
@@ -361,33 +365,49 @@ jobs:
           chmod +x ${{ env.VERIFY_BASH_SCRIPT }}
           ${{ env.VERIFY_BASH_SCRIPT }} \
             "${{ env.CORE_SUBFOLDER }}" \
-            "${{ env.SCRIPT_NAME }}" \
+            "${{ env.SCRIPT_NAME_CORE }}" \
             "${{ env.BUCKET_FOR_SCRIPT }}"
 
       - name: Deploy core to Lambda (website / Cloud service users).
         run: |
-          script="${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME }}"
+          script="${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME_CORE }}"
           mkdir main-lambda-package
           cd main-lambda-package
           python -m pip install boto3 mypy-boto3-s3 -t .
           cp ../$script .
-          zipfile=mainplaylistfunctionality.zip
+          zipfile=corefunctionality.zip
           zip -v -r ../$zipfile . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
-          ls -ltA
+          ls -ltAh
           aws lambda update-function-code \
-          --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+          --function-name ${{ env.LAMBDA_FUNCTION_NAME_CORE }} \
           --zip-file fileb://$zipfile
 
       - name: Deploy YT video list code to Lambda.
         run: |
-          script="${{ env.CLOUD_SUBFOLDER }}/send_suggested_yt_video_list.py"
+          script="${{ env.CLOUD_SUBFOLDER }}/${{ env.SCRIPT_NAME_LIST }}"
           zipfile=listmdfunctionality.zip
-          zip -v --junk-paths $zipfile  $script List.md
-          ls -ltA
+          zip -v --junk-paths $zipfile $script List.md
+          ls -ltAh
           aws lambda update-function-code \
-          --function-name respond_with_listmd_as_json \
+          --function-name ${{ env.LAMBDA_FUNCTION_NAME_LIST }} \
+          --zip-file fileb://$zipfile
+
+      - name: Deploy S3 cleanup code to Lambda.
+        run: |
+          script="${{ env.CLOUD_SUBFOLDER }}/${{ env.SCRIPT_NAME_CLEANUP }}"
+          zipfile=s3cleanupfunctionality.zip
+          mkdir cleanup-lambda-package
+          cd cleanup-lambda-package
+          python -m pip install boto3 -t .
+          cp ../$script .
+          zip -v -r ../$zipfile . \
+          -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
+          cd ..
+          ls -ltAh
+          aws lambda update-function-code \
+          --function-name ${{ env.LAMBDA_FUNCTION_NAME_CLEANUP }} \
           --zip-file fileb://$zipfile
 
 

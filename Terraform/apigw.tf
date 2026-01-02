@@ -63,7 +63,7 @@ resource "aws_apigatewayv2_route" "get-suggested-music-video-list-route" {
 resource "aws_apigatewayv2_integration" "core-integration" {
   api_id                 = aws_apigatewayv2_api.rvcgs-http-api.id
   integration_type       = "AWS_PROXY"
-  integration_uri        = data.aws_lambda_function.generate_playlist.invoke_arn
+  integration_uri        = aws_lambda_function.core-function.invoke_arn
   integration_method     = "POST"
   payload_format_version = "2.0"
 }
@@ -72,7 +72,26 @@ resource "aws_apigatewayv2_integration" "core-integration" {
 resource "aws_apigatewayv2_integration" "list-integration" {
   api_id                 = aws_apigatewayv2_api.rvcgs-http-api.id
   integration_type       = "AWS_PROXY"
-  integration_uri        = data.aws_lambda_function.send_suggested_music_video_list.invoke_arn
+  integration_uri        = aws_lambda_function.list-function.invoke_arn
   integration_method     = "POST"
   payload_format_version = "2.0"
 }
+
+# Permissions for APIGW to invoke functions:
+
+resource "aws_lambda_permission" "invoke-core" {
+  statement_id  = "AllowAPIGWInvokeCore"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.core-function.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.rvcgs-http-api.execution_arn}/*/*"
+}
+
+resource "aws_lambda_permission" "invoke-list" {
+  statement_id  = "AllowAPIGWInvokeList"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.list-function.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.rvcgs-http-api.execution_arn}/*/*"
+}
+
