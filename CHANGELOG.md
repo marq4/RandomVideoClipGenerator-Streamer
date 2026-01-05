@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v4.5.18 (2026-01-05)
+
+### Bug Fixes
+
+- Merge release.
+  ([`aca8db1`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/aca8db154fd1871b3eab1a5314e420a17cc14222))
+
+- Merge release..
+  ([`11a02b5`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/11a02b54091b4cba738a2ea390c0b985f0755516))
+
+
 ## v4.5.17 (2026-01-05)
 
 ### Bug Fixes
