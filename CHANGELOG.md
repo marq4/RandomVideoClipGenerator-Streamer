@@ -2,6 +2,28 @@
 
 <!-- version list -->
 
+## v4.6.0 (2026-01-05)
+
+### Bug Fixes
+
+- Added pyyaml to requirements.
+  ([`8983af1`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/8983af12938d92ab3a0bb524d18cc5354bd9225f))
+
+- Added types-PyYAML to requirements for MyPy.
+  ([`c9fc966`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/c9fc966285b981124fdf4535e842078a9f41524e))
+
+- Fixing generate html from template step.
+  ([`b21c446`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/b21c4461c89a308d0acbbeceb80ba4692cc71d0c))
+
+- Requierements typo.
+  ([`ceccd3c`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/ceccd3ceb1e87c591549d882fb0a47ccaf96ae54))
+
+### Features
+
+- Created new single source of truth for names of things. Complete: S3, Lambda.
+  ([`f47f9c7`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/f47f9c70bc55cc4af70de19b3b5bdaa2f650f1bb))
+
+
 ## v4.5.22 (2026-01-05)
 
 ### Bug Fixes
