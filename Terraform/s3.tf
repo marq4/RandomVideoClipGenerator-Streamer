@@ -134,6 +134,17 @@ resource "aws_s3_bucket_policy" "policy-for-upload" {
   })
 }
 
+resource "aws_s3_bucket_cors_configuration" "cors-for-upload" {
+  bucket = aws_s3_bucket.upload-bucket.id
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["PUT", "GET"]
+    allowed_origins = ["https://randomvideoclipgenerator.com"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+}
+
 
 
 # Website-hosting buckets:
