@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.5.15 (2026-01-05)
+
+### Bug Fixes
+
+- Typos..
+  ([`3dc16f1`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/3dc16f1049d0d70181e4d58d1944a8a64dc21e53))
+
+
 ## v4.5.14 (2026-01-05)
 
 ### Bug Fixes
