@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.5.22 (2026-01-05)
+
+### Bug Fixes
+
+- Trying to see if user text file is uploaded to new bucket.
+  ([`4f170ab`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/4f170ab51f0623cfd35f15d766679b34a6f47db7))
+
+
 ## v4.5.21 (2026-01-05)
 
 ### Bug Fixes
