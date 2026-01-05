@@ -356,7 +356,7 @@ def get_playlist_response_cloud(event: dict) -> dict:
     s3 = boto3.client('s3')
 
     # Bucket name where user's video list text files are uploaded to:
-    bucket_name = 'rvcgstack-s3uploadbucket-bcgfzvlvljdy'
+    bucket_name = 'rvcgs-marq-list-videos-upload-05012026'
 
     # Event comes from API GW as json.
     body = json.loads(event['body'])
