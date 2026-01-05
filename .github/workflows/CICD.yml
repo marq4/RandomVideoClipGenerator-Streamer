@@ -427,7 +427,7 @@ jobs:
           ls -ltAh | head -1
           aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME_UPLOAD }} \
-          --zipfile fileb://$zipfile
+          --zip-file fileb://$zipfile
 
 
   # _ Web _
