@@ -57,7 +57,7 @@ resource "aws_lambda_function" "upload-function" {
   description   = "Generates presigned S3 URL for user upload."
 
   runtime = var.lambda-runtime
-  handler = "s3_presigned_url_generator.lambda_handler"
+  handler = "presigned_url_generator.lambda_handler"
   timeout = 23 #seconds.
 
   tags = {
