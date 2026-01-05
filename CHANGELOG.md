@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.5.21 (2026-01-05)
+
+### Bug Fixes
+
+- Updated name of upload bucket in core.
+  ([`bb96206`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/bb9620622818a29d0b3c2ecc8c7f37d21ab97943))
+
+
 ## v4.5.20 (2026-01-05)
 
 ### Bug Fixes
