@@ -8,7 +8,7 @@ import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 
 s3_client = boto3.client('s3')
-BUCKET_NAME = os.environ['UPLOAD_BUCKET_NAME']
+BUCKET_NAME = 'rvcgs-upload'
 
 def lambda_handler(_event, _context):
     """Generate presigned S3 URL for uploading list_videos.txt"""
