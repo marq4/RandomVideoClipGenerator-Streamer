@@ -380,7 +380,7 @@ jobs:
           zip --quiet -r ../$zipfile . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
-          ls -ltAh
+          ls -ltAh | head -1
           aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME_CORE }} \
           --zip-file fileb://$zipfile
@@ -390,7 +390,7 @@ jobs:
           script="${{ env.CLOUD_SUBFOLDER }}/${{ env.SCRIPT_NAME_LIST }}"
           zipfile=listmdfunctionality.zip
           zip --quiet --junk-paths $zipfile $script List.md
-          ls -ltAh
+          ls -ltAh | head -1
           aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME_LIST }} \
           --zip-file fileb://$zipfile
@@ -406,7 +406,7 @@ jobs:
           zip --quiet -r ../$zipfile . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
-          ls -ltAh
+          ls -ltAh | head -1
           aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME_CLEANUP }} \
           --zip-file fileb://$zipfile

@@ -57,6 +57,12 @@ resource "aws_apigatewayv2_route" "get-suggested-music-video-list-route" {
   target    = "integrations/${aws_apigatewayv2_integration.list-integration.id}"
 }
 
+# /upload:
+resource "aws_apigatewayv2_route" "upload-list-route" {
+  api_id    = aws_apigatewayv2_api.rvcgs-http-api.id
+  route_key = "POST /upload"
+}
+
 # Integrations (with Lambda):
 
 # Lambda integration for core (used by 3 routes):
@@ -94,4 +100,3 @@ resource "aws_lambda_permission" "invoke-list" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.rvcgs-http-api.execution_arn}/*/*"
 }
-
