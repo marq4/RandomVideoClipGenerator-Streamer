@@ -2,12 +2,20 @@
 
 import json
 from datetime import datetime
+from pathlib import Path
 
 import boto3
+import yaml
 from botocore.exceptions import BotoCoreError, ClientError
 
 s3_client = boto3.client('s3')
-BUCKET_NAME = 'rvcgs-marq-list-videos-upload-05012026'
+
+# Load config from repo root:
+config_path = Path(__file__).parent / 'config.yml'
+with open(config_path, encoding='UTF-8') as f:
+    config = yaml.safe_load(f)
+
+BUCKET_NAME = config['upload_bucket_name']
 
 def lambda_handler(_event, _context):
     """Generate presigned S3 URL for uploading list_videos.txt"""

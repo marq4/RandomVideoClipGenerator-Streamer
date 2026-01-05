@@ -1,0 +1,33 @@
+---
+# Project name for tags:
+project_name: RVCGS/serverless
+
+
+# S3:
+
+# Bucket used to store remote state:
+backend_bucket_name: rvcgs-marq-remote-state-backend-30122025
+
+# Bucket that hosts core Python and PowerShell scripts:
+scripts_bucket_name: rvcgs-marq-scripts-30122025
+
+# Bucket where Lambda writes clips.xspf to:
+playlist_bucket_name: rvcgs-marq-xspf-playlist-31122025
+
+# Bucket where list_videos.txt is temporarily uploaded to:
+upload_bucket_name: rvcgs-marq-list-videos-upload-05012026
+
+
+# Lambda:
+
+# Core:
+core_function_name: rvcgs-core
+
+# Sends suggested YouTube music video list:
+list_function_name: rvcgs-send-suggestions-list
+
+# Cleans up S3 tmp buckets:
+cleanup_function_name: rvcgs-cleanup-s3-playlist
+
+# Processes user upload:
+upload_function_name: rvcgs-upload

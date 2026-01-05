@@ -13,6 +13,7 @@ from pathlib import Path
 from subprocess import PIPE, Popen
 
 import boto3
+import yaml
 from mypy_boto3_s3.client import S3Client
 
 #===============================================================================
@@ -41,12 +42,17 @@ __version__ = '4.5.22'
 CURRENT_DIRECTORY = os.path.dirname( os.path.abspath(__file__) )
 VLC_BATCH_FILE = 'exevlc.bat'
 
+# Load config from repo root:
+config_path = Path(__file__).parent / 'config.yml'
+with open(config_path, encoding='UTF-8') as f:
+    config = yaml.safe_load(f)
+
 # Globals for Cloud Service:
 DEFAULT_NUMBER_OF_CLIPS_CLOUD = 55
 MAX_NUM_CLIPS_CLOUD = 1_000
 DEFAULT_INTERVAL_MIN_CLOUD = 2
 DEFAULT_INTERVAL_MAX_CLOUD = 2
-OUTPUT_BUCKET = 'rvcgs-marq-xspf-playlist-31122025'
+OUTPUT_BUCKET = config['playlist_bucket_name']
 OK_STATUS_CODE = 200
 NOT_FOUND_STATUS_CODE = 404
 
@@ -356,7 +362,7 @@ def get_playlist_response_cloud(event: dict) -> dict:
     s3 = boto3.client('s3')
 
     # Bucket name where user's video list text files are uploaded to:
-    bucket_name = 'rvcgs-marq-list-videos-upload-05012026'
+    bucket_name = config['upload_bucket_name']
 
     # Event comes from API GW as json.
     body = json.loads(event['body'])

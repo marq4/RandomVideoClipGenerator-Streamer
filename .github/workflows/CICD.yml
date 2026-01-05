@@ -317,12 +317,7 @@ jobs:
     timeout-minutes: 16
     env:
       PYTHONPATH: .
-      BUCKET_FOR_SCRIPT: 'rvcgs-marq-scripts-30122025'
       VERIFY_BASH_SCRIPT: '.github/scripts/verify_deployed_version.sh'
-      LAMBDA_FUNCTION_NAME_CORE: 'rvcgs-core'
-      LAMBDA_FUNCTION_NAME_LIST: 'rvcgs-send-suggestions-list'
-      LAMBDA_FUNCTION_NAME_CLEANUP: 'rvcgs-cleanup-s3-playlist'
-      LAMBDA_FUNCTION_NAME_UPLOAD: 'rvcgs-upload'
       SCRIPT_NAME_LIST: 'send_suggested_yt_video_list.py'
       SCRIPT_NAME_CLEANUP: 's3_cleanup.py'
       SCRIPT_NAME_UPLOAD: 'presigned_url_generator.py'
@@ -354,7 +349,22 @@ jobs:
             ${{ secrets.AWS_SECRET_ACCESS_KEY_RVCGS }}
           aws-region: ${{ env.REGION }}
 
+      - id: load_config
+        run: |
+          SCRIPTS_BUCKET_NAME=$(yq '.scripts_bucket_name' config.yml)
+          echo "bucket_scripts=$SCRIPTS_BUCKET_NAME" >> $GITHUB_OUTPUT
+          CORE_FUNCTION_NAME=$(yq '.core_function_name' config.yml)
+          echo "lambda_core=$CORE_FUNCTION_NAME" >> $GITHUB_OUTPUT
+          LIST_FUNCTION_NAME=$(yq '.list_function_name' config.yml)
+          echo "lambda_list=$LIST_FUNCTION_NAME" >> $GITHUB_OUTPUT
+          CLEANUP_FUNCTION_NAME=$(yq '.cleanup_function_name' config.yml)
+          echo "lambda_cleanup=$CLEANUP_FUNCTION_NAME" >> $GITHUB_OUTPUT
+          UPLOAD_FUNCTION_NAME=$(yq '.upload_function_name' config.yml)
+          echo "lambda_upload=$UPLOAD_FUNCTION_NAME" >> $GITHUB_OUTPUT
+
       - name: Upload script to S3.
+        env:
+          BUCKET_FOR_SCRIPT: ${{ steps.load_config.outputs.scripts_bucket }}
         run: >
           file=${{ env.SCRIPT_NAME_CORE }}
           aws s3 cp ${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME_CORE }}
@@ -364,6 +374,8 @@ jobs:
           --metadata-directive REPLACE
 
       - name: Verify correct version is live (for script users).
+        env:
+          BUCKET_FOR_SCRIPT: ${{ steps.load_config.outputs.bucket_scripts }}
         run: |
           chmod +x ${{ env.VERIFY_BASH_SCRIPT }}
           ${{ env.VERIFY_BASH_SCRIPT }} \
@@ -372,6 +384,8 @@ jobs:
             "${{ env.BUCKET_FOR_SCRIPT }}"
 
       - name: Deploy core to Lambda (website / Cloud service users).
+        env:
+          CORE_FUNCTION: ${{ steps.load_config.outputs.lambda_core }}
         run: |
           script="${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME_CORE }}"
           mkdir main-lambda-package
@@ -384,20 +398,24 @@ jobs:
           cd ..
           ls -ltAh | head -1
           aws lambda update-function-code \
-          --function-name ${{ env.LAMBDA_FUNCTION_NAME_CORE }} \
+          --function-name ${{ env.CORE_FUNCTION }} \
           --zip-file fileb://$zipfile
 
       - name: Deploy YT video list code to Lambda.
+        env:
+          LIST_FUNCTION: ${{ steps.load_config.outputs.lambda_list }}
         run: |
           script="${{ env.CLOUD_SUBFOLDER }}/${{ env.SCRIPT_NAME_LIST }}"
           zipfile=listmdfunctionality.zip
           zip --quiet --junk-paths $zipfile $script List.md
           ls -ltAh | head -1
           aws lambda update-function-code \
-          --function-name ${{ env.LAMBDA_FUNCTION_NAME_LIST }} \
+          --function-name ${{ env.LIST_FUNCTION }} \
           --zip-file fileb://$zipfile
 
       - name: Deploy S3 cleanup code to Lambda.
+        env:
+          CLEANUP_FUNCTION: ${{ steps.load_config.outputs.lambda_cleanup }}
         run: |
           script="${{ env.CLOUD_SUBFOLDER }}/${{ env.SCRIPT_NAME_CLEANUP }}"
           zipfile=s3cleanupfunctionality.zip
@@ -410,10 +428,12 @@ jobs:
           cd ..
           ls -ltAh | head -1
           aws lambda update-function-code \
-          --function-name ${{ env.LAMBDA_FUNCTION_NAME_CLEANUP }} \
+          --function-name ${{ env.CLEANUP_FUNCTION }} \
           --zip-file fileb://$zipfile
 
       - name: Deploy upload code.
+        env:
+          UPLOAD_FUNCTION: ${{ steps.load_config.outputs.lambda_upload }}
         run: |
           script="${{ env.CLOUD_SUBFOLDER }}/${{ env.SCRIPT_NAME_UPLOAD }}"
           zipfile=uploadfunctionality.zip
@@ -426,11 +446,28 @@ jobs:
           cd ..
           ls -ltAh | head -1
           aws lambda update-function-code \
-          --function-name ${{ env.LAMBDA_FUNCTION_NAME_UPLOAD }} \
+          --function-name ${{ env.UPLOAD_FUNCTION }} \
           --zip-file fileb://$zipfile
 
 
   # _ Web _
+
+  generate-html-from-template:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load name of scripts bucket from config.
+        id: load_config
+        run: |
+          BUCKET_FOR_SCRIPT=$(yq '.scripts_bucket_name' config.yml)
+          echo "scripts_bucket=$BUCKET_FOR_SCRIPT" >> $GITHUB_OUTPUT
+
+      - name: Generate HTML from template.
+        run: |
+          export SCRIPTS_BUCKET=$(yq | '.scripts_bucket_name' config.yml)
+          envsubst < index.html.template > index.html
 
   # Auxiliary job that checks if the CSS stylesheet changed specifically.
   css-changed:
@@ -469,7 +506,7 @@ jobs:
       - id: detect_html_diff
         uses: ./.github/actions/changed-files
         with:
-          files: '**/*.html'
+          files: '**/*.{html, html.template}'
       - run: |
           echo 'Did any HTML document(s) change in this commit: '
           echo ${{ steps.detect_html_diff.outputs.any_changed }}

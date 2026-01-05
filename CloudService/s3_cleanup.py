@@ -1,12 +1,21 @@
 """ Delete clips.xspf (S3) after user download. """
 
 import json
+from pathlib import Path
 from time import sleep
 
 import boto3
+import yaml
 
-BUCKET = 'rvcgs-marq-xspf-playlist-31122025'
 KEY = 'clips.xspf'
+
+# Load config from repo root:
+config_path = Path(__file__).parent / 'config.yml'
+with open(config_path, encoding='UTF-8') as f:
+    config = yaml.safe_load(f)
+
+BUCKET = config['playlist_bucket_name']
+
 
 s3 = boto3.client('s3')
 

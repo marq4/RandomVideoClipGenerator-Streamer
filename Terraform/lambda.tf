@@ -1,5 +1,5 @@
 resource "aws_lambda_function" "core-function" {
-  function_name = var.core-function-name
+  function_name = local.config.core_function_name
   description   = "Random Video Clip Generator Python core."
 
   runtime = var.lambda-runtime
@@ -17,7 +17,7 @@ resource "aws_lambda_function" "core-function" {
 }
 
 resource "aws_lambda_function" "list-function" {
-  function_name = var.list-function-name
+  function_name = local.config.list_function_name
   description   = "Parses List.md from repo root into a JSON response for JS to display suggested YouTube music videos in the main page."
 
   runtime = var.lambda-runtime
@@ -35,7 +35,7 @@ resource "aws_lambda_function" "list-function" {
 }
 
 resource "aws_lambda_function" "cleanup-function" {
-  function_name = var.cleanup-function-name
+  function_name = local.config.cleanup_function_name
   description   = "Deletes clips.xspf from bucket right after it's sent to user's browser for download."
 
   runtime = var.lambda-runtime
@@ -53,7 +53,7 @@ resource "aws_lambda_function" "cleanup-function" {
 }
 
 resource "aws_lambda_function" "upload-function" {
-  function_name = var.upload-function-name
+  function_name = local.config.upload_function_name
   description   = "Generates presigned S3 URL for user upload."
 
   runtime = var.lambda-runtime

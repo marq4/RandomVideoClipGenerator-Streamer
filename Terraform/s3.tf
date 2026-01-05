@@ -2,7 +2,7 @@
 
 # Store tfstate remotely:
 resource "aws_s3_bucket" "rvcgs-backend-bucket" {
-  bucket = var.backend-bucket-name
+  bucket = local.config.backend_bucket_name
   lifecycle {
     prevent_destroy = true
   }
@@ -19,7 +19,7 @@ resource "aws_s3_bucket_versioning" "versioning-for-backend" {
 # Scripts bucket:
 
 resource "aws_s3_bucket" "scripts-bucket" {
-  bucket = var.scripts-bucket-name
+  bucket = local.config.scripts_bucket_name
   lifecycle {
     prevent_destroy = true
   }
@@ -69,7 +69,7 @@ resource "aws_s3_bucket_policy" "policy-for-scripts" {
 # Playlist bucket:
 
 resource "aws_s3_bucket" "playlist-bucket" {
-  bucket = var.playlist-bucket-name
+  bucket = local.config.playlist_bucket_name
   lifecycle {
     prevent_destroy = true
   }
@@ -108,7 +108,7 @@ resource "aws_s3_bucket_policy" "policy-for-playlist" {
 # Upload bucket:
 
 resource "aws_s3_bucket" "upload-bucket" {
-  bucket = var.upload-bucket-name
+  bucket = local.config.upload_bucket_name
   lifecycle {
     prevent_destroy = true
   }
