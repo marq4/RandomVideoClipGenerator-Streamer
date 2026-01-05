@@ -364,7 +364,7 @@ jobs:
 
       - name: Upload script to S3.
         env:
-          BUCKET_FOR_SCRIPT: ${{ steps.load_config.outputs.scripts_bucket }}
+          BUCKET_FOR_SCRIPT: ${{ steps.load_config.outputs.bucket_scripts }}
         run: >
           file=${{ env.SCRIPT_NAME_CORE }}
           aws s3 cp ${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME_CORE }}
