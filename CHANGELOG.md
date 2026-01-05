@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.6.1 (2026-01-05)
+
+### Bug Fixes
+
+- Typo in CICD YAML.
+  ([`056c99c`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/056c99c595749f1f9afb2d401ac5b61e6e45342f))
+
+
 ## v4.6.0 (2026-01-05)
 
 ### Bug Fixes
