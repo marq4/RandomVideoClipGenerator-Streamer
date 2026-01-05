@@ -1,7 +1,6 @@
 """ Generate presigned URL for S3 upload. """
 
 import json
-import os
 from datetime import datetime
 
 import boto3
