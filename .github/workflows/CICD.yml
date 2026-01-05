@@ -322,8 +322,10 @@ jobs:
       LAMBDA_FUNCTION_NAME_CORE: 'rvcgs-core'
       LAMBDA_FUNCTION_NAME_LIST: 'rvcgs-send-suggestions-list'
       LAMBDA_FUNCTION_NAME_CLEANUP: 'rvcgs-cleanup-s3-playlist'
+      LAMBDA_FUNCTION_NAME_UPLOAD: 'rvcgs-upload'
       SCRIPT_NAME_LIST: 'send_suggested_yt_video_list.py'
       SCRIPT_NAME_CLEANUP: 's3_cleanup.py'
+      SCRIPT_NAME_UPLOAD: 'presigned_url_generator.py'
 
     steps:
       - name: Checkout code (deep, main).
@@ -410,6 +412,22 @@ jobs:
           aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME_CLEANUP }} \
           --zip-file fileb://$zipfile
+
+      - name: Deploy upload code.
+        run: |
+          script="${{ env.CLOUD_SUBFOLDER }}/${{ env.SCRIPT_NAME_UPLOAD }}"
+          zipfile=uploadfunctionality.zip
+          mkdir upload-lambda-package
+          cd upload-lambda-package
+          python -m pip install boto3 -t .
+          cp ../$script .
+          zip --quiet -r ../$zipfile . \
+          -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
+          cd ..
+          ls -ltAh | head -1
+          aws lambda update-function-code
+          --function-name ${{ env.LAMBDA_FUNCTION_NAME_UPLOAD }}
+          --zipfile fileb://$zipfile
 
 
   # _ Web _

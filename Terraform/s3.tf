@@ -105,6 +105,37 @@ resource "aws_s3_bucket_policy" "policy-for-playlist" {
 }
 
 
+# Upload bucket:
+
+resource "aws_s3_bucket" "upload-bucket" {
+  bucket = var.upload-bucket-name
+  lifecycle {
+    prevent_destroy = true
+  }
+  tags = {
+    Purpose = "Tmp storage for web browsers to upload video list text file to"
+  }
+}
+
+resource "aws_s3_bucket_policy" "policy-for-upload" {
+  bucket = aws_s3_bucket.upload-bucket.id
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "PreventDeletion",
+        "Effect" : "Deny",
+        "Principal" : "*",
+        "Action" : "s3:DeleteBucket",
+        "Resource" : aws_s3_bucket.upload-bucket.arn
+      }
+    ]
+  })
+}
+
+
+
 # Website-hosting buckets:
 
 # 1.- Apex.com: randomvideoclipgenerator.com:

@@ -60,7 +60,8 @@ resource "aws_apigatewayv2_route" "get-suggested-music-video-list-route" {
 # /upload:
 resource "aws_apigatewayv2_route" "upload-list-route" {
   api_id    = aws_apigatewayv2_api.rvcgs-http-api.id
-  route_key = "POST /upload"
+  route_key = "GET /upload"
+  target    = "integrations/${aws_apigatewayv2_integration.upload-integration.id}"
 }
 
 # Integrations (with Lambda):
@@ -83,6 +84,15 @@ resource "aws_apigatewayv2_integration" "list-integration" {
   payload_format_version = "2.0"
 }
 
+resource "aws_apigatewayv2_integration" "upload-integration" {
+  api_id                 = aws_apigatewayv2_api.rvcgs-http-api.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = aws_lambda_function.upload-function.invoke_arn
+  integration_method     = "POST"
+  payload_format_version = "2.0"
+}
+
+
 # Permissions for APIGW to invoke functions:
 
 resource "aws_lambda_permission" "invoke-core" {
@@ -97,6 +107,14 @@ resource "aws_lambda_permission" "invoke-list" {
   statement_id  = "AllowAPIGWInvokeList"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.list-function.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.rvcgs-http-api.execution_arn}/*/*"
+}
+
+resource "aws_lambda_permission" "invoke-upload" {
+  statement_id  = "AllowAPIGatewayInvokePresignedURL"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.upload-function.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.rvcgs-http-api.execution_arn}/*/*"
 }
