@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v4.5.19 (2026-01-05)
+
+### Bug Fixes
+
+- Added name of bucket in new Python code.
+  ([`3e0a374`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/3e0a3748a88e1dc1765fba86e1920dbe9043680d))
+
+- Added name of bucket in new Python code..
+  ([`8b5af34`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/8b5af34d85a9076a29ae9cfe1442af5b22b39d9b))
+
+
 ## v4.5.18 (2026-01-05)
 
 ### Bug Fixes
