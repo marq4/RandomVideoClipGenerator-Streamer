@@ -543,3 +543,5 @@ def local_main():
 if __name__ == "__main__":
     if not RUNNING_ENV_IS_LAMBDA:
         local_main()
+
+# RELEASE!!!
