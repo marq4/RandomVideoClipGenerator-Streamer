@@ -15,7 +15,7 @@ def lambda_handler(_event, _context):
     try:
         # Generate unique filename with timestamp
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        object_key = f'uploads/list_videos_{timestamp}.txt'
+        object_key = f'list_videos_{timestamp}.txt'
 
         # Generate presigned URL (5 minute expiry)
         presigned_url = s3_client.generate_presigned_url(
