@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.5.16 (2026-01-05)
+
+### Bug Fixes
+
+- Forgot to add new Lambda to GitHubBot user permissions.
+  ([`0fae82d`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/0fae82d31e5fdcc7af273230e6f52c7256eb420b))
+
+
 ## v4.5.15 (2026-01-05)
 
 ### Bug Fixes
