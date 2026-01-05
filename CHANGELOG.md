@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v4.5.13 (2026-01-05)
+
+### Bug Fixes
+
+- Forgot to update core for a release + deployment.
+  ([`c083a35`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/c083a358a2960b5f464ea41d586b5541d6574d9a))
+
+- New Lambda for S3 presigned URLs for user upload.
+  ([`3c8f1d4`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/3c8f1d4f0eeeab344d3eaf8c536221c271aa11d7))
+
+
 ## v4.5.12 (2026-01-02)
 
 ### Bug Fixes
