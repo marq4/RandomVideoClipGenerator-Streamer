@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.5.20 (2026-01-05)
+
+### Bug Fixes
+
+- Trying to fix CORS issue with upload bucket.
+  ([`a4f8b7b`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/a4f8b7b6a6428c21f5262023c61ea8b801179db9))
+
+
 ## v4.5.19 (2026-01-05)
 
 ### Bug Fixes
