@@ -425,8 +425,8 @@ jobs:
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
           ls -ltAh | head -1
-          aws lambda update-function-code
-          --function-name ${{ env.LAMBDA_FUNCTION_NAME_UPLOAD }}
+          aws lambda update-function-code \
+          --function-name ${{ env.LAMBDA_FUNCTION_NAME_UPLOAD }} \
           --zipfile fileb://$zipfile
 
 
