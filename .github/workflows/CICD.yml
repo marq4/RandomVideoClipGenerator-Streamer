@@ -458,15 +458,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Load name of scripts bucket from config.
-        id: load_config
+      - id: load_config
         run: |
-          BUCKET_FOR_SCRIPT=$(yq '.scripts_bucket_name' config.yml)
-          echo "scripts_bucket=$BUCKET_FOR_SCRIPT" >> $GITHUB_OUTPUT
+          SCRIPTS_BUCKET_NAME=$(yq '.scripts_bucket_name' config.yml)
+          echo "bucket_scripts=$SCRIPTS_BUCKET_NAME" >> $GITHUB_OUTPUT
 
       - name: Generate HTML from template.
         run: |
-          export SCRIPTS_BUCKET=$(yq | '.scripts_bucket_name' config.yml)
+          cd ${{ env.CLOUD_SUBFOLDER }}
           envsubst < index.html.template > index.html
 
   # Auxiliary job that checks if the CSS stylesheet changed specifically.
