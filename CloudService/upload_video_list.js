@@ -25,28 +25,37 @@ new Vue({
     },
     uploadFile: async function () {
       console.log('Upload clicked')
-      // Get the presigned URL from backend:
-      const response = await axios({
-        method: 'GET',
-        url: API_ENDPOINT
-      })
-      console.log('Response: ', response)
+      try {
+        // Get the presigned URL from backend:
+        const response = await axios({
+          method: 'GET',
+          url: API_ENDPOINT
+        })
+        console.log('Response: ', response)
 
-      // Convert text content to Blob:
-      const blobData = new Blob([this.textFile], { type: 'text/plain' })
-      console.log('Uploading to: ', response.uploadURL)
-      const result = await fetch(response.uploadURL, {
-        method: 'PUT',
-        body: blobData
-      })
-      console.log('Result: ', result)
+        // Convert text content to Blob:
+        const blobData = new Blob([this.textFile], { type: 'text/plain' })
+        console.log('Uploading to: ', response.uploadURL)
+        const result = await fetch(response.uploadURL, {
+          method: 'PUT',
+          body: blobData
+        })
+        console.log('Result: ', result)
 
-      // Final URL (strip query string):
-      this.uploadURL = response.uploadURL.split('?')[0]
-      // Extract just the object key:
-      const objectKey = this.uploadURL.substring(this.uploadURL.lastIndexOf('/') + 1)
-      // Take user to playlist generation page:
-      window.location.href = `https://randomvideoclipgenerator.com/generate_playlist.html?file=${encodeURIComponent(objectKey)}`
+        if (!result.ok) {
+          throw new Error(`Upload failed with status: ${result.status}`)
+        }
+
+        // Final URL (strip query string):
+        this.uploadURL = response.uploadURL.split('?')[0]
+        // Extract just the object key:
+        const objectKey = this.uploadURL.substring(this.uploadURL.lastIndexOf('/') + 1)
+        // Take user to playlist generation page:
+        window.location.href = `https://randomvideoclipgenerator.com/generate_playlist.html?file=${encodeURIComponent(objectKey)}`
+      } catch (error) {
+        console.error('Upload error:', error)
+        alert('Failed to upload file.')
+      }
     }
   }
 })
