@@ -452,25 +452,6 @@ jobs:
 
   # _ Web _
 
-  generate-html-from-template:
-    runs-on: ubuntu-latest
-    timeout-minutes: 2
-    steps:
-      - uses: actions/checkout@v4
-
-      - id: load_config
-        run: |
-          SCRIPTS_BUCKET_NAME=$(yq '.scripts_bucket_name' config.yml)
-          echo "bucket_scripts=$SCRIPTS_BUCKET_NAME" >> $GITHUB_OUTPUT
-          echo -e 'S3 Bucket for scripts (Python, PowerShell) =>'
-          echo " ${SCRIPTS_BUCKET_NAME}"
-
-      - name: Generate HTML from template.
-        run: |
-          cd ${{ env.CLOUD_SUBFOLDER }}
-          envsubst < index.html.template > index.html
-          ls -ltAh | tail -n +2 | head -1
-
   # Auxiliary job that checks if the CSS stylesheet changed specifically.
   css-changed:
     needs: yaml-style-quality
@@ -566,6 +547,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Generate HTML from template.
+        run: |
+          cd ${{ env.CLOUD_SUBFOLDER }}
+          envsubst < index.html.template > index.html
+          ls -ltAh | tail -n +2 | head -1
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -574,6 +561,13 @@ jobs:
         run: |
           npm install --global html-validate
           html-validate .
+
+      - name: Share the generated index HTML with deploy job via Artifacts.
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-html
+          path: ${{ env.CLOUD_SUBFOLDER }}/index.html
+          retention-days: 1
 
   # Only lint JS for now. I MAY add automated testing later.
   # Only runs if any JS files changed.
@@ -619,6 +613,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Retrieve index HTML generated in Lint-HTML job.
+        uses: actions/download-artifact@v4
+        with:
+          name: generated-html
+          path: ${{ env.CLOUD_SUBFOLDER }}
 
       - name: Load AWS credentials from GitHub secrets.
         uses: aws-actions/configure-aws-credentials@v4
