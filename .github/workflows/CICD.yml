@@ -620,7 +620,7 @@ jobs:
           name: generated-html
           path: ${{ env.CLOUD_SUBFOLDER }}
 
-      - run: ls -ltAh | tail -n +2 | head -1
+      - run: ls -lh index.html
 
       - name: Load AWS credentials from GitHub secrets.
         uses: aws-actions/configure-aws-credentials@v4
