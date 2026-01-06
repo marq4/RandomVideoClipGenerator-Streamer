@@ -547,8 +547,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Generate HTML from template.
+      - id: load_config
         run: |
+          SCRIPTS_BUCKET_NAME=$(yq '.scripts_bucket_name' config.yml)
+          echo "bucket_scripts=$SCRIPTS_BUCKET_NAME" >> $GITHUB_OUTPUT
+
+      - name: Generate HTML from template.
+        env:
+          SCRIPTS_BUCKET: ${{ steps.load_config.outputs.bucket_scriptz }}
+        run: |
+          echo "SCRIPTS_BUCKET => ${SCRIPTS_BUCKET}"
+          if [ -z "$SCRIPTS_BUCKET" ]
+          then
+            echo 'ERROR: env var not set!'
+            exit 1
+          fi
           cd ${{ env.CLOUD_SUBFOLDER }}
           envsubst < index.html.template > index.html
           ls -ltAh | tail -n +2 | head -1
