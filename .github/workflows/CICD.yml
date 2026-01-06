@@ -630,8 +630,10 @@ jobs:
 
       - name: Sync web assets to S3.
         run: >
-          aws s3 sync ${{ env.CLOUD_SUBFOLDER }} --exclude "*.template"
+          aws s3 sync
+          ${{ env.CLOUD_SUBFOLDER }}
           s3://${{ env.BUCKET_WEB }}
+          --exclude "*.template"
           --delete
 
       - name: Invalidate CloudFront cache.
