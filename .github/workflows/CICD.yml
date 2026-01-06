@@ -554,7 +554,7 @@ jobs:
 
       - name: Generate HTML from template.
         env:
-          SCRIPTS_BUCKET: ${{ steps.load_config.outputs.bucket_scriptz }}
+          SCRIPTS_BUCKET: ${{ steps.load_config.outputs.bucket_script }}
         run: |
           echo "SCRIPTS_BUCKET => ${SCRIPTS_BUCKET}"
           if [ -z "$SCRIPTS_BUCKET" ]
