@@ -390,7 +390,7 @@ jobs:
           script="${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME_CORE }}"
           mkdir main-lambda-package
           cd main-lambda-package
-          python -m pip install boto3 mypy-boto3-s3 -t .
+          python -m pip install boto3 mypy-boto3-s3 PyYAML -t .
           cp ../$script .
           cp ../config.yml .
           zipfile=corefunctionality.zip
