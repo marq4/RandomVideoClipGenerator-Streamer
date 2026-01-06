@@ -462,7 +462,8 @@ jobs:
         run: |
           SCRIPTS_BUCKET_NAME=$(yq '.scripts_bucket_name' config.yml)
           echo "bucket_scripts=$SCRIPTS_BUCKET_NAME" >> $GITHUB_OUTPUT
-          echo "S3 Bucket for scripts (Python, PowerShell) => ${SCRIPTS_BUCKET_NAME}"
+          echo -e 'S3 Bucket for scripts (Python, PowerShell) =>'
+          echo " ${SCRIPTS_BUCKET_NAME}"
 
       - name: Generate HTML from template.
         run: |
