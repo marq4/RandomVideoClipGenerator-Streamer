@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.6.5 (2026-01-06)
+
+### Bug Fixes
+
+- Config YAML file was missing from Lambda zips.
+  ([`112acc6`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/112acc6468c167ecf5fd6083ef15cfdefe33138c))
+
+
 ## v4.6.4 (2026-01-06)
 
 ### Bug Fixes
