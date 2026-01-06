@@ -467,6 +467,7 @@ jobs:
         run: |
           cd ${{ env.CLOUD_SUBFOLDER }}
           envsubst < index.html.template > index.html
+          ls -ltAh | head -1
 
   # Auxiliary job that checks if the CSS stylesheet changed specifically.
   css-changed:
