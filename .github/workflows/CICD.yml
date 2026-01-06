@@ -396,7 +396,7 @@ jobs:
           zip --quiet -r ../$zipfile . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
-          ls -ltAh | head -1
+          ls -ltAh | tail -n +2 | head -1
           aws lambda update-function-code \
           --function-name ${{ env.CORE_FUNCTION }} \
           --zip-file fileb://$zipfile
@@ -408,7 +408,7 @@ jobs:
           script="${{ env.CLOUD_SUBFOLDER }}/${{ env.SCRIPT_NAME_LIST }}"
           zipfile=listmdfunctionality.zip
           zip --quiet --junk-paths $zipfile $script List.md
-          ls -ltAh | head -1
+          ls -ltAh | tail -n +2 | head -1
           aws lambda update-function-code \
           --function-name ${{ env.LIST_FUNCTION }} \
           --zip-file fileb://$zipfile
@@ -426,7 +426,7 @@ jobs:
           zip --quiet -r ../$zipfile . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
-          ls -ltAh | head -1
+          ls -ltAh | tail -n +2 | head -1
           aws lambda update-function-code \
           --function-name ${{ env.CLEANUP_FUNCTION }} \
           --zip-file fileb://$zipfile
@@ -444,7 +444,7 @@ jobs:
           zip --quiet -r ../$zipfile . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
-          ls -ltAh | head -1
+          ls -ltAh | tail -n +2 | head -1
           aws lambda update-function-code \
           --function-name ${{ env.UPLOAD_FUNCTION }} \
           --zip-file fileb://$zipfile
@@ -462,12 +462,13 @@ jobs:
         run: |
           SCRIPTS_BUCKET_NAME=$(yq '.scripts_bucket_name' config.yml)
           echo "bucket_scripts=$SCRIPTS_BUCKET_NAME" >> $GITHUB_OUTPUT
+          echo "S3 Bucket for scripts (Python, PowerShell) => ${SCRIPTS_BUCKET_NAME}"
 
       - name: Generate HTML from template.
         run: |
           cd ${{ env.CLOUD_SUBFOLDER }}
           envsubst < index.html.template > index.html
-          ls -ltAh | head -1
+          ls -ltAh | tail -n +2 | head -1
 
   # Auxiliary job that checks if the CSS stylesheet changed specifically.
   css-changed:
