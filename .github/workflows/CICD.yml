@@ -627,7 +627,7 @@ jobs:
 
       - name: Sync web assets to S3.
         run: >
-          aws s3 sync ${{ env.CLOUD_SUBFOLDER }}
+          aws s3 sync ${{ env.CLOUD_SUBFOLDER }} --exclude "*.template"
           s3://${{ env.BUCKET_WEB }}
           --delete
 
