@@ -508,7 +508,7 @@ jobs:
       - id: detect_html_diff
         uses: ./.github/actions/changed-files
         with:
-          files: '**/*.{html, html.template}'
+          files: '**/*.{html,html.template}'
       - run: |
           echo 'Did any HTML document(s) change in this commit: '
           echo ${{ steps.detect_html_diff.outputs.any_changed }}
