@@ -620,6 +620,8 @@ jobs:
           name: generated-html
           path: ${{ env.CLOUD_SUBFOLDER }}
 
+      - run: ls -ltAh | tail -n +2 | head -1
+
       - name: Load AWS credentials from GitHub secrets.
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -630,7 +632,6 @@ jobs:
 
       - name: Sync web assets to S3.
         run: >
-          ls -ltAh | tail -n +2 | head -1
           aws s3 sync
           ${{ env.CLOUD_SUBFOLDER }}
           s3://${{ env.BUCKET_WEB }}
