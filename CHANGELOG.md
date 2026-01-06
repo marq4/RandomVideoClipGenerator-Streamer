@@ -2,6 +2,20 @@
 
 <!-- version list -->
 
+## v4.6.4 (2026-01-06)
+
+### Bug Fixes
+
+- Trying to fallback version JS.
+  ([`77db451`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/77db451952217c9de1cf165193ced9d4ebac3495))
+
+- Upload Lambda missing PyYAML.
+  ([`2941848`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/2941848ead7d50ee9996f750c3a5998b9cffaf11))
+
+- Upload Lambda missing PyYAML.
+  ([`9ad3e6d`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/9ad3e6d5e1eee88c2d7b875b85f2ec757add037d))
+
+
 ## v4.6.3 (2026-01-06)
 
 ### Bug Fixes
