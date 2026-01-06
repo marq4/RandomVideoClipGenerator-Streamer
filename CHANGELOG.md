@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.6.6 (2026-01-06)
+
+### Bug Fixes
+
+- PyYAML was missing for Core.
+  ([`a0ba03c`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/a0ba03cb175eed8ef54b271fb3ee5afb5354d05d))
+
+
 ## v4.6.5 (2026-01-06)
 
 ### Bug Fixes
