@@ -1,28 +1,9 @@
 ---
-# DO NOT even think about multiple workflows for CICD!
-
 name: CICD
 
 on: push
 
-env:
-  # _ Python _
-  # Specify minimum code coverage for Unit Testing:
-  TARGET_COVERAGE: 40
-  CORE_SUBFOLDER: 'PythonCore'
-  SCRIPT_NAME_CORE: 'random_video_clip_generator.py'
-  # Single place to update Python version for this workflow:
-  PYTHON_VERSION: '3.10'
-  # _ Cloud + Web _
-  REGION: 'us-east-2'
-  CLOUD_SUBFOLDER: 'CloudService'
-  CSS_STYLESHEET: 'styles.css'
-  # Terraform:
-  TF_MIN_VERSION: '1.13'
-
-
 jobs:
-
   # _ Meta-code _
 
   # Auxiliary job that checks if any YAML file(s) changed.
@@ -93,20 +74,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify no state files committed.
+      - id: load_config
+        run: |
+          TF_MIN_VERSION=$(yq | '.terraform_minimum_version' config.yml)
+          echo "version=$TF_MIN_VERSION" >> $GITHUB_OUTPUT
+          REGION=$(yq | '.aws_project_region' config.yml)
+          echo "region=$REGION" >> $GITHUB_OUTPUT
+
+      - name: Verify no sensitive file(s) committed.
         run: |
           if find . -name "*.tfstate*" -o -name "*.tfvars" \
           | grep -q .
           then
             echo '!!! Caution !!! '
-            echo 'Found potentially sensitive Terraform state file in commit. '
+            echo 'Found sensitive Terraform file in commit. '
             echo 'Aborting. '
             exit 1
           fi
 
       - uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: ${{ env.TF_MIN_VERSION }}
+          terraform_version: ${{ steps.load_config.outputs.version }}
 
       - name: Install TFlint.
         run: curl -s  ${{ env.TFLINT_URL }} | bash
@@ -116,7 +104,7 @@ jobs:
 
       - run: terraform init -backend=false
         env:
-          AWS_REGION: ${{ env.REGION }}
+          AWS_REGION: ${{ steps.load_config.outputs.region }}
 
       - run: terraform validate
 
@@ -165,9 +153,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - id: load_config
+        run: |
+          PYTHON_VERSION=$(yq | '.python_version_entire_project' config.yml)
+          echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+
       - uses: ./.github/actions/set-up-python
         with:
-          project-version: ${{ env.PYTHON_VERSION }}
+          project-version: ${{ steps.load_config.outputs.version }}
 
       - uses: ./.github/actions/install-dependencies
 
@@ -195,86 +188,70 @@ jobs:
     # Only test Python code if commit will trigger a Release:
     if: >-
       !failure() && !cancelled() &&
-      (contains(github.event.head_commit.message, 'feat!:') ||
-      contains(github.event.head_commit.message, 'feat:') ||
-      contains(github.event.head_commit.message, 'fix:'))
+      (startsWith(github.event.head_commit.message, 'feat') ||
+      startsWith(github.event.head_commit.message, 'fix'))
     runs-on: windows-latest
     timeout-minutes: 13
     env:
       PYTHONPATH: .
-      SKIP_TESTS: true
 
     steps:
+      # Cannot be skipped:
       - uses: actions/checkout@v4
-        if: env.SKIP_TESTS != 'true'
+
+      - id: load_config
+        run: |
+          SKIP=$(yq | '.skip_testing' config.yml)
+          echo "skip_tests=$SKIP" >> $GITHUB_OUTPUT
+          PYTHON_VERSION=$(yq | '.python_version_entire_project' config.yml)
+          echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+          TARGET=$(yq '.unit_testing_target_code_coverage' config.yml)
+          echo "target_coverage=$TARGET" >> $GITHUB_OUTPUT
+          SUBFOLDER_CORE==$(yq | '.core_subfolder' config.yml)
+          echo "core_subfolder=SUBFOLDER_CORE$" >> $GITHUB_OUTPUT
 
       - name: Install FFMpeg, VLC.
-        if: env.SKIP_TESTS != 'true'
-        # To verify VLC installation:
-        # & "C:\Program Files\VideoLAN\VLC\vlc-cache-gen.exe" --version
+        if: steps.load_config.outputs.skip_tests != 'true'
         run: |
           choco install ffmpeg -y
           choco install vlc -y
 
       - uses: ./.github/actions/set-up-python
-        if: env.SKIP_TESTS != 'true'
+        if: steps.load_config.outputs.skip_tests != 'true'
         with:
-          project-version: ${{ env.PYTHON_VERSION }}
+          project-version: ${{ steps.load_config.outputs.version }}
 
       - uses: ./.github/actions/install-dependencies
-        if: env.SKIP_TESTS != 'true'
+        if: steps.load_config.outputs.skip_tests != 'true'
 
       - name: Setup (create fake example videos).
-        if: env.SKIP_TESTS != 'true'
+        if: steps.load_config.outputs.skip_tests != 'true'
         run: python tests/setup.py
 
       - name: Unit testing.
-        if: env.SKIP_TESTS != 'true'
+        if: steps.load_config.outputs.skip_tests != 'true'
         run: pytest -vvv tests/unit_tests.py
 
       - name: Code coverage.
-        if: env.SKIP_TESTS != 'true'
+        if: steps.load_config.outputs.skip_tests != 'true'
         run: >
-          pytest --cov=${{ env.CORE_SUBFOLDER }}
-          --cov-fail-under=${{ env.TARGET_COVERAGE }}
+          pytest --cov=${{ steps.load_config.outputs.core_subfolder }}
+          --cov-fail-under=${{ steps.load_config.outputs.target_coverage }}
           tests/unit_tests.py
 
       - name: Integration testing.
-        if: env.SKIP_TESTS != 'true'
+        if: steps.load_config.outputs.skip_tests != 'true'
         run: pytest -vvv tests/integration_tests.py
 
-  # Auxiliary job that checks if core Python script changed specifically.
-  core-changed:
-    needs: yaml-style-quality
-    if: ${{ !failure() && !cancelled() }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    outputs:
-      core_python_script_was_updated:
-        ${{ steps.detect_core_python_script_diff.outputs.any_changed }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - id: detect_core_python_script_diff
-        uses: ./.github/actions/changed-files
-        with:
-          files: ${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME_CORE }}
-      - run: |
-          echo 'Did the core Python script change in this commit: '
-          echo ${{ steps.detect_core_python_script_diff.outputs.any_changed }}
-
   # Conventional Commits Release (PSR: Python Semantic Release).
-  # Only runs if core Python script changed + special commit message.
+  # Only runs if special commit message.
   release:
-    needs: [python-code-testing, core-changed]
+    needs: python-code-testing
     if: >-
       !failure() && !cancelled() &&
       needs.python-code-testing.result == 'success' &&
-      needs.core-changed.outputs.core_python_script_was_updated == 'true' &&
-      (contains(github.event.head_commit.message, 'feat!:') ||
-      contains(github.event.head_commit.message, 'feat:') ||
-      contains(github.event.head_commit.message, 'fix:'))
+      (startsWith(github.event.head_commit.message, 'feat') ||
+      startsWith(github.event.head_commit.message, 'fix'))
     runs-on: ubuntu-latest
     timeout-minutes: 9
     env:
@@ -286,9 +263,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - id: load_config
+        run: |
+          PYTHON_VERSION=$(yq | '.python_version_entire_project' config.yml)
+          echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+
       - uses: ./.github/actions/set-up-python
         with:
-          project-version: ${{ env.PYTHON_VERSION }}
+          project-version: ${{ steps.load_config.outputs.version }}
 
       - run: python -m pip install python-semantic-release
 
@@ -303,24 +285,18 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         # Locally do: python -m semantic_release
         run: |
-          # semantic-release --verbose --strict --noop --version
-          semantic-release --verbose --strict --config pyproject.toml \
+          semantic-release --strict --config pyproject.toml \
             version --skip-build --vcs-release
 
   deploy-to-s3-and-lambda:
-    needs: [release, core-changed]
+    needs: release
     if: >-
       !failure() && !cancelled() &&
-      needs.release.result == 'success' &&
-      needs.core-changed.outputs.core_python_script_was_updated == 'true'
+      needs.release.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 16
     env:
       PYTHONPATH: .
-      VERIFY_BASH_SCRIPT: '.github/scripts/verify_deployed_version.sh'
-      SCRIPT_NAME_LIST: 'send_suggested_yt_video_list.py'
-      SCRIPT_NAME_CLEANUP: 's3_cleanup.py'
-      SCRIPT_NAME_UPLOAD: 'presigned_url_generator.py'
 
     steps:
       - name: Checkout code (deep, main).
@@ -332,9 +308,52 @@ jobs:
       - name: Pull release.
         run: git pull origin main
 
+      - id: load_config
+        run: |
+          PYTHON_VERSION=$(yq | '.python_version_entire_project' config.yml)
+          echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+          SCRIPTS_BUCKET_NAME=$(yq '.scripts_bucket_name' config.yml)
+          echo "bucket_scripts=$SCRIPTS_BUCKET_NAME" >> $GITHUB_OUTPUT
+          CORE_FUNCTION_NAME=$(yq '.core_function_name' config.yml)
+          echo "lambda_core=$CORE_FUNCTION_NAME" >> $GITHUB_OUTPUT
+          LIST_FUNCTION_NAME=$(yq '.list_function_name' config.yml)
+          echo "lambda_list=$LIST_FUNCTION_NAME" >> $GITHUB_OUTPUT
+          CLEANUP_FUNCTION_NAME=$(yq '.cleanup_function_name' config.yml)
+          echo "lambda_cleanup=$CLEANUP_FUNCTION_NAME" >> $GITHUB_OUTPUT
+          UPLOAD_FUNCTION_NAME=$(yq '.upload_function_name' config.yml)
+          echo "lambda_upload=$UPLOAD_FUNCTION_NAME" >> $GITHUB_OUTPUT
+          CORE_SCRIPT_NAME=$(yq '.core_script_name' config.yml)
+          echo "script_core=$CORE_SCRIPT_NAME" >> $GITHUB_OUTPUT
+          CORE_SUBFOLDER_NAME=$(yq '.core_subfolder' config.yml)
+          echo "subfolder_core=$CORE_SUBFOLDER_NAME" >> $GITHUB_OUTPUT
+          BASH_PATH=$(yq '.verify_s3_deploy_aux_path' config.yml)
+          echo "verify_bash=$BASH_PATH" >> $GITHUB_OUTPUT
+          CORE_ZIP_DIR_NAME=$(yq '.core_zip_dir' config.yml)
+          echo "deploy_dir_core=$CORE_ZIP_DIR_NAME" >> $GITHUB_OUTPUT
+          CORE_ZIP_FILE_NAME=$(yq '.core_zip_file' config.yml)
+          echo "zipfile_core=$CORE_ZIP_FILE_NAME" >> $GITHUB_OUTPUT
+          CLOUD_SUBFOLDER_NAME=$(yq '.cloud_subfolder' config.yml)
+          echo "subfolder_cloud=$CLOUD_SUBFOLDER_NAME" >> $GITHUB_OUTPUT
+          LIST_CODE_NAME=$(yq '.list_lambda_code_src' config.yml)
+          echo "code_list=$LIST_CODE_NAME" >> $GITHUB_OUTPUT
+          LIST_ZIP_FILE_NAME=$(yq '.list_zip_file' config.yml)
+          echo "zipfile_list=$LIST_ZIP_FILE_NAME" >> $GITHUB_OUTPUT
+          CLEANUP_CODE_NAME=$(yq '.cleanup_lambda_code_src' config.yml)
+          echo "code_cleanup=$CLEANUP_CODE_NAME" >> $GITHUB_OUTPUT
+          CLEANUP_ZIP_FILE_NAME=$(yq '.cleanup_zip_file' config.yml)
+          echo "zipfile_cleanup=$CLEANUP_ZIP_FILE_NAME" >> $GITHUB_OUTPUT
+          CLEANUP_ZIP_DIR_NAME=$(yq '.cleanup_zip_dir' config.yml)
+          echo "deploy_dir_cleanup=$CLEANUP_ZIP_DIR_NAME" >> $GITHUB_OUTPUT
+          UPLOAD_CODE_NAME=$(yq '.upload_lambda_code_src' config.yml)
+          echo "code_upload=$UPLOAD_CODE_NAME" >> $GITHUB_OUTPUT
+          UPLOAD_ZIP_FILE_NAME=$(yq '.upload_zip_file' config.yml)
+          echo "zipfile_upload=$UPLOAD_ZIP_FILE_NAME" >> $GITHUB_OUTPUT
+          UPLOAD_ZIP_DIR_NAME=$(yq '.upload_zip_dir' config.yml)
+          echo "deploy_dir_upload=$UPLOAD_ZIP_DIR_NAME" >> $GITHUB_OUTPUT
+
       - uses: ./.github/actions/set-up-python
         with:
-          project-version: ${{ env.PYTHON_VERSION }}
+          project-version: ${{ steps.load_config.outputs.version }}
 
       # No need to install AWS CLI.
       # These are needed or import breaks.
@@ -349,79 +368,76 @@ jobs:
             ${{ secrets.AWS_SECRET_ACCESS_KEY_RVCGS }}
           aws-region: ${{ env.REGION }}
 
-      - id: load_config
-        run: |
-          SCRIPTS_BUCKET_NAME=$(yq '.scripts_bucket_name' config.yml)
-          echo "bucket_scripts=$SCRIPTS_BUCKET_NAME" >> $GITHUB_OUTPUT
-          CORE_FUNCTION_NAME=$(yq '.core_function_name' config.yml)
-          echo "lambda_core=$CORE_FUNCTION_NAME" >> $GITHUB_OUTPUT
-          LIST_FUNCTION_NAME=$(yq '.list_function_name' config.yml)
-          echo "lambda_list=$LIST_FUNCTION_NAME" >> $GITHUB_OUTPUT
-          CLEANUP_FUNCTION_NAME=$(yq '.cleanup_function_name' config.yml)
-          echo "lambda_cleanup=$CLEANUP_FUNCTION_NAME" >> $GITHUB_OUTPUT
-          UPLOAD_FUNCTION_NAME=$(yq '.upload_function_name' config.yml)
-          echo "lambda_upload=$UPLOAD_FUNCTION_NAME" >> $GITHUB_OUTPUT
-
-      - name: Upload script to S3.
+      - name: Upload core script to S3 and verify correct version is live.
         env:
-          BUCKET_FOR_SCRIPT: ${{ steps.load_config.outputs.bucket_scripts }}
-        run: >
-          file=${{ env.SCRIPT_NAME_CORE }}
-          aws s3 cp ${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME_CORE }}
-          s3://${{ env.BUCKET_FOR_SCRIPT }}/${{ env.SCRIPT_NAME_CORE }}
-          --content-type 'text/x-python'
-          --content-disposition "attachment; filename=$file"
+          BUCKET: ${{ steps.load_config.outputs.bucket_scripts }}
+          SUBFOLDER: ${{ steps.load_config.outputs.subfolder_core }}
+          CORE: ${{ steps.load_config.outputs.script_core }}
+          BASH: ${{ steps.load_config.outputs.verify_bash }}
+        run: |
+          aws s3 cp \
+          ${{ env.SUBFOLDER }}/${{ env.CORE }} \
+          s3://${{ env.BUCKET }}/${{ env.CORE }} \
+          --content-type 'text/x-python' \
+          --content-disposition "attachment; filename=${{ env.CORE }}" \
           --metadata-directive REPLACE
-
-      - name: Verify correct version is live (for script users).
-        env:
-          BUCKET_FOR_SCRIPT: ${{ steps.load_config.outputs.bucket_scripts }}
-        run: |
-          chmod +x ${{ env.VERIFY_BASH_SCRIPT }}
-          ${{ env.VERIFY_BASH_SCRIPT }} \
-            "${{ env.CORE_SUBFOLDER }}" \
-            "${{ env.SCRIPT_NAME_CORE }}" \
-            "${{ env.BUCKET_FOR_SCRIPT }}"
+          sleep 3
+          chmod +x ${{ env.BASH }}
+          ${{ env.BASH }} \
+            "${{ env.SUBFOLDER }}" \
+            "${{ env.CORE }}" \
+            "${{ env.BUCKET }}"
 
       - name: Deploy core to Lambda (website / Cloud service users).
         env:
-          CORE_FUNCTION: ${{ steps.load_config.outputs.lambda_core }}
+          SUBFOLDER: ${{ steps.load_config.outputs.subfolder_core }}
+          CORE: ${{ steps.load_config.outputs.script_core }}
+          LAMBDA: ${{ steps.load_config.outputs.lambda_core }}
+          DIR: ${{ steps.load_config.outputs.deploy_dir_core }}
+          ZIP: ${{ steps.load_config.outputs.zipfile_core }}
         run: |
-          script="${{ env.CORE_SUBFOLDER }}/${{ env.SCRIPT_NAME_CORE }}"
-          mkdir main-lambda-package
-          cd main-lambda-package
+          script="${{ env.SUBFOLDER }}/${{ env.CORE }}"
+          mkdir ${{ env.DIR }}
+          cd ${{ env.DIR }}
           python -m pip install boto3 mypy-boto3-s3 PyYAML -t .
           cp ../$script .
           cp ../config.yml .
-          zipfile=corefunctionality.zip
+          zipfile=${{ env.ZIP }}
           zip --quiet -r ../$zipfile . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
           ls -ltAh | tail -n +2 | head -1
           aws lambda update-function-code \
-          --function-name ${{ env.CORE_FUNCTION }} \
+          --function-name ${{ env.LAMBDA }} \
           --zip-file fileb://$zipfile
 
-      - name: Deploy YT video list code to Lambda.
+      - name: Deploy suggestions list code to Lambda.
         env:
-          LIST_FUNCTION: ${{ steps.load_config.outputs.lambda_list }}
+          SUBFOLDER: ${{ steps.load_config.outputs.subfolder_cloud }}
+          LAMBDA: ${{ steps.load_config.outputs.lambda_list }}
+          CODE: ${{ steps.load_config.outputs.code_list }}
+          ZIP: ${{ steps.load_config.outputs.zipfile_list }}
         run: |
-          script="${{ env.CLOUD_SUBFOLDER }}/${{ env.SCRIPT_NAME_LIST }}"
-          zipfile=listmdfunctionality.zip
+          script="${{ env.SUBFOLDER }}/${{ env.CODE }}"
+          zipfile=${{ env.ZIP }}
           zip --quiet --junk-paths $zipfile $script List.md
           ls -ltAh | tail -n +2 | head -1
           aws lambda update-function-code \
-          --function-name ${{ env.LIST_FUNCTION }} \
+          --function-name ${{ env.LAMBDA }} \
           --zip-file fileb://$zipfile
 
       - name: Deploy S3 cleanup code to Lambda.
         env:
-          CLEANUP_FUNCTION: ${{ steps.load_config.outputs.lambda_cleanup }}
+          SUBFOLDER: ${{ steps.load_config.outputs.subfolder_cloud }}
+          LAMBDA: ${{ steps.load_config.outputs.lambda_cleanup }}
+          CODE: ${{ steps.load_config.outputs.code_cleanup }}
+          ZIP: ${{ steps.load_config.outputs.zipfile_cleanup }}
+          DIR: ${{ steps.load_config.outputs.deploy_dir_cleanup }}
         run: |
-          script="${{ env.CLOUD_SUBFOLDER }}/${{ env.SCRIPT_NAME_CLEANUP }}"
-          zipfile=s3cleanupfunctionality.zip
-          mkdir cleanup-lambda-package
-          cd cleanup-lambda-package
+          script="${{ env.SUBFOLDER }}/${{ env.CODE }}"
+          zipfile=${{ env.ZIP }}
+          mkdir ${{ env.DIR }}
+          cd ${{ env.DIR }}
           python -m pip install boto3 -t .
           cp ../$script .
           cp ../config.yml .
@@ -430,17 +446,21 @@ jobs:
           cd ..
           ls -ltAh | tail -n +2 | head -1
           aws lambda update-function-code \
-          --function-name ${{ env.CLEANUP_FUNCTION }} \
+          --function-name ${{ env.LAMBDA }} \
           --zip-file fileb://$zipfile
 
       - name: Deploy upload code.
         env:
-          UPLOAD_FUNCTION: ${{ steps.load_config.outputs.lambda_upload }}
+          SUBFOLDER: ${{ steps.load_config.outputs.subfolder_cloud }}
+          CODE: ${{ steps.load_config.outputs.code_upload }}
+          LAMBDA: ${{ steps.load_config.outputs.lambda_upload }}
+          ZIP: ${{ steps.load_config.outputs.zipfile_upload }}
+          DIR: ${{ steps.load_config.outputs.deploy_dir_upload }}
         run: |
-          script="${{ env.CLOUD_SUBFOLDER }}/${{ env.SCRIPT_NAME_UPLOAD }}"
-          zipfile=uploadfunctionality.zip
-          mkdir upload-lambda-package
-          cd upload-lambda-package
+          script="${{ env.SUBFOLDER }}/${{ env.CODE }}"
+          zipfile=${{ env.ZIP }}
+          mkdir ${{ env.DIR }}
+          cd ${{ env.DIR }}
           python -m pip install boto3 PyYAML -t .
           cp ../$script .
           cp ../config.yml .
@@ -449,158 +469,110 @@ jobs:
           cd ..
           ls -ltAh | tail -n +2 | head -1
           aws lambda update-function-code \
-          --function-name ${{ env.UPLOAD_FUNCTION }} \
+          --function-name ${{ env.LAMBDA }} \
           --zip-file fileb://$zipfile
 
 
   # _ Web _
 
-  # Auxiliary job that checks if the CSS stylesheet changed specifically.
-  css-changed:
+  # ALWAYS generate index.html from template.
+  generate-html:
     needs: yaml-style-quality
-    if: ${{ !failure() && !cancelled() }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 2
-    outputs:
-      css_stylesheet_was_updated:
-        ${{ steps.detect_css_stylesheet_diff.outputs.any_changed }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - id: detect_css_stylesheet_diff
-        uses: ./.github/actions/changed-files
-        with:
-          files: ${{ env.CLOUD_SUBFOLDER }}/${{ env.CSS_STYLESHEET }}
-      - run: |
-          echo 'Did the CSS stylesheet change in this commit: '
-          echo ${{ steps.detect_css_stylesheet_diff.outputs.any_changed }}
-
-  # Auxiliary job that checks if any HTML document(s) changed.
-  any-html-changed:
-    needs: yaml-style-quality
-    if: ${{ !failure() && !cancelled() }}
+    if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 3
-    outputs:
-      any_html_documents_were_updated:
-        ${{ steps.detect_html_diff.outputs.any_changed }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - id: detect_html_diff
-        uses: ./.github/actions/changed-files
-        with:
-          files: '**/*.{html,html.template}'
-      - run: |
-          echo 'Did any HTML document(s) change in this commit: '
-          echo ${{ steps.detect_html_diff.outputs.any_changed }}
-
-  # Auxiliary job that checks if any JavaScript file(s) changed.
-  any-js-changed:
-    needs: yaml-style-quality
-    if: ${{ !failure() && !cancelled() }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    outputs:
-      any_js_files_were_updated:
-        ${{ steps.detect_js_diff.outputs.any_changed }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - id: detect_js_diff
-        uses: ./.github/actions/changed-files
-        with:
-          files: '**/*.js'
-      - run: |
-          echo 'Did any JavaScript file(s) change in this commit: '
-          echo ${{ steps.detect_js_diff.outputs.any_changed }}
-
-  # Lint CSS.
-  css-style-quality:
-    needs: css-changed
-    if: >
-      !failure() && !cancelled() &&
-      needs.css-changed.outputs.css_stylesheet_was_updated == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 4
 
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Lint CSS.
+      # These values replace the placeholders in the template:
+      - id: load_config
         run: |
-          npm install --global stylelint stylelint-config-standard
-          npx stylelint ${{ env.CLOUD_SUBFOLDER }}/${{ env.CSS_STYLESHEET }}
+          SCRIPTS_BUCKET_NAME=$(yq '.scripts_bucket_name' config.yml)
+          echo "bucket_scripts=$SCRIPTS_BUCKET_NAME" >> $GITHUB_OUTPUT
+          CLOUD_SUBFOLDER_NAME=$(yq '.cloud_subfolder' config.yml)
+          echo "subfolder_cloud=$CLOUD_SUBFOLDER_NAME" >> $GITHUB_OUTPUT
 
-  # Generate and Lint HTML.
-  html-style-quality:
-    needs: any-html-changed
-    if: >
-      !failure() && !cancelled() &&
-      needs.any-html-changed.outputs.any_html_documents_were_updated == 'true'
+      # Uses values obtained from config.yml:
+      - name: Generate HTML from template.
+        env:
+          BUCKET: ${{ steps.load_config.outputs.bucket_scripts }}
+        run: |
+          echo "BUCKET => ${{ env.BUCKET }}"
+          if [ -z "${{ env.BUCKET }}" ]
+          then
+            echo 'ERROR: env var not set!'
+            exit 2
+          fi
+          cd ${{ steps.load_config.outputs.subfolder_cloud }}
+          envsubst < index.html.template > index.html
+          ls -ltAh | tail -n +2 | head -1
+
+      - name: Share the generated index HTML with other jobs via Artifacts.
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-html
+          path: ${{ steps.load_config.outputs.subfolder_cloud }}/index.html
+          retention-days: 1
+
+  # Auxiliary job that checks if any HTML, template, CSS, JS file(s) changed.
+  any-web-assets-changed:
+    needs: yaml-style-quality
+    if: ${{ !failure() && !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    outputs:
+      any_web_assets_were_updated:
+        ${{ steps.detect_web_diff.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: detect_web_diff
+        uses: ./.github/actions/changed-files
+        with:
+          files: '**/*.{html,html.template,css,js}'
+      - run: |
+          echo 'Did any web assets change in this commit: '
+          echo ${{ steps.detect_web_diff.outputs.any_changed }}
+
+  # Lint HTML, CSS, JS.
+  web-style-code-quality:
+    needs: any-web-assets-changed
+    if: >
+      !failure() && !cancelled() &&
+      needs.any-web-assets-changed.outputs.any_web_assets_were_updated == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
     steps:
       - uses: actions/checkout@v4
 
       - id: load_config
         run: |
-          SCRIPTS_BUCKET_NAME=$(yq '.scripts_bucket_name' config.yml)
-          echo "bucket_scripts=$SCRIPTS_BUCKET_NAME" >> $GITHUB_OUTPUT
+          NODE_VERSION=$(yq '.nodejs_version' config.yml)
+          echo "version=$NODE_VERSION" >> $GITHUB_OUTPUT
+          CLOUD_SUBFOLDER_NAME=$(yq '.cloud_subfolder' config.yml)
+          echo "subfolder_cloud=$CLOUD_SUBFOLDER_NAME" >> $GITHUB_OUTPUT
 
-      - name: Generate HTML from template.
-        env:
-          SCRIPTS_BUCKET: ${{ steps.load_config.outputs.bucket_scripts }}
-        run: |
-          echo "SCRIPTS_BUCKET => ${SCRIPTS_BUCKET}"
-          if [ -z "$SCRIPTS_BUCKET" ]
-          then
-            echo 'ERROR: env var not set!'
-            exit 1
-          fi
-          cd ${{ env.CLOUD_SUBFOLDER }}
-          envsubst < index.html.template > index.html
-          ls -ltAh | tail -n +2 | head -1
+      - name: Retrieve index HTML generated in generate-html job.
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: generated-html
+          path: ${{ steps.load_config.outputs.subfolder_cloud }}
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ steps.load_config.outputs.version }}
+
+      - name: Lint CSS.
+        run: |
+          npm install --global stylelint stylelint-config-standard
+          npx stylelint *.css
 
       - name: Lint HTML.
         run: |
           npm install --global html-validate
           html-validate .
-
-      - name: Share the generated index HTML with deploy job via Artifacts.
-        uses: actions/upload-artifact@v4
-        with:
-          name: generated-html
-          path: ${{ env.CLOUD_SUBFOLDER }}/index.html
-          retention-days: 1
-
-  # Only lint JS for now. I MAY add automated testing later.
-  # Only runs if any JS files changed.
-  js-code-quality:
-    needs: any-js-changed
-    if: >
-      !failure() && !cancelled() &&
-      needs.any-js-changed.outputs.any_js_files_were_updated == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 7
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
 
       - name: Lint JavaScript.
         run: |
@@ -609,36 +581,34 @@ jobs:
 
   # Upload web files to RVCG.com bucket + invalidate CloudFront distribution.
   deploy-web-assets:
-    needs:
-      - css-changed
-      - any-html-changed
-      - any-js-changed
-      - css-style-quality
-      - html-style-quality
-      - js-code-quality
+    needs: web-style-code-quality
     if: >-
       !failure() && !cancelled() &&
-      (needs.css-style-quality.result == 'success' ||
-      needs.html-style-quality.result == 'success' ||
-      needs.js-code-quality.result == 'success')
+      needs.web-style-code-quality.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      BUCKET_WEB: 'randomvideoclipgenerator.com'
-      CLOUDFRONT_DISTRIBUTION: 'EWDPJFG1ZNBMV'
+      CLOUDFRONT_DISTRIBUTION: 'EWDPJFG1ZNBMV'  # TODO: get from Terraform.
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Retrieve index HTML generated in Lint-HTML job.
+      - id: load_config
+        run: |
+          CLOUD_SUBFOLDER_NAME=$(yq '.cloud_subfolder' config.yml)
+          echo "subfolder_cloud=$CLOUD_SUBFOLDER_NAME" >> $GITHUB_OUTPUT
+          REGION=$(yq | '.aws_project_region' config.yml)
+          echo "region=$REGION" >> $GITHUB_OUTPUT
+
+      - name: Retrieve index HTML generated in generate-html job.
         continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           name: generated-html
-          path: ${{ env.CLOUD_SUBFOLDER }}
+          path: ${{ steps.load_config.outputs.subfolder_cloud }}
 
       - run: |
-          cd ${{ env.CLOUD_SUBFOLDER }}
+          cd ${{ steps.load_config.outputs.subfolder_cloud }}
           ls -ltAh | tail -n +2 | head -1
 
       - name: Load AWS credentials from GitHub secrets.
@@ -647,17 +617,27 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_RVCGS }}
           aws-secret-access-key: >
             ${{ secrets.AWS_SECRET_ACCESS_KEY_RVCGS }}
-          aws-region: ${{ env.REGION }}
+          aws-region: ${{ steps.load_config.outputs.region }}
 
       - name: Sync web assets to S3.
         run: >
           aws s3 sync
-          ${{ env.CLOUD_SUBFOLDER }}
-          s3://${{ env.BUCKET_WEB }}
+          ${{ steps.load_config.outputs.subfolder_cloud }}
+          s3://randomvideoclipgenerator.com
           --exclude "*.template"
+          --delete
 
       - name: Invalidate CloudFront cache.
         run: >
           aws cloudfront create-invalidation
           --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION }}
           --paths '/*'
+
+      - name: Verify critical index HTML is in web-assets bucket.
+        run: |
+          aws s3 ls s3://randomvideoclipgenerator.com/index.html
+          if [ $? -ne 0 ]
+          then
+            echo 'Failing workflow as index page is missing! '
+            exit 3
+          fi

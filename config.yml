@@ -1,4 +1,43 @@
 ---
+# Single source of truth for project.
+
+
+# Globals/Project:
+
+# Update if any subfolder(s) renamed:
+cloud_subfolder: CloudService
+core_subfolder: PythonCore
+
+# Update if any script(s) renamed (TODO: Terraform will manage this file):
+core_script_name: random_video_clip_generator.py
+verify_s3_deploy_aux_path: .github/scripts/verify_deployed_version.sh
+list_lambda_code_src: send_suggested_yt_video_list.py
+cleanup_lambda_code_src: s3_cleanup.py
+upload_lambda_code_src: presigned_url_generator.py
+
+core_zip_dir: main-lambda-package
+core_zip_file: core_functionality.zip
+list_zip_file: list_functionality.zip
+cleanup_zip_file: s3_cleanup_functionality.zip
+cleanup_zip_dir: cleanup-lambda-package
+upload_zip_dir: upload-lambda-package
+upload_zip_file: upload_functionality.zip
+
+# Python:
+
+python_version_entire_project: 3.10
+
+skip_testing: true
+
+# Specify minimum code coverage for Unit Testing:
+unit_testing_target_code_coverage: 40
+
+
+# Cloud:
+
+# Can I get this code from Terraform passing Ohio?
+aws_project_region: us-east-2
+
 # Project name for tags:
 project_name: RVCGS/serverless
 
@@ -31,3 +70,13 @@ cleanup_function_name: rvcgs-cleanup-s3-playlist
 
 # Processes user upload:
 upload_function_name: rvcgs-upload
+
+
+# Terraform:
+
+terraform_minimum_version: 1.13
+
+
+# Web:
+
+nodejs_version: 20
