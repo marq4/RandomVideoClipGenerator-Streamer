@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.6.2 (2026-01-06)
+
+### Bug Fixes
+
+- Installing PyYAML in runner.
+  ([`19a64e7`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/19a64e7ef6f5c30996b4cfdcb76cc3a7f2dca806))
+
+
 ## v4.6.1 (2026-01-05)
 
 ### Bug Fixes
