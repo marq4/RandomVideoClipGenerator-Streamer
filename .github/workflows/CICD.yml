@@ -483,6 +483,8 @@ jobs:
     timeout-minutes: 3
 
     steps:
+      - uses: actions/checkout@v4
+
       # These values replace the placeholders in the template:
       - id: load_config
         run: |
