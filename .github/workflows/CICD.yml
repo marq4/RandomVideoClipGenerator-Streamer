@@ -652,7 +652,6 @@ jobs:
           ${{ env.CLOUD_SUBFOLDER }}
           s3://${{ env.BUCKET_WEB }}
           --exclude "*.template"
-          --delete
 
       - name: Invalidate CloudFront cache.
         run: >

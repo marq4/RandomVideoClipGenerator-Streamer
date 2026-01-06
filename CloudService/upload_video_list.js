@@ -59,3 +59,5 @@ new Vue({
     }
   }
 })
+
+// Deploy web assets.
