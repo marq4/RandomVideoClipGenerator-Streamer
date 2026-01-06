@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.6.3 (2026-01-06)
+
+### Bug Fixes
+
+- YAML typo.
+  ([`dcdae15`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/dcdae15805a375c22021f0d1d9ee20a4f163af0f))
+
+
 ## v4.6.2 (2026-01-06)
 
 ### Bug Fixes
