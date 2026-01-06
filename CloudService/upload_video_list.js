@@ -53,11 +53,8 @@ new Vue({
         // Take user to playlist generation page:
         window.location.href = `https://randomvideoclipgenerator.com/generate_playlist.html?file=${encodeURIComponent(objectKey)}`
       } catch (error) {
-        console.error('Upload error:', error)
         alert('Failed to upload file.')
       }
     }
   }
 })
-
-// Deploy web assets.

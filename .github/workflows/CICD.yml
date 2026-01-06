@@ -439,7 +439,7 @@ jobs:
           zipfile=uploadfunctionality.zip
           mkdir upload-lambda-package
           cd upload-lambda-package
-          python -m pip install boto3 -t .
+          python -m pip install boto3 PyYAML -t .
           cp ../$script .
           zip --quiet -r ../$zipfile . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
@@ -536,7 +536,7 @@ jobs:
           npm install --global stylelint stylelint-config-standard
           npx stylelint ${{ env.CLOUD_SUBFOLDER }}/${{ env.CSS_STYLESHEET }}
 
-  # Lint HTML.
+  # Generate and Lint HTML.
   html-style-quality:
     needs: any-html-changed
     if: >
