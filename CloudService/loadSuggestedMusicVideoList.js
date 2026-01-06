@@ -62,7 +62,6 @@ function parseVideoListToHTML (content) {
     }
   }
   unorderedList += '</ul>'
-  console.log('unorderedList:', unorderedList) // TMP
   return { unorderedList, count }
 }
 
@@ -71,22 +70,17 @@ document.getElementById('load-suggested-music-video-list-button').addEventListen
   let content = ''
   try {
     const data = await getSuggestedMusicVideoListJSON()
-    console.log('Received data: ', data)
     content = data.content
-    console.log('Content: ', content) // TMP
     if (!isValidVideoList(content)) {
-      console.log('Invalid video list, using fallback.')
       content = getFallbackVideos()
     }
     const { unorderedList, count } = parseVideoListToHTML(content)
-    console.log('List: ', unorderedList) // TMP
     if (count === 0 || !unorderedList) {
       content = getFallbackVideos()
     } else {
       content = unorderedList
     }
   } catch (error) {
-    console.log('API error, using fallback: ', error)
     content = getFallbackVideos()
   } finally {
     container.innerHTML = content
