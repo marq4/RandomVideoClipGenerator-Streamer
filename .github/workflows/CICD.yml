@@ -392,6 +392,7 @@ jobs:
           cd main-lambda-package
           python -m pip install boto3 mypy-boto3-s3 -t .
           cp ../$script .
+          cp ../config.yml .
           zipfile=corefunctionality.zip
           zip --quiet -r ../$zipfile . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
@@ -423,6 +424,7 @@ jobs:
           cd cleanup-lambda-package
           python -m pip install boto3 -t .
           cp ../$script .
+          cp ../config.yml .
           zip --quiet -r ../$zipfile . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
@@ -441,6 +443,7 @@ jobs:
           cd upload-lambda-package
           python -m pip install boto3 PyYAML -t .
           cp ../$script .
+          cp ../config.yml .
           zip --quiet -r ../$zipfile . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
