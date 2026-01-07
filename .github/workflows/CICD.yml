@@ -569,7 +569,7 @@ jobs:
       - name: Lint CSS.
         run: |
           npm install --global stylelint stylelint-config-standard
-          npx stylelint *.css
+          npx stylelint ${{ steps.load_config.outputs.subfolder_cloud }}/*.css
 
       - name: Lint HTML.
         run: |
