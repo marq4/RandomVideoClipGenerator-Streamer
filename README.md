@@ -26,3 +26,6 @@ For instructions please visit the [the website](https://randomvideoclipgenerator
 
 # Cloud service
 Visit the [the website](https://randomvideoclipgenerator.com), download the script (Bash or PowerShell), generate a list (text file) of your music videos, upload it: a playlist (xml) will be downloaded by your browser. Double-click it to open up the random video clips on VLC!
+
+# Serverless architecture diagram:
+![Architecture](Architecture.png)
