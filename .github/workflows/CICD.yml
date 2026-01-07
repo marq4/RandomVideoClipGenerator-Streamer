@@ -599,7 +599,7 @@ jobs:
         run: |
           CLOUD_SUBFOLDER_NAME=$(yq '.cloud_subfolder' config.yml)
           echo "subfolder_cloud=$CLOUD_SUBFOLDER_NAME" >> $GITHUB_OUTPUT
-          REGION=$(yq | '.aws_project_region' config.yml)
+          REGION=$(yq '.aws_project_region' config.yml)
           echo "region=$REGION" >> $GITHUB_OUTPUT
 
       - name: Retrieve index HTML generated in generate-html job.
