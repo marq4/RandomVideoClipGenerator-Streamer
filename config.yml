@@ -4,9 +4,12 @@
 
 # Globals/Project:
 
-# Update if any subfolder(s) renamed:
+# Update if any subfolder(s) renamed (TMP):
 cloud_subfolder: CloudService
 core_subfolder: PythonCore
+os_specific_scripts_subfolder: GenerateListScripts
+js_subfolder: JS
+lambda_src_subfolder: LambdaCode
 
 # Update if any script(s) renamed (TODO: Terraform will manage this file):
 core_script_name: random_video_clip_generator.py

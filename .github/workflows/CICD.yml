@@ -350,6 +350,8 @@ jobs:
           echo "zipfile_upload=$UPLOAD_ZIP_FILE_NAME" >> $GITHUB_OUTPUT
           UPLOAD_ZIP_DIR_NAME=$(yq '.upload_zip_dir' config.yml)
           echo "deploy_dir_upload=$UPLOAD_ZIP_DIR_NAME" >> $GITHUB_OUTPUT
+          CODE_INNER_NAME=$(yq '.' config.yml)
+          echo "subfolder_src=$CODE_INNER_NAME" >> $GITHUB_OUTPUT
 
       - uses: ./.github/actions/set-up-python
         with:
@@ -417,8 +419,9 @@ jobs:
           LAMBDA: ${{ steps.load_config.outputs.lambda_list }}
           CODE: ${{ steps.load_config.outputs.code_list }}
           ZIP: ${{ steps.load_config.outputs.zipfile_list }}
+          INNER: ${{ steps.load_config.outputs.subfolder_src }}
         run: |
-          script="${{ env.SUBFOLDER }}/${{ env.CODE }}"
+          script="${{ env.SUBFOLDER }}/${{ env.INNER }}/${{ env.CODE }}"
           zipfile=${{ env.ZIP }}
           zip --quiet --junk-paths $zipfile $script List.md
           ls -ltAh | tail -n +2 | head -1
@@ -433,8 +436,9 @@ jobs:
           CODE: ${{ steps.load_config.outputs.code_cleanup }}
           ZIP: ${{ steps.load_config.outputs.zipfile_cleanup }}
           DIR: ${{ steps.load_config.outputs.deploy_dir_cleanup }}
+          INNER: ${{ steps.load_config.outputs.subfolder_src }}
         run: |
-          script="${{ env.SUBFOLDER }}/${{ env.CODE }}"
+          script="${{ env.SUBFOLDER }}/${{ env.INNER }}/${{ env.CODE }}"
           zipfile=${{ env.ZIP }}
           mkdir ${{ env.DIR }}
           cd ${{ env.DIR }}
@@ -456,8 +460,9 @@ jobs:
           LAMBDA: ${{ steps.load_config.outputs.lambda_upload }}
           ZIP: ${{ steps.load_config.outputs.zipfile_upload }}
           DIR: ${{ steps.load_config.outputs.deploy_dir_upload }}
+          INNER: ${{ steps.load_config.outputs.subfolder_src }}
         run: |
-          script="${{ env.SUBFOLDER }}/${{ env.CODE }}"
+          script="${{ env.SUBFOLDER }}/${{ env.INNER }}/${{ env.CODE }}"
           zipfile=${{ env.ZIP }}
           mkdir ${{ env.DIR }}
           cd ${{ env.DIR }}
@@ -492,11 +497,14 @@ jobs:
           echo "bucket_scripts=$SCRIPTS_BUCKET_NAME" >> $GITHUB_OUTPUT
           CLOUD_SUBFOLDER_NAME=$(yq '.cloud_subfolder' config.yml)
           echo "subfolder_cloud=$CLOUD_SUBFOLDER_NAME" >> $GITHUB_OUTPUT
+          CORE_SCRIPT_NAME=$(yq '.core_script_name' config.yml)
+          echo "script_core=$CORE_SCRIPT_NAME" >> $GITHUB_OUTPUT
 
       # Uses values obtained from config.yml:
       - name: Generate HTML from template.
         env:
           BUCKET: ${{ steps.load_config.outputs.bucket_scripts }}
+          CORE: ${{ steps.load_config.outputs.script_core }}
         run: |
           echo "BUCKET => ${{ env.BUCKET }}"
           if [ -z "${{ env.BUCKET }}" ]
@@ -626,7 +634,10 @@ jobs:
           aws s3 sync
           ${{ steps.load_config.outputs.subfolder_cloud }}
           s3://randomvideoclipgenerator.com
-          --exclude "*.template"
+          --exclude "*"
+          --include "*.html"
+          --include "*.css"
+          --include "*.js"
           --delete
 
       - name: Invalidate CloudFront cache.

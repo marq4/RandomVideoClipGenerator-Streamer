@@ -3,6 +3,7 @@
 <head>
   <title>Random Video Clip Generator / Streamer</title>
   <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
   <script src="https://unpkg.com/vue@1.0.28/dist/vue.js"></script>
   <script src="https://unpkg.com/axios@0.2.1/dist/axios.min.js"></script>
 </head>
@@ -15,9 +16,15 @@
 
   <div class="tabs-js">
     <div class="tab-buttons">
-      <button class="tab-button active" data-tab="core" type="button">Python script</button>
-      <button class="tab-button" data-tab="generator" type="button">Generator - Docker</button>
-      <button class="tab-button" data-tab="cloud" type="button">Cloud Service</button>
+      <button class="tab-button active" data-tab="core" type="button">
+        Python script
+      </button>
+      <button class="tab-button" data-tab="generator" type="button">
+        Generator - Docker
+      </button>
+      <button class="tab-button" data-tab="cloud" type="button">
+        Cloud Service
+      </button>
     </div>
 
     <div class="tab-content" id="core">
@@ -39,12 +46,12 @@
           <code>C:\Videos\videos</code>
         </li>
         <li>
-          Download some music videos there (contact me for instructions:
-           <a href="mailto:juancmarquina@gmail.com">juancmarquina@gmail.com</a>).
+          Download some music videos there
+           (<a href="mailto:juancmarquina@gmail.com">contact me</a> for instructions).
         </li>
         <li>
           Download the
-           <a href="https://${SCRIPTS_BUCKET}.s3.us-east-2.amazonaws.com/random_video_clip_generator.py">
+           <a href="https://${SCRIPTS_BUCKET}.s3.us-east-2.amazonaws.com/${CORE}">
            Python script
            </a>
            anywhere in your computer.
@@ -59,10 +66,12 @@
         </li>
         <li>
           Execute the script to generate the playlist file:
-           <code>python3 random_video_clip_generator.py</code>
+           <code>python3 ${CORE}</code>
         </li>
         <li>
-          Double-click the playlist file (clips.xspf): your video clips will appear on VLC media player. Press f key to toggle full-screen.
+          Double-click the playlist file (clips.xspf):
+           your video clips will appear on VLC media player.
+           Press <code>f</code> key to toggle full-screen.
         </li>
       </ol>
     </div>
@@ -73,14 +82,17 @@
       <h2>Instructions (Windows):</h2>
       <ol>
         <li>
-          Install <a href="https://docs.docker.com/get-started/introduction/get-docker-desktop/">Docker Desktop</a>.
+          Install
+          <a href="https://docs.docker.com/get-started/introduction/get-docker-desktop/">
+            Docker Desktop
+          </a>.
         </li>
         <li>
           Create a directory (folder) under your C drive called 'share'.
         </li>
         <li>
-          Download some music videos there (contact me for instructions:
-          <a href="mailto:juancmarquina@gmail.com">juancmarquina@gmail.com</a>).
+          Download some music videos there
+           (<a href="mailto:juancmarquina@gmail.com">contact me</a> for instructions).
         </li>
         <li>Start Docker Desktop.</li>
         <li>Open the Docker Desktop GUI.</li>
@@ -90,14 +102,16 @@
             <li>Search for and select "marq4/random_video_clip_streamer".</li>
             <li>Make sure the latest tag is selected. Click "Pull" button.</li>
             <li>
-              Go to Images section. Select the image you just downloaded. Click the play button. Expand Optional Settings. Give your container a name, e.g. RandomVideoClipStreamerContainer (optional).
+              Go to Images section. Select the image you just downloaded.
+               Click the play button. Expand Optional Settings.
+               Give your container a name, e.g. RandomVideoClipStreamerContainer (optional).
             </li>
             <li>Host Port: 8080.</li>
             <li>
               For the volumes: Host path: browse to <code>C:\share</code>. Container path: <code>/root/RandomVideos/share/</code>
             </li>
             <li>
-              To optionally specify a clip duration set the Enviornment Variable name to: <code>USER_CLIP_LENGTH</code>. The valid range is between 3 and 25 seconds but the default and recommeneded minimun value is 6.
+              To optionally specify a clip duration set the Environment Variable name to: <code>USER_CLIP_LENGTH</code>. The valid range is between 3 and 25 seconds but the default and recommeneded minimun value is 6.
             </li>
             <li>Click "Run" button.</li>
           </ol>
@@ -125,8 +139,8 @@
              <code>C:\Videos\videos</code>
           </li>
           <li>
-            Download some music videos there (contact me for instructions:
-             <a href="mailto:juancmarquina@gmail.com">juancmarquina@gmail.com</a>).
+            Download some music videos there
+             (<a href="mailto:juancmarquina@gmail.com">contact me</a> for instructions).
           </li>
           <li>
             Download the
@@ -138,26 +152,25 @@
           <li>Run it:</li>
           <li>
             <ol>
-              <li>Open an elevated PowerShell window by pressing <code>WIN+X</code> and selecting Windows PowerShell (Admin).
-                (Select "yes" to User Account Control's dialog: Do you want to allow this app to make
-                changes to your device?)
+              <li>Open an elevated PowerShell window by pressing <code>WIN+X</code>
+                 and selecting Windows PowerShell (Admin).
+                 (Select "yes" to User Account Control's dialog:
+                 Do you want to allow this app to make
+                 changes to your device?)
               </li>
               <li>
                 Change-directory into your Videos folder: <code>cd C:\Videos</code>
               </li>
               <li>
-                Execute the script: <code>powershell.exe -executionpolicy bypass -File .\GenerateList.ps1</code>
+                Execute the script:
+                <code>
+                  powershell.exe -executionpolicy bypass -File .\GenerateList.ps1
+                </code>
               </li>
               <li>
                 Contact me if you don't see this: <code>Script complete.</code>
               </li>
             </ol>
-          </li>
-          <li>
-            Do me a solid and verify the video list text file makes sense before uploading
-            as every time the AWS Lambda function runs it costs me money 😆.
-            (Open it with Notepad by double-clicking it [list_videos.txt].)
-            (This text file should contain your video titles with full paths and their durations.)
           </li>
           <li>
             Upload your <code>list_videos.txt</code> to this web service.
@@ -167,10 +180,12 @@
             (Then click the new "Upload" button that will appear here.)
           </li>
           <li>
-            After uploading your list of videos, click the <code>Generate Playlist</code> button in the next page.
+            After uploading your list of videos, click the
+            <code> Generate Playlist</code> button in the next page.
           </li>
           <li>
-            When you double-click the downloaded playlist, your video clips will appear on VLC media player. Press <code>f</code> key to toggle full-screen.
+            When you double-click the downloaded playlist, your video clips will
+             appear on VLC media player. Press <code>f</code> key to toggle full-screen.
           </li>
         </ol>
 
@@ -192,7 +207,9 @@
   </div>
 
   <div class="music-video-list-section">
-    <label for="load-suggested-music-video-list-button">Looking for music video suggestions?</label>
+    <label for="load-suggested-music-video-list-button">
+      Looking for music video suggestions?
+    </label>
     <button id="load-suggested-music-video-list-button" type="button" class="actual-button">
       Show list
     </button>
@@ -206,10 +223,10 @@
     </p>
   </footer>
 
-  <script src="tabs_functionality.js"></script>
-  <script src="upload_video_list.js"></script>
-  <script src="display_version.js"></script>
-  <script src="loadSuggestedMusicVideoList.js"></script>
+  <script src="JS/tabs_functionality.js"></script>
+  <script src="JS/upload_video_list.js"></script>
+  <script src="JS/display_version.js"></script>
+  <script src="JS/loadSuggestedMusicVideoList.js"></script>
 
 </body>
 </html>
