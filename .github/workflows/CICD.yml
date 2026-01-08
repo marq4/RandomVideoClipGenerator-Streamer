@@ -200,6 +200,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - id: load_config
+        shell: bash
         run: |
           SKIP=$(yq '.skip_testing' config.yml)
           echo "skip_tests=$SKIP" >> $GITHUB_OUTPUT

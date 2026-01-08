@@ -14,5 +14,3 @@ async function fetchAndDisplayVersion () {
 
 // Call when page loads:
 window.addEventListener('DOMContentLoaded', fetchAndDisplayVersion)
-
-// Deploy web assets!
