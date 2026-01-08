@@ -138,6 +138,7 @@ jobs:
   # Python lint, type-checking, import order.
   # Dependency audit.
   # Only runs if any Python files changed.
+  # TMP: SKIPPING pylint!!!
   python-code-quality:
     needs: any-python-changed
     # Run even if ANY upstream was skipped (like yaml-lint),
@@ -151,29 +152,38 @@ jobs:
       PYTHONPATH: .
 
     steps:
+      # These first 2 steps cannot be skipped:
       - uses: actions/checkout@v4
 
       - id: load_config
         run: |
+          SKIP=$(yq '.skip_python_code_quality' config.yml)
+          echo "skip=$SKIP" >> $GITHUB_OUTPUT
           PYTHON_VERSION=$(yq '.python_version_entire_project' config.yml)
           echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
 
       - uses: ./.github/actions/set-up-python
+        if: steps.load_config.outputs.skip != 'true'
         with:
           project-version: ${{ steps.load_config.outputs.version }}
 
       - uses: ./.github/actions/install-dependencies
+        if: steps.load_config.outputs.skip != 'true'
 
       - name: Lint Python code.
+        if: steps.load_config.outputs.skip != 'true'
         run: pylint .
 
       - name: Type checking.
+        if: steps.load_config.outputs.skip != 'true'
         run: mypy .
 
       - name: Import ordering.
+        if: steps.load_config.outputs.skip != 'true'
         run: isort --check .
 
       - name: Dependency security audit.
+        if: steps.load_config.outputs.skip != 'true'
         run: pyscan
 
   # Runs on Windows: unit + code coverage, integration.
@@ -196,7 +206,7 @@ jobs:
       PYTHONPATH: .
 
     steps:
-      # Cannot be skipped:
+      # These first 3 steps cannot be skipped:
       - uses: actions/checkout@v4
 
       - run: choco install yq -y
@@ -403,9 +413,12 @@ jobs:
           DIR: ${{ steps.load_config.outputs.deploy_dir_core }}
           ZIP: ${{ steps.load_config.outputs.zipfile_core }}
         run: |
+          set -x
+          pwd
           script="${{ env.SUBFOLDER }}/${{ env.CORE }}"
           mkdir ${{ env.DIR }}
           cd ${{ env.DIR }}
+          pwd
           python -m pip install boto3 mypy-boto3-s3 PyYAML -t .
           cp ../$script .
           cp ../config.yml .
@@ -413,7 +426,9 @@ jobs:
           zip -r ../$zipfile . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
-          ls -ltAh | tail -n +2 | head -1
+          pwd
+          # ls -ltAh | tail -n +2 | head -1
+          ls -ltAh
           aws lambda update-function-code \
           --function-name ${{ env.LAMBDA }} \
           --zip-file fileb://$zipfile

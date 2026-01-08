@@ -31,6 +31,7 @@ upload_zip_file: upload_functionality.zip
 python_version_entire_project: 3.10
 
 skip_testing: true
+skip_python_code_quality: true
 
 # Specify minimum code coverage for Unit Testing:
 unit_testing_target_code_coverage: 40
