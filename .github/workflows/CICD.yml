@@ -3,6 +3,12 @@ name: CICD
 
 on: push
 
+# DO NOT set env vars names to: ZIP, PATH, BASH, SHELL, DIR, USER, PWD, IFS, PS1,
+#   TERM, LANG, TZ, TEMP, TMP, TMPDIR, LD, FLAGS, MAKE, PYTHON, PYTHON3,
+#   NODE, NPM, TAR, XZ, HTTP_PROXY, DISPLAY, LS, CP, MV, RM, FIND, GREP,
+#   SED, AWK, CURL, WGET, DOCKER, AWS, TERRAFORM, LD_PRELOAD, PYTHONPATH,
+#   GH_*.
+
 jobs:
   # _ Meta-code _
 
@@ -68,7 +74,7 @@ jobs:
       run:
         working-directory: ./Terraform
     env:
-      TFLINT_URL: >-
+      MY_TFLINT_URL: >-
         'https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh'
 
     steps:
@@ -76,10 +82,8 @@ jobs:
 
       - id: load_config
         run: |
-          TF_MIN_VERSION=$(yq '.terraform_minimum_version' config.yml)
-          echo "version=$TF_MIN_VERSION" >> $GITHUB_OUTPUT
-          REGION=$(yq '.aws_project_region' config.yml)
-          echo "region=$REGION" >> $GITHUB_OUTPUT
+          echo "version=$(yq '.terraform_minimum_version' config.yml)" >> $GITHUB_OUTPUT
+          echo "region=$(yq '.aws_project_region' config.yml)" >> $GITHUB_OUTPUT
 
       - name: Verify no sensitive file(s) committed.
         run: |
@@ -97,7 +101,7 @@ jobs:
           terraform_version: ${{ steps.load_config.outputs.version }}
 
       - name: Install TFlint.
-        run: curl -s  ${{ env.TFLINT_URL }} | bash
+        run: curl -s  ${{ env.MY_TFLINT_URL }} | bash
 
       - run: terraform fmt -check -recursive
         continue-on-error: false
@@ -135,10 +139,9 @@ jobs:
           echo 'Did any Python file(s) change in this commit: '
           echo ${{ steps.detect_python_diff.outputs.any_changed }}
 
-  # Python lint, type-checking, import order.
-  # Dependency audit.
+  # Python lint, type-checking, import order, dependency audit.
   # Only runs if any Python files changed.
-  # TMP: SKIPPING pylint!!!
+  # TMP: SKIPPING!!!
   python-code-quality:
     needs: any-python-changed
     # Run even if ANY upstream was skipped (like yaml-lint),
@@ -157,10 +160,8 @@ jobs:
 
       - id: load_config
         run: |
-          SKIP=$(yq '.skip_python_code_quality' config.yml)
-          echo "skip=$SKIP" >> $GITHUB_OUTPUT
-          PYTHON_VERSION=$(yq '.python_version_entire_project' config.yml)
-          echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+          echo "skip=$(yq '.skip_python_code_quality' config.yml)" >> $GITHUB_OUTPUT
+          echo "version=$(yq '.python_version_entire_project' config.yml)" >> $GITHUB_OUTPUT
 
       - uses: ./.github/actions/set-up-python
         if: steps.load_config.outputs.skip != 'true'
@@ -209,51 +210,48 @@ jobs:
       # These first 3 steps cannot be skipped:
       - uses: actions/checkout@v4
 
-      - run: choco install yq -y
+      # - run: choco install yq -y #TMP!!!
 
       - id: load_config
         shell: bash
         run: |
-          SKIP=$(yq '.skip_testing' config.yml)
-          echo "skip_tests=$SKIP" >> $GITHUB_OUTPUT
-          PYTHON_VERSION=$(yq '.python_version_entire_project' config.yml)
-          echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+          echo "skip=$(yq '.skip_testing' config.yml)" >> $GITHUB_OUTPUT
+          echo "version=$(yq '.python_version_entire_project' config.yml)" >> $GITHUB_OUTPUT
           TARGET=$(yq '.unit_testing_target_code_coverage' config.yml)
-          echo "target_coverage=$TARGET" >> $GITHUB_OUTPUT
-          SUBFOLDER_CORE==$(yq '.core_subfolder' config.yml)
-          echo "core_subfolder=SUBFOLDER_CORE$" >> $GITHUB_OUTPUT
+          echo "coverage_target=$TARGET" >> $GITHUB_OUTPUT
+          echo "subfolder_core=$(yq '.core_subfolder' config.yml)" >> $GITHUB_OUTPUT
 
       - name: Install FFMpeg, VLC.
-        if: steps.load_config.outputs.skip_tests != 'true'
+        if: steps.load_config.outputs.skip != 'true'
         run: |
           choco install ffmpeg -y
           choco install vlc -y
 
       - uses: ./.github/actions/set-up-python
-        if: steps.load_config.outputs.skip_tests != 'true'
+        if: steps.load_config.outputs.skip != 'true'
         with:
           project-version: ${{ steps.load_config.outputs.version }}
 
       - uses: ./.github/actions/install-dependencies
-        if: steps.load_config.outputs.skip_tests != 'true'
+        if: steps.load_config.outputs.skip != 'true'
 
       - name: Setup (create fake example videos).
-        if: steps.load_config.outputs.skip_tests != 'true'
+        if: steps.load_config.outputs.skip != 'true'
         run: python tests/setup.py
 
       - name: Unit testing.
-        if: steps.load_config.outputs.skip_tests != 'true'
+        if: steps.load_config.outputs.skip != 'true'
         run: pytest -vvv tests/unit_tests.py
 
       - name: Code coverage.
-        if: steps.load_config.outputs.skip_tests != 'true'
+        if: steps.load_config.outputs.skip != 'true'
         run: >
-          pytest --cov=${{ steps.load_config.outputs.core_subfolder }}
-          --cov-fail-under=${{ steps.load_config.outputs.target_coverage }}
+          pytest --cov=${{ steps.load_config.outputs.subfolder_core }}
+          --cov-fail-under=${{ steps.load_config.outputs.coverage_target }}
           tests/unit_tests.py
 
       - name: Integration testing.
-        if: steps.load_config.outputs.skip_tests != 'true'
+        if: steps.load_config.outputs.skip != 'true'
         run: pytest -vvv tests/integration_tests.py
 
   # Conventional Commits Release (PSR: Python Semantic Release).
@@ -278,8 +276,7 @@ jobs:
 
       - id: load_config
         run: |
-          PYTHON_VERSION=$(yq '.python_version_entire_project' config.yml)
-          echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+          echo "version=$(yq '.python_version_entire_project' config.yml)" >> $GITHUB_OUTPUT
 
       - uses: ./.github/actions/set-up-python
         with:
@@ -323,50 +320,26 @@ jobs:
 
       - id: load_config
         run: |
-          PYTHON_VERSION=$(yq '.python_version_entire_project' config.yml)
-          echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
-          REGION=$(yq '.aws_project_region' config.yml)
-          echo "region=$REGION" >> $GITHUB_OUTPUT
-          SCRIPTS_BUCKET_NAME=$(yq '.scripts_bucket_name' config.yml)
-          echo "bucket_scripts=$SCRIPTS_BUCKET_NAME" >> $GITHUB_OUTPUT
-          CORE_FUNCTION_NAME=$(yq '.core_function_name' config.yml)
-          echo "lambda_core=$CORE_FUNCTION_NAME" >> $GITHUB_OUTPUT
-          LIST_FUNCTION_NAME=$(yq '.list_function_name' config.yml)
-          echo "lambda_list=$LIST_FUNCTION_NAME" >> $GITHUB_OUTPUT
-          CLEANUP_FUNCTION_NAME=$(yq '.cleanup_function_name' config.yml)
-          echo "lambda_cleanup=$CLEANUP_FUNCTION_NAME" >> $GITHUB_OUTPUT
-          UPLOAD_FUNCTION_NAME=$(yq '.upload_function_name' config.yml)
-          echo "lambda_upload=$UPLOAD_FUNCTION_NAME" >> $GITHUB_OUTPUT
-          CORE_SCRIPT_NAME=$(yq '.core_script_name' config.yml)
-          echo "script_core=$CORE_SCRIPT_NAME" >> $GITHUB_OUTPUT
-          CORE_SUBFOLDER_NAME=$(yq '.core_subfolder' config.yml)
-          echo "subfolder_core=$CORE_SUBFOLDER_NAME" >> $GITHUB_OUTPUT
-          BASH_PATH=$(yq '.verify_s3_deploy_aux_path' config.yml)
-          echo "verify_bash=$BASH_PATH" >> $GITHUB_OUTPUT
-          CORE_ZIP_DIR_NAME=$(yq '.core_zip_dir' config.yml)
-          echo "deploy_dir_core=$CORE_ZIP_DIR_NAME" >> $GITHUB_OUTPUT
-          CORE_ZIP_FILE_NAME=$(yq '.core_zip_file' config.yml)
-          echo "zipfile_core=$CORE_ZIP_FILE_NAME" >> $GITHUB_OUTPUT
-          CLOUD_SUBFOLDER_NAME=$(yq '.cloud_subfolder' config.yml)
-          echo "subfolder_cloud=$CLOUD_SUBFOLDER_NAME" >> $GITHUB_OUTPUT
-          LIST_CODE_NAME=$(yq '.list_lambda_code_src' config.yml)
-          echo "code_list=$LIST_CODE_NAME" >> $GITHUB_OUTPUT
-          LIST_ZIP_FILE_NAME=$(yq '.list_zip_file' config.yml)
-          echo "zipfile_list=$LIST_ZIP_FILE_NAME" >> $GITHUB_OUTPUT
-          CLEANUP_CODE_NAME=$(yq '.cleanup_lambda_code_src' config.yml)
-          echo "code_cleanup=$CLEANUP_CODE_NAME" >> $GITHUB_OUTPUT
-          CLEANUP_ZIP_FILE_NAME=$(yq '.cleanup_zip_file' config.yml)
-          echo "zipfile_cleanup=$CLEANUP_ZIP_FILE_NAME" >> $GITHUB_OUTPUT
-          CLEANUP_ZIP_DIR_NAME=$(yq '.cleanup_zip_dir' config.yml)
-          echo "deploy_dir_cleanup=$CLEANUP_ZIP_DIR_NAME" >> $GITHUB_OUTPUT
-          UPLOAD_CODE_NAME=$(yq '.upload_lambda_code_src' config.yml)
-          echo "code_upload=$UPLOAD_CODE_NAME" >> $GITHUB_OUTPUT
-          UPLOAD_ZIP_FILE_NAME=$(yq '.upload_zip_file' config.yml)
-          echo "zipfile_upload=$UPLOAD_ZIP_FILE_NAME" >> $GITHUB_OUTPUT
-          UPLOAD_ZIP_DIR_NAME=$(yq '.upload_zip_dir' config.yml)
-          echo "deploy_dir_upload=$UPLOAD_ZIP_DIR_NAME" >> $GITHUB_OUTPUT
-          CODE_INNER_NAME=$(yq '.lambda_src_subfolder' config.yml)
-          echo "subfolder_src=$CODE_INNER_NAME" >> $GITHUB_OUTPUT
+          echo "version=$(yq '.python_version_entire_project' config.yml)" >> $GITHUB_OUTPUT
+          echo "region=$(yq '.aws_project_region' config.yml)" >> $GITHUB_OUTPUT
+          echo "path_core=$(yq '.core_py_path' config.yml)" >> $GITHUB_OUTPUT
+          echo "bucket_scripts=$(yq '.scripts_bucket_name' config.yml)" >> $GITHUB_OUTPUT
+          echo "name_core=$(yq '.core_py_name' config.yml)" >> $GITHUB_OUTPUT
+          echo "path_verify=$(yq '.verify_s3_deploy_aux_path' config.yml)" >> $GITHUB_OUTPUT
+          echo "deploy_dir_core=$(yq '.core_zip_dir_name' config.yml)" >> $GITHUB_OUTPUT
+          echo "zipfile_core=$(yq '.core_zip_file_name' config.yml)" >> $GITHUB_OUTPUT
+          echo "lambda_core=$(yq '.core_function_name' config.yml)" >> $GITHUB_OUTPUT
+          echo "zipfile_list=$(yq '.list_zip_file_name' config.yml)" >> $GITHUB_OUTPUT
+          echo "path_list=$(yq '.list_code_src_path' config.yml)" >> $GITHUB_OUTPUT
+          echo "lambda_list=$(yq '.list_function_name' config.yml)" >> $GITHUB_OUTPUT
+          echo "deploy_dir_cleanup=$(yq '.cleanup_zip_dir_name' config.yml)" >> $GITHUB_OUTPUT
+          echo "zipfile_cleanup=$(yq '.cleanup_zip_file_name' config.yml)" >> $GITHUB_OUTPUT
+          echo "path_cleanup=$(yq '.cleanup_code_src_path' config.yml)" >> $GITHUB_OUTPUT
+          echo "lambda_cleanup=$(yq '.cleanup_function_name' config.yml)" >> $GITHUB_OUTPUT
+          echo "deploy_dir_upload=$(yq '.upload_zip_dir_name' config.yml)" >> $GITHUB_OUTPUT
+          echo "zipfile_upload=$(yq '.upload_zip_file_name' config.yml)" >> $GITHUB_OUTPUT
+          echo "path_upload=$(yq '.upload_code_src_path' config.yml)" >> $GITHUB_OUTPUT
+          echo "lambda_upload=$(yq '.upload_function_name' config.yml)" >> $GITHUB_OUTPUT
 
       - uses: ./.github/actions/set-up-python
         with:
@@ -387,111 +360,88 @@ jobs:
 
       - name: Upload core script to S3 and verify correct version is live.
         env:
-          BUCKET: ${{ steps.load_config.outputs.bucket_scripts }}
-          SUBFOLDER: ${{ steps.load_config.outputs.subfolder_core }}
-          CORE: ${{ steps.load_config.outputs.script_core }}
-          BASH: ${{ steps.load_config.outputs.verify_bash }}
+          MY_CORE_PATH: ${{ steps.load_config.outputs.path_core }}
+          MY_BUCKET: ${{ steps.load_config.outputs.MY_BUCKET_scripts }}
+          MY_CORE_NAME: ${{ steps.load_config.outputs.name_core }}
+          MY_VERIFY_BASH: ${{ steps.load_config.outputs.path_verify }}
         run: |
           aws s3 cp \
-          ${{ env.SUBFOLDER }}/${{ env.CORE }} \
-          s3://${{ env.BUCKET }}/${{ env.CORE }} \
+          ${{ env.MY_CORE_PATH }} \
+          s3://${{ env.MY_BUCKET }}/${{ env.MY_CORE_NAME }} \
           --content-type 'text/x-python' \
-          --content-disposition "attachment; filename=${{ env.CORE }}" \
+          --content-disposition "attachment; filename=${{ env.MY_CORE_NAME }}" \
           --metadata-directive REPLACE
           sleep 3
-          chmod +x ${{ env.BASH }}
-          ${{ env.BASH }} \
-            "${{ env.SUBFOLDER }}" \
-            "${{ env.CORE }}" \
-            "${{ env.BUCKET }}"
+          chmod +x ${{ env.MY_VERIFY_BASH }}
+          ${{ env.MY_VERIFY_BASH }} \
+            "${{ steps.load_config.outputs.subfolder_core }}" \
+            "${{ env.MY_CORE_NAME }}" \
+            "${{ env.MY_BUCKET }}"
 
-      - name: Deploy core to Lambda (website / Cloud service users).
+      - name: Deploy core code to Lambda (website / Cloud service users).
         env:
-          SUBFOLDER: ${{ steps.load_config.outputs.subfolder_core }}
-          CORE: ${{ steps.load_config.outputs.script_core }}
-          LAMBDA: ${{ steps.load_config.outputs.lambda_core }}
-          DIR: ${{ steps.load_config.outputs.deploy_dir_core }}
-          # DO NOT USE "ZIP" AS A AN ENV VAR!!!
-          ZIPFILE: ${{ steps.load_config.outputs.zipfile_core }}
+          MY_DIR: ${{ steps.load_config.outputs.deploy_dir_core }}
+          MY_ZIPFILE: ${{ steps.load_config.outputs.zipfile_core }}
         run: |
-          script="${{ env.SUBFOLDER }}/${{ env.CORE }}"
-          mkdir ${{ env.DIR }}
-          cd ${{ env.DIR }}
+          mkdir ${{ env.MY_DIR }}
+          cd ${{ env.MY_DIR }}
           python -m pip install boto3 mypy-boto3-s3 PyYAML -t .
-          cp ../$script .
+          cp "../${{ steps.load_config.outputs.path_core }}" .
           cp ../config.yml .
-          zipfile=${{ env.ZIPFILE }}
-          zip --quiet -r ../$zipfile . \
+          zip --quiet -r "../${{ env.MY_ZIPFILE }}" . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
           ls -ltAh | tail -n +2 | head -1
           aws lambda update-function-code \
-          --function-name ${{ env.LAMBDA }} \
-          --zip-file fileb://$zipfile
+          --function-name ${{ steps.load_config.outputs.lambda_core }} \
+          --zip-file fileb://${{ env.MY_ZIPFILE }}
 
       - name: Deploy suggestions list code to Lambda.
         env:
-          SUBFOLDER: ${{ steps.load_config.outputs.subfolder_cloud }}
-          LAMBDA: ${{ steps.load_config.outputs.lambda_list }}
-          CODE: ${{ steps.load_config.outputs.code_list }}
-          ZIPFILE: ${{ steps.load_config.outputs.zipfile_list }}
-          INNER: ${{ steps.load_config.outputs.subfolder_src }}
+          MY_ZIPFILE: ${{ steps.load_config.outputs.zipfile_list }}
         run: |
-          script="${{ env.SUBFOLDER }}/${{ env.INNER }}/${{ env.CODE }}"
-          zipfile=${{ env.ZIPFILE }}
-          zip --quiet --junk-paths $zipfile $script List.md
+          zip --quiet --junk-paths ${{ env.MY_ZIPFILE }} \
+          "${{ steps.load_config.outputs.path_list }}" List.md
           ls -ltAh | tail -n +2 | head -1
           aws lambda update-function-code \
-          --function-name ${{ env.LAMBDA }} \
-          --zip-file fileb://$zipfile
+          --function-name ${{ steps.load_config.outputs.lambda_list }} \
+          --zip-file fileb://${{ env.MY_ZIPFILE }}
 
       - name: Deploy S3 cleanup code to Lambda.
         env:
-          SUBFOLDER: ${{ steps.load_config.outputs.subfolder_cloud }}
-          LAMBDA: ${{ steps.load_config.outputs.lambda_cleanup }}
-          CODE: ${{ steps.load_config.outputs.code_cleanup }}
-          ZIPFILE: ${{ steps.load_config.outputs.zipfile_cleanup }}
-          DIR: ${{ steps.load_config.outputs.deploy_dir_cleanup }}
-          INNER: ${{ steps.load_config.outputs.subfolder_src }}
+          MY_DIR: ${{ steps.load_config.outputs.deploy_dir_cleanup }}
+          MY_ZIPFILE: ${{ steps.load_config.outputs.zipfile_cleanup }}
         run: |
-          script="${{ env.SUBFOLDER }}/${{ env.INNER }}/${{ env.CODE }}"
-          zipfile=${{ env.ZIPFILE }}
-          mkdir ${{ env.DIR }}
-          cd ${{ env.DIR }}
+          mkdir ${{ env.MY_DIR }}
+          cd ${{ env.MY_DIR }}
           python -m pip install boto3 -t .
-          cp ../$script .
+          cp "../${{ steps.load_config.outputs.path_cleanup }}" .
           cp ../config.yml .
-          zip --quiet -r ../$zipfile . \
+          zip --quiet -r "../${{ env.MY_ZIPFILE }}" . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
           ls -ltAh | tail -n +2 | head -1
           aws lambda update-function-code \
-          --function-name ${{ env.LAMBDA }} \
-          --zip-file fileb://$zipfile
+          --function-name ${{ steps.load_config.outputs.lambda_cleanup }} \
+          --zip-file fileb://${{ env.MY_ZIPFILE }}
 
       - name: Deploy upload code.
         env:
-          SUBFOLDER: ${{ steps.load_config.outputs.subfolder_cloud }}
-          CODE: ${{ steps.load_config.outputs.code_upload }}
-          LAMBDA: ${{ steps.load_config.outputs.lambda_upload }}
-          ZIPFILE: ${{ steps.load_config.outputs.zipfile_upload }}
-          DIR: ${{ steps.load_config.outputs.deploy_dir_upload }}
-          INNER: ${{ steps.load_config.outputs.subfolder_src }}
+          MY_DIR: ${{ steps.load_config.outputs.deploy_dir_upload }}
+          MY_ZIPFILE: ${{ steps.load_config.outputs.zipfile_upload }}
         run: |
-          script="${{ env.SUBFOLDER }}/${{ env.INNER }}/${{ env.CODE }}"
-          zipfile=${{ env.ZIPFILE }}
-          mkdir ${{ env.DIR }}
-          cd ${{ env.DIR }}
+          mkdir ${{ env.MY_DIR }}
+          cd ${{ env.MY_DIR }}
           python -m pip install boto3 PyYAML -t .
-          cp ../$script .
+          cp "../${{ steps.load_config.outputs.path_upload }}" .
           cp ../config.yml .
-          zip --quiet -r ../$zipfile . \
+          zip --quiet -r "../${{ env.MY_ZIPFILE }}" . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
           ls -ltAh | tail -n +2 | head -1
           aws lambda update-function-code \
-          --function-name ${{ env.LAMBDA }} \
-          --zip-file fileb://$zipfile
+          --function-name ${{ steps.load_config.outputs.lambda_upload }} \
+          --zip-file fileb://${{ env.MY_ZIPFILE }}
 
 
   # _ Web _
@@ -509,24 +459,25 @@ jobs:
       # These values replace the placeholders in the template:
       - id: load_config
         run: |
-          SCRIPTS_BUCKET_NAME=$(yq '.scripts_bucket_name' config.yml)
-          echo "bucket_scripts=$SCRIPTS_BUCKET_NAME" >> $GITHUB_OUTPUT
-          CLOUD_SUBFOLDER_NAME=$(yq '.cloud_subfolder' config.yml)
-          echo "subfolder_cloud=$CLOUD_SUBFOLDER_NAME" >> $GITHUB_OUTPUT
-          CORE_SCRIPT_NAME=$(yq '.core_script_name' config.yml)
-          echo "script_core=$CORE_SCRIPT_NAME" >> $GITHUB_OUTPUT
-          # Not using it yet because I don't deploy the PowerShell script yet:
-          INNER=$(yq '.os_specific_scripts_subfolder' config.yml)
-          echo "subfolder_scripts=$INNER" >> $GITHUB_OUTPUT
+          echo "bucket_scripts=$(yq '.scripts_bucket_name' config.yml)" >> $GITHUB_OUTPUT
+          echo "js_tabs=$(yq '.tabs_js_path' config.yml)" >> $GITHUB_OUTPUT
+          echo "js_upload=$(yq '.upload_js_path' config.yml)" >> $GITHUB_OUTPUT
+          echo "js_version=$(yq '.version_js_path' config.yml)" >> $GITHUB_OUTPUT
+          echo "js_list=$(yq '.list_js_path' config.yml)" >> $GITHUB_OUTPUT
+          echo "py_core=$(yq '.core_py_name' config.yml)" >> $GITHUB_OUTPUT
 
       # Uses values obtained from config.yml:
       - name: Generate HTML from template.
         env:
+          # Do not remove these env vars. They ARE being used by envsubst.
           SCRIPTS_BUCKET: ${{ steps.load_config.outputs.bucket_scripts }}
-          CORE: ${{ steps.load_config.outputs.script_core }}
-          SUBFOLDER: ${{ steps.load_config.outputs.subfolder_scripts }}
+          CORE: ${{ steps.load_config.outputs.py_core }}
+          # JavaScripts paths:
+          TABS: ${{ steps.load_config.outputs.js_tabs }}
+          UPLOAD: ${{ steps.load_config.outputs.js_upload }}
+          VERSION: ${{ steps.load_config.outputs.js_version }}
+          LIST: ${{ steps.load_config.outputs.js_list }}
         run: |
-          echo "BUCKET => ${{ env.SCRIPTS_BUCKET }}"
           if [ -z "${{ env.SCRIPTS_BUCKET }}" ]
           then
             echo 'ERROR: env var not set!'
@@ -578,10 +529,8 @@ jobs:
 
       - id: load_config
         run: |
-          NODE_VERSION=$(yq '.nodejs_version' config.yml)
-          echo "version=$NODE_VERSION" >> $GITHUB_OUTPUT
-          CLOUD_SUBFOLDER_NAME=$(yq '.cloud_subfolder' config.yml)
-          echo "subfolder_cloud=$CLOUD_SUBFOLDER_NAME" >> $GITHUB_OUTPUT
+          echo "version=$(yq '.nodejs_version' config.yml)" >> $GITHUB_OUTPUT
+          echo "subfolder_cloud=$(yq '.cloud_subfolder' config.yml)" >> $GITHUB_OUTPUT
 
       - name: Retrieve index HTML generated in generate-html job.
         continue-on-error: true
@@ -617,18 +566,15 @@ jobs:
       needs.web-style-code-quality.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      CLOUDFRONT_DISTRIBUTION: 'EWDPJFG1ZNBMV'  # TODO: get from Terraform.
 
     steps:
       - uses: actions/checkout@v4
 
       - id: load_config
         run: |
-          CLOUD_SUBFOLDER_NAME=$(yq '.cloud_subfolder' config.yml)
-          echo "subfolder_cloud=$CLOUD_SUBFOLDER_NAME" >> $GITHUB_OUTPUT
-          REGION=$(yq '.aws_project_region' config.yml)
-          echo "region=$REGION" >> $GITHUB_OUTPUT
+          echo "subfolder_cloud=$(yq '.cloud_subfolder' config.yml)" >> $GITHUB_OUTPUT
+          echo "region=$(yq '.aws_project_region' config.yml)" >> $GITHUB_OUTPUT
+          echo "id=$(yq '.cloudfront_distribution_id')" >> $GITHUB_OUTPUT
 
       - name: Retrieve index HTML generated in generate-html job.
         continue-on-error: true
@@ -663,7 +609,7 @@ jobs:
       - name: Invalidate CloudFront cache.
         run: >
           aws cloudfront create-invalidation
-          --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION }}
+          --distribution-id ${{ steps.load_config.outputs.id }}
           --paths '/*'
 
       - name: Verify critical index HTML is in web-assets bucket.

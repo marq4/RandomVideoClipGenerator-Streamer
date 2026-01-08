@@ -4,3 +4,6 @@ extends: default
 rules:
   new-line-at-end-of-file: disable
   empty-lines: disable
+  line-length:
+    max: 95
+    level: error

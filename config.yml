@@ -1,30 +1,13 @@
 ---
 # Single source of truth for project.
+# Do not move/rename this file.
 
 
 # Globals/Project:
 
-# Update if any subfolder(s) renamed (TMP):
-cloud_subfolder: CloudService
-core_subfolder: PythonCore
-os_specific_scripts_subfolder: GenerateListScripts # TODO: auto deploy.
-js_subfolder: JS
-lambda_src_subfolder: LambdaCode
+# TODO: auto deploy:
+# os_specific_scripts_subfolder: GenerateListScripts 
 
-# Update if any script(s) renamed (TODO: Terraform will manage this file):
-core_script_name: random_video_clip_generator.py
-verify_s3_deploy_aux_path: .github/scripts/verify_deployed_version.sh
-list_lambda_code_src: send_suggested_yt_video_list.py
-cleanup_lambda_code_src: s3_cleanup.py
-upload_lambda_code_src: presigned_url_generator.py
-
-core_zip_dir: main-lambda-package
-core_zip_file: core_functionality.zip
-list_zip_file: list_functionality.zip
-cleanup_zip_file: s3_cleanup_functionality.zip
-cleanup_zip_dir: cleanup-lambda-package
-upload_zip_dir: upload-lambda-package
-upload_zip_file: upload_functionality.zip
 
 # Python:
 
@@ -36,6 +19,11 @@ skip_python_code_quality: true
 # Specify minimum code coverage for Unit Testing:
 unit_testing_target_code_coverage: 40
 
+# Code:
+core_subfolder: PythonCore
+core_py_name: random_video_clip_generator.py
+core_py_path: PythonCore/random_video_clip_generator.py # TODO: Tf.
+
 
 # Cloud:
 
@@ -44,6 +32,8 @@ aws_project_region: us-east-2
 
 # Project name for tags:
 project_name: RVCGS/serverless
+
+cloud_subfolder: CloudService #TODO: Tf.
 
 
 # S3:
@@ -63,20 +53,42 @@ upload_bucket_name: rvcgs-marq-list-videos-upload-05012026
 
 # Lambda:
 
+lambda_src_subfolder: LambdaCode
+
 # Core:
 core_function_name: rvcgs-core
 
 # Sends suggested YouTube music video list:
 list_function_name: rvcgs-send-suggestions-list
+list_lambda_code_src: send_suggested_yt_video_list.py
+list_code_src_path: CloudService/LambdaCode/send_suggested_yt_video_list.py # TODO: Tf.
 
 # Cleans up S3 tmp buckets:
 cleanup_function_name: rvcgs-cleanup-s3-playlist
+cleanup_lambda_code_src: s3_cleanup.py
+cleanup_code_src_path: CloudService/LambdaCode/s3_cleanup.py
 
 # Processes user upload:
 upload_function_name: rvcgs-upload
+upload_lambda_code_src: presigned_url_generator.py
+upload_code_src_path: CloudService/LambdaCode/presigned_url_generator.py
+
+# Temporary directories and zip files for Lambda deploy:
+core_zip_dir_name: main-lambda-package
+core_zip_file_name: core_functionality.zip
+list_zip_file_name: list_functionality.zip
+cleanup_zip_dir_name: cleanup-lambda-package
+cleanup_zip_file_name: s3_cleanup_functionality.zip
+upload_zip_dir_name: upload-lambda-package
+upload_zip_file_name: upload_functionality.zip
+
+# CloudFront:
+
+cloudfront_distribution_id: EWDPJFG1ZNBMV # TODO: Tf.
 
 
 # Terraform:
+# Do not rename Tf subfolder.
 
 terraform_minimum_version: 1.13
 
@@ -84,3 +96,15 @@ terraform_minimum_version: 1.13
 # Web:
 
 nodejs_version: 20
+
+# JavaScripts:
+# js_subfolder: JS # Hardcoding bellow for now, TODO: Terraform.
+tabs_js_path: JS/tabs_functionality.js
+upload_js_path: JS/upload_video_list.js
+version_js_path: JS/display_version.js
+list_js_path: JS/loadSuggestedMusicVideoList.js
+
+
+# Bash scripts:
+
+verify_s3_deploy_aux_path: .github/scripts/verify_deployed_version.sh
