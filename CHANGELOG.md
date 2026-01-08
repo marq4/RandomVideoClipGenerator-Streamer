@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.6.17 (2026-01-08)
+
+### Bug Fixes
+
+- DO NOT SET "ZIP" AS AN ENV VAR!!!
+  ([`63e3850`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/63e3850238135208c8363acca91336b5531f7cd2))
+
+
 ## v4.6.16 (2026-01-08)
 
 ### Bug Fixes
