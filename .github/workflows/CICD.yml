@@ -8,6 +8,7 @@ on: push
 #   NODE, NPM, TAR, XZ, HTTP_PROXY, DISPLAY, LS, CP, MV, RM, FIND, GREP,
 #   SED, AWK, CURL, WGET, DOCKER, AWS, TERRAFORM, LD_PRELOAD, PYTHONPATH,
 #   GH_*.
+#   In fact, let's keep our env vars as MY_.
 
 jobs:
   # _ Meta-code _
@@ -465,6 +466,7 @@ jobs:
           echo "js_version=$(yq '.version_js_path' config.yml)" >> $GITHUB_OUTPUT
           echo "js_list=$(yq '.list_js_path' config.yml)" >> $GITHUB_OUTPUT
           echo "py_core=$(yq '.core_py_name' config.yml)" >> $GITHUB_OUTPUT
+          echo "subfolder_cloud=$(yq '.cloud_subfolder' config.yml)" >> $GITHUB_OUTPUT
 
       # Uses values obtained from config.yml:
       - name: Generate HTML from template.
