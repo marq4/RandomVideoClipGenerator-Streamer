@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.6.11 (2026-01-08)
+
+### Bug Fixes
+
+- Debugging trying to find the issue. Expecting py-quality to be skipped.
+  ([`858c749`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/858c74978e40d12efcbef08e0ddb0a7b79ba5637))
+
+
 ## v4.6.10 (2026-01-08)
 
 ### Bug Fixes
