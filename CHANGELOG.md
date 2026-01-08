@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.6.13 (2026-01-08)
+
+### Bug Fixes
+
+- Removing zipfile bash variable.
+  ([`d994b78`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/d994b7809a9339019e63d281459629251efd3ece))
+
+
 ## v4.6.12 (2026-01-08)
 
 ### Bug Fixes
