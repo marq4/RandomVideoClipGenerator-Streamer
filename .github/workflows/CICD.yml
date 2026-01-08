@@ -157,7 +157,7 @@ jobs:
         shell: bash
         env:
           URL: "https://github.com/mikefarah/yq/\\
-            releases/latest/download/yq_windows_amd64.exe"
+          releases/latest/download/yq_windows_amd64.exe"
         run: |
           wget ${{ env.URL }} -O /usr/bin/yq
           chmod +x /usr/bin/yq
