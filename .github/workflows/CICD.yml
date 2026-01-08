@@ -76,9 +76,9 @@ jobs:
 
       - id: load_config
         run: |
-          TF_MIN_VERSION=$(yq | '.terraform_minimum_version' config.yml)
+          TF_MIN_VERSION=$(yq '.terraform_minimum_version' config.yml)
           echo "version=$TF_MIN_VERSION" >> $GITHUB_OUTPUT
-          REGION=$(yq | '.aws_project_region' config.yml)
+          REGION=$(yq '.aws_project_region' config.yml)
           echo "region=$REGION" >> $GITHUB_OUTPUT
 
       - name: Verify no sensitive file(s) committed.
@@ -155,7 +155,7 @@ jobs:
 
       - id: load_config
         run: |
-          PYTHON_VERSION=$(yq | '.python_version_entire_project' config.yml)
+          PYTHON_VERSION=$(yq '.python_version_entire_project' config.yml)
           echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
 
       - uses: ./.github/actions/set-up-python
@@ -201,13 +201,13 @@ jobs:
 
       - id: load_config
         run: |
-          SKIP=$(yq | '.skip_testing' config.yml)
+          SKIP=$(yq '.skip_testing' config.yml)
           echo "skip_tests=$SKIP" >> $GITHUB_OUTPUT
-          PYTHON_VERSION=$(yq | '.python_version_entire_project' config.yml)
+          PYTHON_VERSION=$(yq '.python_version_entire_project' config.yml)
           echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
           TARGET=$(yq '.unit_testing_target_code_coverage' config.yml)
           echo "target_coverage=$TARGET" >> $GITHUB_OUTPUT
-          SUBFOLDER_CORE==$(yq | '.core_subfolder' config.yml)
+          SUBFOLDER_CORE==$(yq '.core_subfolder' config.yml)
           echo "core_subfolder=SUBFOLDER_CORE$" >> $GITHUB_OUTPUT
 
       - name: Install FFMpeg, VLC.
@@ -265,7 +265,7 @@ jobs:
 
       - id: load_config
         run: |
-          PYTHON_VERSION=$(yq | '.python_version_entire_project' config.yml)
+          PYTHON_VERSION=$(yq '.python_version_entire_project' config.yml)
           echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
 
       - uses: ./.github/actions/set-up-python
@@ -310,7 +310,7 @@ jobs:
 
       - id: load_config
         run: |
-          PYTHON_VERSION=$(yq | '.python_version_entire_project' config.yml)
+          PYTHON_VERSION=$(yq '.python_version_entire_project' config.yml)
           echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
           SCRIPTS_BUCKET_NAME=$(yq '.scripts_bucket_name' config.yml)
           echo "bucket_scripts=$SCRIPTS_BUCKET_NAME" >> $GITHUB_OUTPUT
