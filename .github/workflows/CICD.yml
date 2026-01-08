@@ -576,7 +576,7 @@ jobs:
         run: |
           echo "subfolder_cloud=$(yq '.cloud_subfolder' config.yml)" >> $GITHUB_OUTPUT
           echo "region=$(yq '.aws_project_region' config.yml)" >> $GITHUB_OUTPUT
-          echo "id=$(yq '.cloudfront_distribution_id')" >> $GITHUB_OUTPUT
+          echo "id=$(yq '.cloudfront_distribution_id' config.yml)" >> $GITHUB_OUTPUT
 
       - name: Retrieve index HTML generated in generate-html job.
         continue-on-error: true
