@@ -223,10 +223,10 @@
     </p>
   </footer>
 
-  <script src="JS/tabs_functionality.js"></script>
-  <script src="JS/upload_video_list.js"></script>
-  <script src="JS/display_version.js"></script>
-  <script src="JS/loadSuggestedMusicVideoList.js"></script>
+  <script src="${TABS}"></script>
+  <script src="${UPLOAD}"></script>
+  <script src="${VERSION}"></script>
+  <script src="${LIST}"></script>
 
 </body>
 </html>
