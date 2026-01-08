@@ -422,15 +422,15 @@ jobs:
           python -m pip install boto3 mypy-boto3-s3 PyYAML -t .
           cp ../$script .
           cp ../config.yml .
-          zip -r "../${{ env.ZIP }}" . \
-          -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
           pwd
+          zip -r willthisworkiwonder.zip main-lambda-package/ \
+          -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           # ls -ltAh | tail -n +2 | head -1
           ls -ltAh
           aws lambda update-function-code \
           --function-name ${{ env.LAMBDA }} \
-          --zip-file fileb://$zipfile
+          --zip-file fileb://willthisworkiwonder.zip
 
       - name: Deploy suggestions list code to Lambda.
         env:

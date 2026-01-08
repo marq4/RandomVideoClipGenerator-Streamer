@@ -46,4 +46,4 @@ def cloud_main(_event, _context):
             })
         }
 
-# Removing zipfile bash variable.
+# Going up first, zipping the dir.
