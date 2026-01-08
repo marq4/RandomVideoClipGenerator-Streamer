@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.6.15 (2026-01-08)
+
+### Bug Fixes
+
+- Trying to create the core zipfile to deploy to Lambda.
+  ([`c6d0562`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/c6d05621da391e56b062a9f1b31c80b1962c42f1))
+
+
 ## v4.6.14 (2026-01-08)
 
 ### Bug Fixes
