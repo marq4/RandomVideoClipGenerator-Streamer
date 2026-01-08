@@ -155,7 +155,6 @@ jobs:
 
       - id: load_config
         run: |
-          choco install yq -y
           PYTHON_VERSION=$(yq '.python_version_entire_project' config.yml)
           echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
 
@@ -199,6 +198,8 @@ jobs:
     steps:
       # Cannot be skipped:
       - uses: actions/checkout@v4
+
+      - run: choco install yq -y
 
       - id: load_config
         shell: bash
