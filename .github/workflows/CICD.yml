@@ -353,7 +353,7 @@ jobs:
           echo "zipfile_upload=$UPLOAD_ZIP_FILE_NAME" >> $GITHUB_OUTPUT
           UPLOAD_ZIP_DIR_NAME=$(yq '.upload_zip_dir' config.yml)
           echo "deploy_dir_upload=$UPLOAD_ZIP_DIR_NAME" >> $GITHUB_OUTPUT
-          CODE_INNER_NAME=$(yq '.' config.yml)
+          CODE_INNER_NAME=$(yq '.lambda_src_subfolder' config.yml)
           echo "subfolder_src=$CODE_INNER_NAME" >> $GITHUB_OUTPUT
 
       - uses: ./.github/actions/set-up-python
