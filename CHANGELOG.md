@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.6.9 (2026-01-08)
+
+### Bug Fixes
+
+- Region was missing at load AWS creds.
+  ([`d8e4dc6`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/d8e4dc646279dbad135c5e8e21b34df4edcc3f6c))
+
+
 ## v4.6.8 (2026-01-08)
 
 ### Bug Fixes

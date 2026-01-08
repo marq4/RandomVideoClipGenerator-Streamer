@@ -35,7 +35,7 @@ if RUNNING_ENV_IS_LAMBDA:
 
 
 # DO NOT CHANGE THIS or CD breaks:
-__version__ = '4.6.8'
+__version__ = '4.6.9'
 
 
 # Globals for local script:
