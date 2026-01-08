@@ -415,19 +415,11 @@ jobs:
         run: |
           set -x
           pwd
-          script="${{ env.SUBFOLDER }}/${{ env.CORE }}"
-          mkdir ${{ env.DIR }}
-          cd ${{ env.DIR }}
-          pwd
-          python -m pip install boto3 mypy-boto3-s3 PyYAML -t .
-          cp ../$script .
-          cp ../config.yml .
-          cd ..
-          pwd
-          zip -r willthisworkiwonder.zip main-lambda-package/ \
-          -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
+          touch empty.file
+          zip willthisworkiwonder.zip empty.file
           # ls -ltAh | tail -n +2 | head -1
           ls -ltAh
+          pwd
           aws lambda update-function-code \
           --function-name ${{ env.LAMBDA }} \
           --zip-file fileb://willthisworkiwonder.zip
