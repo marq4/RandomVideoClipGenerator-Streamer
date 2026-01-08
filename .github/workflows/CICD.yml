@@ -515,15 +515,19 @@ jobs:
           echo "subfolder_cloud=$CLOUD_SUBFOLDER_NAME" >> $GITHUB_OUTPUT
           CORE_SCRIPT_NAME=$(yq '.core_script_name' config.yml)
           echo "script_core=$CORE_SCRIPT_NAME" >> $GITHUB_OUTPUT
+          # Not using it yet because I don't deploy the PowerShell script yet:
+          INNER=$(yq '.os_specific_scripts_subfolder' config.yml)
+          echo "subfolder_scripts=$INNER" >> $GITHUB_OUTPUT
 
       # Uses values obtained from config.yml:
       - name: Generate HTML from template.
         env:
-          BUCKET: ${{ steps.load_config.outputs.bucket_scripts }}
+          SCRIPTS_BUCKET: ${{ steps.load_config.outputs.bucket_scripts }}
           CORE: ${{ steps.load_config.outputs.script_core }}
+          SUBFOLDER: ${{ steps.load_config.outputs.subfolder_scripts }}
         run: |
-          echo "BUCKET => ${{ env.BUCKET }}"
-          if [ -z "${{ env.BUCKET }}" ]
+          echo "BUCKET => ${{ env.SCRIPTS_BUCKET }}"
+          if [ -z "${{ env.SCRIPTS_BUCKET }}" ]
           then
             echo 'ERROR: env var not set!'
             exit 2
