@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.6.10 (2026-01-08)
+
+### Bug Fixes
+
+- Tmp removing quiet to see why zip is failing.
+  ([`90ce96d`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/90ce96d6000a220d0a35ffbd87323731ebead4a4))
+
+
 ## v4.6.9 (2026-01-08)
 
 ### Bug Fixes
