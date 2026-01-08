@@ -2,6 +2,38 @@
 
 <!-- version list -->
 
+## v4.6.7 (2026-01-08)
+
+### Bug Fixes
+
+- Added new inner subsubfolders inside Cloud subfolder. Corrected some HTML.
+  ([`3e7e433`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/3e7e433c9daf154490756071f6e6278f69a5372d))
+
+- Fixed all instances of typo "yq |".
+  ([`61a6d30`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/61a6d30cdc3ab8f994770319fbf2c1f15c290969))
+
+- Forcing git bash during Windows load_config step.
+  ([`64d4424`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/64d4424c0167cabcd458377393a1b0a2b35fc086))
+
+- Trying to install YQ in Win runner.
+  ([`e203eba`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/e203eba219a59feb29902eb3c8760250d0571ef6))
+
+- Trying to install YQ in Win runner..
+  ([`9116296`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/91162961da4688dc8a3c2ed637081df7025c323a))
+
+- Trying to install YQ in Win runner...
+  ([`83e44e6`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/83e44e6a8e67e23c08ea8dd2cf7b145c62f92e10))
+
+- Trying to split a long URL string in YAML.
+  ([`930e07b`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/930e07bae0944f3adc640c917b5d39db776fc5b9))
+
+- Trying to split a long URL string in YAML..
+  ([`d256a07`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/d256a07dad04f29e68386b6efa098fd8a32b3967))
+
+- Trying to split a long URL string in YAML...
+  ([`3157d26`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/3157d26290f8a076178f4bb1e8f5fc64d4e52bdb))
+
+
 ## v4.6.6 (2026-01-06)
 
 ### Bug Fixes
