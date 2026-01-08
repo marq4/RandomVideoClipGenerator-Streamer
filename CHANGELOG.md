@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.6.16 (2026-01-08)
+
+### Bug Fixes
+
+- Maybe it was setting ZIP as an env var.
+  ([`f78fa33`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/f78fa33ed83a34d9e4c9690e89b64592611eac53))
+
+
 ## v4.6.15 (2026-01-08)
 
 ### Bug Fixes
