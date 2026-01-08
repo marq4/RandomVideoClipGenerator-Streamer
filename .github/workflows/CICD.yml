@@ -423,7 +423,7 @@ jobs:
           cp ../$script .
           cp ../config.yml .
           zipfile=${{ env.ZIP }}
-          zip -r ../$zipfile . \
+          zip -r "../${zipfile}" . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
           pwd

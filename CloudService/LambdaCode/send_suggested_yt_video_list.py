@@ -46,4 +46,4 @@ def cloud_main(_event, _context):
             })
         }
 
-# Debugging trying to find the issue.
+# Trying quoting the zipfile name.
