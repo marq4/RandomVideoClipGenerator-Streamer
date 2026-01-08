@@ -422,8 +422,7 @@ jobs:
           python -m pip install boto3 mypy-boto3-s3 PyYAML -t .
           cp ../$script .
           cp ../config.yml .
-          zipfile=${{ env.ZIP }}
-          zip -r "../${zipfile}" . \
+          zip -r "../${{ env.ZIP }}" . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
           pwd

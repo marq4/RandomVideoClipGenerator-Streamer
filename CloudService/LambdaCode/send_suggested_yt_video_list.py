@@ -46,4 +46,4 @@ def cloud_main(_event, _context):
             })
         }
 
-# Trying quoting the zipfile name.
+# Removing zipfile bash variable.
