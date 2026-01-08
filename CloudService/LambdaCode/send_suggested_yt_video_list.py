@@ -45,7 +45,3 @@ def cloud_main(_event, _context):
                 'error': 'Error reading video list file: ' + str(ex)
             })
         }
-
-# Release. 
- 
-
