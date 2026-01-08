@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.6.12 (2026-01-08)
+
+### Bug Fixes
+
+- Trying quoting the zipfile name.
+  ([`1c80fec`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/1c80fec0b68054250f4c4e2e99ca89420e219227))
+
+
 ## v4.6.11 (2026-01-08)
 
 ### Bug Fixes
