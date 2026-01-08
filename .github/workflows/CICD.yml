@@ -315,6 +315,8 @@ jobs:
         run: |
           PYTHON_VERSION=$(yq '.python_version_entire_project' config.yml)
           echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+          REGION=$(yq '.aws_project_region' config.yml)
+          echo "region=$REGION" >> $GITHUB_OUTPUT
           SCRIPTS_BUCKET_NAME=$(yq '.scripts_bucket_name' config.yml)
           echo "bucket_scripts=$SCRIPTS_BUCKET_NAME" >> $GITHUB_OUTPUT
           CORE_FUNCTION_NAME=$(yq '.core_function_name' config.yml)
@@ -371,7 +373,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_RVCGS }}
           aws-secret-access-key: >
             ${{ secrets.AWS_SECRET_ACCESS_KEY_RVCGS }}
-          aws-region: ${{ env.REGION }}
+          aws-region: ${{ steps.load_config.outputs.region }}
 
       - name: Upload core script to S3 and verify correct version is live.
         env:
