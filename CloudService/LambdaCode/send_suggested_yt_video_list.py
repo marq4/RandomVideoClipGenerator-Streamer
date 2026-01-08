@@ -46,4 +46,4 @@ def cloud_main(_event, _context):
             })
         }
 
-# Releassseeeee.........
+# Tmp removing quiet to see why zip is failing.

@@ -410,7 +410,7 @@ jobs:
           cp ../$script .
           cp ../config.yml .
           zipfile=${{ env.ZIP }}
-          zip --quiet -r ../$zipfile . \
+          zip -r ../$zipfile . \
           -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
           cd ..
           ls -ltAh | tail -n +2 | head -1
