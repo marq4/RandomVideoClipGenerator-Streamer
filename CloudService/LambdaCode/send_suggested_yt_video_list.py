@@ -46,4 +46,4 @@ def cloud_main(_event, _context):
             })
         }
 
-# .
+# Maybe it was setting ZIP as an env var.

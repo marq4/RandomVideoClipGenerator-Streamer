@@ -411,17 +411,20 @@ jobs:
           CORE: ${{ steps.load_config.outputs.script_core }}
           LAMBDA: ${{ steps.load_config.outputs.lambda_core }}
           DIR: ${{ steps.load_config.outputs.deploy_dir_core }}
-          ZIP: ${{ steps.load_config.outputs.zipfile_core }}
+          ZIPFILE: ${{ steps.load_config.outputs.zipfile_core }}
         run: |
           set -x
           pwd
           touch empty.file
+          sleep 4
           zip willthisworkiwonder.zip empty.file
+          sleep 2
+          ls -lah willthisworkiwonder.zip
           # ls -ltAh | tail -n +2 | head -1
           ls -ltAh
           pwd
           aws lambda update-function-code \
-          --function-name ${{ env.LAMBDA }} \
+          --function-name rvcgs-core \
           --zip-file fileb://willthisworkiwonder.zip
 
       - name: Deploy suggestions list code to Lambda.
