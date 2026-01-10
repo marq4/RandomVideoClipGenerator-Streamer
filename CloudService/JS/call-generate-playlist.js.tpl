@@ -2,8 +2,8 @@
 
 const params = new URLSearchParams(window.location.search)
 const uploadedFile = params.get('file')
-// Value comes form Terraform. APIGW public HTTPS endpoint:
-const API_ENDPOINT = '${endpoint}prod/generate'
+// Values come from Terraform:
+const API_ENDPOINT = '${endpoint}/${stage}${path}'
 
 document.getElementById('generatebutton').addEventListener('click', async () => {
   // Grab input values as strings:

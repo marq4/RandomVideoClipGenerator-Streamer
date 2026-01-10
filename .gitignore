@@ -24,6 +24,7 @@ DockerWinInstructions.txt
 commands.txt
 .coverage
 .BKP*
+*.bkp
 
 # Terraform
 **/.terraform/*

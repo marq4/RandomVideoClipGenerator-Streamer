@@ -1,7 +1,7 @@
 async function getSuggestedMusicVideoListJSON () {
   try {
-    // Value comes form Terraform:
-    const response = await fetch('${endpoint}/prod/list')
+    // Values come from Terraform:
+    const response = await fetch('${endpoint}/${stage}${path}')
     if (!response.ok) {
       throw new Error(`HTTP error! status: $${response.status}`)
     }

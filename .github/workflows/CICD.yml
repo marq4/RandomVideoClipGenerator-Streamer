@@ -3,13 +3,6 @@ name: CICD
 
 on: push
 
-# DO NOT set env vars names to: ZIP, PATH, BASH, SHELL, DIR, USER, PWD, IFS, PS1,
-#   TERM, LANG, TZ, TEMP, TMP, TMPDIR, LD, FLAGS, MAKE, PYTHON, PYTHON3,
-#   NODE, NPM, TAR, XZ, HTTP_PROXY, DISPLAY, LS, CP, MV, RM, FIND, GREP,
-#   SED, AWK, CURL, WGET, DOCKER, AWS, TERRAFORM, LD_PRELOAD, PYTHONPATH,
-#   GH_*.
-#   In fact, let's keep our env vars as MY_.
-
 jobs:
   # _ Meta-code _
 
@@ -82,9 +75,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - id: load_config
-        run: |
-          echo "version=$(yq '.terraform_minimum_version' config.yml)" >> $GITHUB_OUTPUT
-          echo "region=$(yq '.aws_project_region' config.yml)" >> $GITHUB_OUTPUT
+        run: echo "region=$(yq '.aws_project_region' config.yml)" >> $GITHUB_OUTPUT
 
       - name: Verify no sensitive file(s) committed.
         run: |
@@ -99,7 +90,8 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: ${{ steps.load_config.outputs.version }}
+          # Upgrade local when this breaks:
+          terraform_version: latest # Independent of local.
 
       - name: Install TFlint.
         run: curl -s  ${{ env.MY_TFLINT_URL }} | bash
@@ -162,7 +154,7 @@ jobs:
       - id: load_config
         run: |
           echo "skip=$(yq '.skip_python_code_quality' config.yml)" >> $GITHUB_OUTPUT
-          echo "version=$(yq '.python_version_entire_project' config.yml)" >> $GITHUB_OUTPUT
+          echo "version=$(yq '.python_version' config.yml)" >> $GITHUB_OUTPUT
 
       - uses: ./.github/actions/set-up-python
         if: steps.load_config.outputs.skip != 'true'
@@ -217,7 +209,7 @@ jobs:
         shell: bash
         run: |
           echo "skip=$(yq '.skip_testing' config.yml)" >> $GITHUB_OUTPUT
-          echo "version=$(yq '.python_version_entire_project' config.yml)" >> $GITHUB_OUTPUT
+          echo "version=$(yq '.python_version' config.yml)" >> $GITHUB_OUTPUT
           TARGET=$(yq '.unit_testing_target_code_coverage' config.yml)
           echo "coverage_target=$TARGET" >> $GITHUB_OUTPUT
           echo "subfolder_core=$(yq '.core_subfolder' config.yml)" >> $GITHUB_OUTPUT
@@ -276,8 +268,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - id: load_config
-        run: |
-          echo "version=$(yq '.python_version_entire_project' config.yml)" >> $GITHUB_OUTPUT
+        run: echo "version=$(yq '.python_version' config.yml)" >> $GITHUB_OUTPUT
 
       - uses: ./.github/actions/set-up-python
         with:
@@ -321,7 +312,7 @@ jobs:
 
       - id: load_config
         run: |
-          echo "version=$(yq '.python_version_entire_project' config.yml)" >> $GITHUB_OUTPUT
+          echo "version=$(yq '.python_version' config.yml)" >> $GITHUB_OUTPUT
           echo "region=$(yq '.aws_project_region' config.yml)" >> $GITHUB_OUTPUT
           echo "path_core=$(yq '.core_py_path' config.yml)" >> $GITHUB_OUTPUT
           echo "bucket_scripts=$(yq '.scripts_bucket_name' config.yml)" >> $GITHUB_OUTPUT
@@ -447,55 +438,6 @@ jobs:
 
   # _ Web _
 
-  # ALWAYS generate index.html from template.
-  generate-html:
-    needs: yaml-style-quality
-    if: always()
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-
-    steps:
-      - uses: actions/checkout@v4
-
-      # These values replace the placeholders in the template:
-      - id: load_config
-        run: |
-          echo "bucket_scripts=$(yq '.scripts_bucket_name' config.yml)" >> $GITHUB_OUTPUT
-          echo "js_tabs=$(yq '.tabs_js_path' config.yml)" >> $GITHUB_OUTPUT
-          echo "js_upload=$(yq '.upload_js_path' config.yml)" >> $GITHUB_OUTPUT
-          echo "js_version=$(yq '.version_js_path' config.yml)" >> $GITHUB_OUTPUT
-          echo "js_list=$(yq '.list_js_path' config.yml)" >> $GITHUB_OUTPUT
-          echo "py_core=$(yq '.core_py_name' config.yml)" >> $GITHUB_OUTPUT
-          echo "subfolder_cloud=$(yq '.cloud_subfolder' config.yml)" >> $GITHUB_OUTPUT
-
-      # Uses values obtained from config.yml:
-      - name: Generate HTML from template.
-        env:
-          # Do not remove these env vars. They ARE being used by envsubst.
-          SCRIPTS_BUCKET: ${{ steps.load_config.outputs.bucket_scripts }}
-          CORE: ${{ steps.load_config.outputs.py_core }}
-          # JavaScripts paths:
-          TABS: ${{ steps.load_config.outputs.js_tabs }}
-          UPLOAD: ${{ steps.load_config.outputs.js_upload }}
-          VERSION: ${{ steps.load_config.outputs.js_version }}
-          LIST: ${{ steps.load_config.outputs.js_list }}
-        run: |
-          if [ -z "${{ env.SCRIPTS_BUCKET }}" ]
-          then
-            echo 'ERROR: env var not set!'
-            exit 2
-          fi
-          cd ${{ steps.load_config.outputs.subfolder_cloud }}
-          envsubst < index.html.template > index.html
-          ls -ltAh | tail -n +2 | head -1
-
-      - name: Share the generated index HTML with other jobs via Artifacts.
-        uses: actions/upload-artifact@v4
-        with:
-          name: generated-html
-          path: ${{ steps.load_config.outputs.subfolder_cloud }}/index.html
-          retention-days: 1
-
   # Auxiliary job that checks if any HTML, template, CSS, JS file(s) changed.
   any-web-assets-changed:
     needs: yaml-style-quality
@@ -512,7 +454,7 @@ jobs:
       - id: detect_web_diff
         uses: ./.github/actions/changed-files
         with:
-          files: '**/*.{html,html.template,css,js}'
+          files: '**/*.{html,css,js}'
       - run: |
           echo 'Did any web assets change in this commit: '
           echo ${{ steps.detect_web_diff.outputs.any_changed }}
@@ -532,14 +474,7 @@ jobs:
       - id: load_config
         run: |
           echo "version=$(yq '.nodejs_version' config.yml)" >> $GITHUB_OUTPUT
-          echo "subfolder_cloud=$(yq '.cloud_subfolder' config.yml)" >> $GITHUB_OUTPUT
-
-      - name: Retrieve index HTML generated in generate-html job.
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: generated-html
-          path: ${{ steps.load_config.outputs.subfolder_cloud }}
+          echo "folder_cloud=$(yq '.cloud_folder' config.yml)" >> $GITHUB_OUTPUT
 
       - uses: actions/setup-node@v4
         with:
@@ -548,7 +483,7 @@ jobs:
       - name: Lint CSS.
         run: |
           npm install --global stylelint stylelint-config-standard
-          npx stylelint ${{ steps.load_config.outputs.subfolder_cloud }}/*.css
+          npx stylelint ${{ steps.load_config.outputs.folder_cloud }}/*.css
 
       - name: Lint HTML.
         run: |
@@ -574,19 +509,12 @@ jobs:
 
       - id: load_config
         run: |
-          echo "subfolder_cloud=$(yq '.cloud_subfolder' config.yml)" >> $GITHUB_OUTPUT
+          echo "folder_cloud=$(yq '.cloud_folder' config.yml)" >> $GITHUB_OUTPUT
           echo "region=$(yq '.aws_project_region' config.yml)" >> $GITHUB_OUTPUT
           echo "id=$(yq '.cloudfront_distribution_id' config.yml)" >> $GITHUB_OUTPUT
 
-      - name: Retrieve index HTML generated in generate-html job.
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: generated-html
-          path: ${{ steps.load_config.outputs.subfolder_cloud }}
-
       - run: |
-          cd ${{ steps.load_config.outputs.subfolder_cloud }}
+          cd ${{ steps.load_config.outputs.folder_cloud }}
           ls -ltAh | tail -n +2 | head -1
 
       - name: Load AWS credentials from GitHub secrets.
@@ -600,7 +528,7 @@ jobs:
       - name: Sync web assets to S3.
         run: >
           aws s3 sync
-          ${{ steps.load_config.outputs.subfolder_cloud }}
+          ${{ steps.load_config.outputs.folder_cloud }}
           s3://randomvideoclipgenerator.com
           --exclude "*"
           --include "*.html"

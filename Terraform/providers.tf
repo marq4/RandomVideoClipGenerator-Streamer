@@ -1,6 +1,6 @@
 # Main project's Region (default = no alias):
 provider "aws" {
-  region = var.ohio-code
+  region = local.aws_selected_region
 
   # All resources that use this provider will get the project tags:
   default_tags {
@@ -8,9 +8,9 @@ provider "aws" {
   }
 }
 
-# Region for ACM certs:
+# Region for ACM certs MUST BE North Virginia:
 provider "aws" {
-  region = var.north-virginia-code
+  region = local.region_codes["NVirginia"]
   alias  = "nvirginia"
 
   default_tags {

@@ -1,8 +1,10 @@
+# STYLE: no final dot on tags.
+
 # Remote state:
 
 # Store tfstate remotely:
 resource "aws_s3_bucket" "rvcgs-backend-bucket" {
-  bucket = local.config.backend_bucket_name
+  bucket = var.s3-backend-bucket-name
   lifecycle {
     prevent_destroy = true
   }
@@ -19,7 +21,7 @@ resource "aws_s3_bucket_versioning" "versioning-for-backend" {
 # Scripts bucket:
 
 resource "aws_s3_bucket" "scripts-bucket" {
-  bucket = local.config.scripts_bucket_name
+  bucket = var.s3-scripts-bucket-name
   lifecycle {
     prevent_destroy = true
   }
@@ -69,7 +71,7 @@ resource "aws_s3_bucket_policy" "policy-for-scripts" {
 # Playlist bucket:
 
 resource "aws_s3_bucket" "playlist-bucket" {
-  bucket = local.config.playlist_bucket_name
+  bucket = var.s3-playlist-bucket-name
   lifecycle {
     prevent_destroy = true
   }
@@ -108,7 +110,7 @@ resource "aws_s3_bucket_policy" "policy-for-playlist" {
 # Upload bucket:
 
 resource "aws_s3_bucket" "upload-bucket" {
-  bucket = local.config.upload_bucket_name
+  bucket = var.s3-upload-bucket-name
   lifecycle {
     prevent_destroy = true
   }
@@ -147,15 +149,15 @@ resource "aws_s3_bucket_cors_configuration" "cors-for-upload" {
 
 
 
-# Website-hosting buckets:
+# Website hosting (+ redirect) buckets:
 
-# 1.- Apex.com: randomvideoclipgenerator.com:
+# 1.- Apex.com (randomvideoclipgenerator.com):
 
 resource "aws_s3_bucket" "apex-dot-com-bucket" {
   bucket = var.main-dot-com-apex-url
 
   tags = {
-    Purpose = "Contains assets for website hosting"
+    Purpose = "Contains web assets"
   }
 }
 
@@ -206,7 +208,7 @@ resource "aws_s3_bucket_policy" "policy-for-apex-dot-com" {
 # 2.- WWW.com: www.randomvideoclipgenerator.com:
 
 resource "aws_s3_bucket" "www-dot-com-bucket" {
-  bucket = "www.randomvideoclipgenerator.com"
+  bucket = "www.${var.main-dot-com-apex-url}"
 
   tags = {
     Purpose = "Redirect to apex domain"
@@ -238,13 +240,13 @@ resource "aws_s3_bucket_website_configuration" "www-redirect" {
   }
 }
 
-# 3.- Apex-acronym.me: rvcg.me:
+# 3.- Apex-acronym.me (rvcg.me):
 
 resource "aws_s3_bucket" "apex-acronym-dot-me-bucket" {
-  bucket = "rvcg.me"
+  bucket = var.acronym-domain
 
   tags = {
-    Purpose = "Redirect to main site"
+    Purpose = "Redirects to about page"
   }
 }
 
@@ -276,10 +278,10 @@ resource "aws_s3_bucket_website_configuration" "acronym-redirect" {
 # 4.- WWW-acronym.me: www.rvcg.me:
 
 resource "aws_s3_bucket" "www-acronym-dot-me-bucket" {
-  bucket = "www.rvcg.me"
+  bucket = "www.${var.acronym-domain}"
 
   tags = {
-    Purpose = "Redirect to main site"
+    Purpose = "Redirects to about page"
   }
 }
 
