@@ -55,10 +55,10 @@ resource "local_file" "locally-generated-index-html-document" {
     ${templatefile("../${local.html_index_template_path}", {
   bucket                = var.s3-scripts-bucket-name
   core                  = var.local-python-core-script-name
-  version               = local.js_files.version-js.script_name
-  list                  = local.js_files.list-js.script_name
-  upload                = local.js_files.upload-js.script_name
-  tabs                  = local.tabs_js_path
+  version               = local.js_files.version-js.target_web_path
+  list                  = local.js_files.list-js.target_web_path
+  upload                = local.js_files.upload-js.target_web_path
+  tabs                  = local.tabs_target_web_path
   install_ffmpeg        = local.text_install_ffmpeg
   install_vlc           = local.text_install_vlc
   download_music_videos = local.text_download_music_videos_contact

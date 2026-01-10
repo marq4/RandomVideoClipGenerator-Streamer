@@ -79,27 +79,31 @@ locals {
   version_js_path_no_ext           = "${local.js_path}/${var.js-version-name-no-ext}"
   upload_js_path_no_ext            = "${local.js_path}/${var.js-upload-name-no-ext}"
   list_js_path_no_ext              = "${local.js_path}/${var.js-list-name-no-ext}"
-  tabs_js_path                     = "${local.js_path}/${var.js-tabs-name}"
+  tabs_target_web_path             = "${var.local-js-subfolder-name}/${var.js-tabs-name}"
   js_files = {
     "generate-js" = {
-      src_template = "../${local.generate_playlist_js_path_no_ext}.js.tpl"
-      script_name  = "../${local.generate_playlist_js_path_no_ext}.js"
-      path         = var.apigw-generate-route-path
+      src_template    = "../${local.generate_playlist_js_path_no_ext}.js.tpl"
+      script_name     = "../${local.generate_playlist_js_path_no_ext}.js"
+      path            = var.apigw-generate-route-path
+      target_web_path = "${var.local-js-subfolder-name}/${var.js-generate-playlist-name-no-ext}.js"
     }
     "version-js" = {
-      src_template = "../${local.version_js_path_no_ext}.js.tpl"
-      script_name  = "../${local.version_js_path_no_ext}.js"
-      path         = var.apigw-version-route-path
+      src_template    = "../${local.version_js_path_no_ext}.js.tpl"
+      script_name     = "../${local.version_js_path_no_ext}.js"
+      path            = var.apigw-version-route-path
+      target_web_path = "${var.local-js-subfolder-name}/${var.js-version-name-no-ext}.js"
     }
     "upload-js" = {
-      src_template = "../${local.upload_js_path_no_ext}.js.tpl"
-      script_name  = "../${local.upload_js_path_no_ext}.js"
-      path         = var.apigw-upload-route-path
+      src_template    = "../${local.upload_js_path_no_ext}.js.tpl"
+      script_name     = "../${local.upload_js_path_no_ext}.js"
+      path            = var.apigw-upload-route-path
+      target_web_path = "${var.local-js-subfolder-name}/${var.js-upload-name-no-ext}.js"
     }
     "list-js" = {
-      src_template = "../${local.list_js_path_no_ext}.js.tpl"
-      script_name  = "../${local.list_js_path_no_ext}.js"
-      path         = var.apigw-list-route-path
+      src_template    = "../${local.list_js_path_no_ext}.js.tpl"
+      script_name     = "../${local.list_js_path_no_ext}.js"
+      path            = var.apigw-list-route-path
+      target_web_path = "${var.local-js-subfolder-name}/${var.js-list-name-no-ext}.js"
     }
   }
 
