@@ -476,6 +476,7 @@ jobs:
         run: |
           echo "version=$(yq '.nodejs_version' config.yml)" >> $GITHUB_OUTPUT
           echo "folder_cloud=$(yq '.cloud_folder' config.yml)" >> $GITHUB_OUTPUT
+          echo "path_css=$(yq '.css_path' config.yml)" >> $GITHUB_OUTPUT
 
       - uses: actions/setup-node@v4
         with:
@@ -484,7 +485,7 @@ jobs:
       - name: Lint CSS.
         run: |
           npm install --global stylelint stylelint-config-standard
-          npx stylelint ${{ steps.load_config.outputs.folder_cloud }}/*.css
+          npx stylelint ${{ steps.load_config.outputs.path_css }}/*.css
 
       - name: Lint HTML.
         run: |

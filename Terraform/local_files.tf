@@ -17,6 +17,7 @@ resource "local_file" "locally_generated_config_yaml" {
     core_path: ${local.local_python_core_script_path}
     # Web:
     nodejs_version: ${var.ci_nodejs_version}
+    css_path: ${local.local_css_path}
     # Cloud:
     region: ${local.cloud_selected_region}
     cloud_folder: ${local.local_cloud_folder_name}

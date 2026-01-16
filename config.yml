@@ -11,6 +11,7 @@ coverage: 40
 core_path: PythonCore/random_video_clip_generator.py
 # Web:
 nodejs_version: 20
+css_path: CloudWebService/WebAssets/CSS
 # Cloud:
 region: us-east-2
 cloud_folder: CloudWebService
