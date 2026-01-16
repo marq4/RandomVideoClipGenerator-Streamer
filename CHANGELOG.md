@@ -2,6 +2,18 @@
 
 <!-- version list -->
 
+## v4.7.1 (2026-01-16)
+
+### Bug Fixes
+
+- Added boto3-stubs for lambda to requirements.
+  ([`45332d7`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/45332d7cd8eeed0eb872b5a5c293c8153768ae4c))
+
+- Now core can be executed from anywhere. Improved Python type hints. Finally decided to satisfy
+  Pylance.
+  ([`4378451`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/4378451b258d2741bae514de48808819ab8b556e))
+
+
 ## v4.7.0 (2026-01-16)
 
 ### Bug Fixes
