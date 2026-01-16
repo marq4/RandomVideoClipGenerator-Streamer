@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.7.2 (2026-01-16)
+
+### Bug Fixes
+
+- Simple stand-alone Python script users should not have to pip install Cloud stuff.
+  ([`374dd93`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/374dd93b14aaacd077f28fe5c43d129bbef564a9))
+
+
 ## v4.7.1 (2026-01-16)
 
 ### Bug Fixes
