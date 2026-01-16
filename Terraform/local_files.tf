@@ -19,8 +19,7 @@ resource "local_file" "locally_generated_config_yaml" {
     nodejs_version: ${var.ci_nodejs_version}
     web_path: ${local.local_web_path}
     html_folder: ${local.local_html_subfolder_name}
-    css_folder: ${local.local_css_subfolder_name}
-    js_folder: ${local.local_js_subfolder_name}
+    css_path: ${local.local_css_path}
     # Cloud:
     region: ${local.cloud_selected_region}
     cloud_folder: ${local.local_cloud_folder_name}

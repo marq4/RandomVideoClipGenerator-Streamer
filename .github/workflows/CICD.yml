@@ -475,7 +475,6 @@ jobs:
       - id: load_config
         run: |
           echo "version=$(yq '.nodejs_version' config.yml)" >> $GITHUB_OUTPUT
-          echo "folder_cloud=$(yq '.cloud_folder' config.yml)" >> $GITHUB_OUTPUT
           echo "path_css=$(yq '.css_path' config.yml)" >> $GITHUB_OUTPUT
 
       - uses: actions/setup-node@v4
@@ -516,8 +515,6 @@ jobs:
           echo "id=$(yq '.distribution' config.yml)" >> $GITHUB_OUTPUT
           echo "bucket=$(yq '.main_bucket' config.yml)" >> $GITHUB_OUTPUT
           echo "folder_html=$(yq '.html_folder' config.yml)" >> $GITHUB_OUTPUT
-          echo "folder_css=$(yq '.css_folder' config.yml)" >> $GITHUB_OUTPUT
-          echo "folder_js=$(yq '.js_folder' config.yml)" >> $GITHUB_OUTPUT
 
       - run: |
           cd ${{ steps.load_config.outputs.folder_cloud }}

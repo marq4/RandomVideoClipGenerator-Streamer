@@ -13,8 +13,7 @@ core_path: PythonCore/random_video_clip_generator.py
 nodejs_version: 20
 web_path: CloudWebService/WebAssets
 html_folder: HTML
-css_folder: CSS
-js_folder: JS
+css_path: CloudWebService/WebAssets/CSS
 # Cloud:
 region: us-east-2
 cloud_folder: CloudWebService
