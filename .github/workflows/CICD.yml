@@ -203,7 +203,7 @@ jobs:
       # These first 3 steps cannot be skipped:
       - uses: actions/checkout@v4
 
-      # - run: choco install yq -y #TMP!!!
+      - run: choco install yq -y
 
       - id: load_config
         shell: bash
