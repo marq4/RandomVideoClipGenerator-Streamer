@@ -10,12 +10,16 @@ import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
 from subprocess import PIPE, Popen
-from typing import Any, Literal, NamedTuple, TypedDict, Union, cast
+from typing import (TYPE_CHECKING, Any, Literal, NamedTuple, TypedDict, Union,
+                    cast)
 
-import boto3
-import yaml
-from mypy_boto3_lambda.client import LambdaClient
-from mypy_boto3_s3.client import S3Client
+if TYPE_CHECKING:
+    from mypy_boto3_lambda.client import LambdaClient
+    from mypy_boto3_s3.client import S3Client
+else:
+    S3Client = Any
+    LambdaClient = Any
+
 
 #===============================================================================
 # Please set these values if simply running the stand-alone script locally:
@@ -83,6 +87,7 @@ class PlaylistParams(NamedTuple):
 
 def load_config_from_repo_root_cloud() -> CloudConfig:
     """ Load and parse config YAML. """
+    import yaml  # pylint: disable=import-outside-toplevel
     config_path = Path(__file__).parent / 'config.yml'
     if not config_path.exists():
         return cast(CloudConfig, {
@@ -431,6 +436,7 @@ def generate_playlist_cloud(pairs: list[dict[str, str]],
 
 def delete_playlist_after_download_cloud() -> None:
     """ Immediately delete the generated XML so no other user accidentally gets it. """
+    import boto3  # pylint: disable=import-outside-toplevel
     lambda_client: LambdaClient = boto3.client('lambda') # type: ignore[assignment]
     lambda_client.invoke(
         FunctionName='DeletePlaylistAfterDownload',
@@ -531,6 +537,7 @@ def validate_and_get_parameters_cloud(body: dict[str, Any]) -> PlaylistParams:
 
 def get_playlist_response_cloud(event: dict[str, Any]) -> APIGWResponse:
     """ Handle XML playlist generation for web users. """
+    import boto3  # pylint: disable=import-outside-toplevel
     s3: S3Client  = boto3.client('s3') # type: ignore[assignment]
 
     # Event comes from API GW as json.
@@ -599,5 +606,3 @@ def cloud_main(event: dict[str, Any], _context: Any):
         return playlist_response
 
     return get_invalid_response_cloud()
-
-# Release!!
