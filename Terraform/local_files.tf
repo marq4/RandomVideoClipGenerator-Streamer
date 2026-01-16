@@ -17,11 +17,15 @@ resource "local_file" "locally_generated_config_yaml" {
     core_path: ${local.local_python_core_script_path}
     # Web:
     nodejs_version: ${var.ci_nodejs_version}
-    css_path: ${local.local_css_path}
+    web_path: ${local.local_web_path}
+    html_folder: ${local.local_html_subfolder_name}
+    css_folder: ${local.local_css_subfolder_name}
+    js_folder: ${local.local_js_subfolder_name}
     # Cloud:
     region: ${local.cloud_selected_region}
     cloud_folder: ${local.local_cloud_folder_name}
     # S3:
+    main_bucket: ${var.dns_domain_main_apex_dot_com_url}
     scripts_bucket: ${local.s3_bucket_scripts_name}
     # Lambda:
     core_zip_dir: ${local.ci_lambda_deploy_main_temp_zip_dir_name}

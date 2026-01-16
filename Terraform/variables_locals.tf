@@ -44,7 +44,6 @@ variable "ci_nodejs_version" {
 
 locals {
   local_web_path = "${local.local_cloud_folder_name}/${local.local_web_subfolder_name}"
-  local_css_path = "${local.local_web_path}/${local.local_css_subfolder_name}"
 }
 
 # HTML:

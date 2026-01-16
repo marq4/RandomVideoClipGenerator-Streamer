@@ -511,9 +511,13 @@ jobs:
 
       - id: load_config
         run: |
-          echo "folder_cloud=$(yq '.cloud_folder' config.yml)" >> $GITHUB_OUTPUT
+          echo "folder_web=$(yq '.web_path' config.yml)" >> $GITHUB_OUTPUT
           echo "region=$(yq '.region' config.yml)" >> $GITHUB_OUTPUT
           echo "id=$(yq '.distribution' config.yml)" >> $GITHUB_OUTPUT
+          echo "bucket=$(yq '.main_bucket' config.yml)" >> $GITHUB_OUTPUT
+          echo "folder_html=$(yq '.html_folder' config.yml)" >> $GITHUB_OUTPUT
+          echo "folder_css=$(yq '.css_folder' config.yml)" >> $GITHUB_OUTPUT
+          echo "folder_js=$(yq '.js_folder' config.yml)" >> $GITHUB_OUTPUT
 
       - run: |
           cd ${{ steps.load_config.outputs.folder_cloud }}
@@ -528,14 +532,21 @@ jobs:
           aws-region: ${{ steps.load_config.outputs.region }}
 
       - name: Sync web assets to S3.
-        run: >
-          aws s3 sync
-          ${{ steps.load_config.outputs.folder_cloud }}
-          s3://randomvideoclipgenerator.com
-          --exclude "*"
-          --include "*.html"
-          --include "*.css"
-          --include "*.js"
+        env:
+          MY_WEB: ${{ steps.load_config.outputs.folder_web }}
+        run: |
+          aws s3 sync \
+          ${{ env.MY_WEB }}/${{ steps.load_config.outputs.folder_html }} \
+          s3://${{ steps.load_config.outputs.bucket }} \
+          --exclude "*" \
+          --include "*.html" \
+          --delete
+          aws s3 sync \
+          ${{ env.MY_WEB }} \
+          s3://${{ steps.load_config.outputs.bucket }} \
+          --exclude "*" \
+          --include "*.css" \
+          --include "*.js" \
           --delete
 
       - name: Invalidate CloudFront cache.
@@ -546,7 +557,7 @@ jobs:
 
       - name: Verify critical index HTML is in web-assets bucket.
         run: |
-          aws s3 ls s3://randomvideoclipgenerator.com/index.html
+          aws s3 ls s3://${{ steps.load_config.outputs.bucket }}/index.html
           if [ $? -ne 0 ]
           then
             echo 'Failing workflow as index page is missing! '

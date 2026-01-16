@@ -11,11 +11,15 @@ coverage: 40
 core_path: PythonCore/random_video_clip_generator.py
 # Web:
 nodejs_version: 20
-css_path: CloudWebService/WebAssets/CSS
+web_path: CloudWebService/WebAssets
+html_folder: HTML
+css_folder: CSS
+js_folder: JS
 # Cloud:
 region: us-east-2
 cloud_folder: CloudWebService
 # S3:
+main_bucket: randomvideoclipgenerator.com
 scripts_bucket: rvcgs-marq-scripts-30122025
 # Lambda:
 core_zip_dir: main-lambda-package
