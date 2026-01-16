@@ -75,7 +75,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - id: load_config
-        run: echo "region=$(yq '.aws_project_region' config.yml)" >> $GITHUB_OUTPUT
+        run: echo "region=$(yq '.region' config.yml)" >> $GITHUB_OUTPUT
 
       - name: Verify no sensitive file(s) committed.
         run: |
@@ -91,7 +91,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           # Upgrade local when this breaks:
-          terraform_version: latest # Independent of local.
+          terraform_version: latest   # Independent of local.
 
       - name: Install TFlint.
         run: curl -s  ${{ env.MY_TFLINT_URL }} | bash
@@ -153,8 +153,8 @@ jobs:
 
       - id: load_config
         run: |
-          echo "skip=$(yq '.skip_python_code_quality' config.yml)" >> $GITHUB_OUTPUT
-          echo "version=$(yq '.python_version' config.yml)" >> $GITHUB_OUTPUT
+          echo "skip=$(yq '.skip_pylint' config.yml)" >> $GITHUB_OUTPUT
+          echo "version=$(yq '.py_version' config.yml)" >> $GITHUB_OUTPUT
 
       - uses: ./.github/actions/set-up-python
         if: steps.load_config.outputs.skip != 'true'
@@ -208,11 +208,11 @@ jobs:
       - id: load_config
         shell: bash
         run: |
-          echo "skip=$(yq '.skip_testing' config.yml)" >> $GITHUB_OUTPUT
-          echo "version=$(yq '.python_version' config.yml)" >> $GITHUB_OUTPUT
-          TARGET=$(yq '.unit_testing_target_code_coverage' config.yml)
+          echo "skip=$(yq '.skip_pytest' config.yml)" >> $GITHUB_OUTPUT
+          echo "version=$(yq '.py_version' config.yml)" >> $GITHUB_OUTPUT
+          TARGET=$(yq '.coverage' config.yml)
           echo "coverage_target=$TARGET" >> $GITHUB_OUTPUT
-          echo "subfolder_core=$(yq '.core_subfolder' config.yml)" >> $GITHUB_OUTPUT
+          echo "folder_core=$(yq '.core_folder' config.yml)" >> $GITHUB_OUTPUT
 
       - name: Install FFMpeg, VLC.
         if: steps.load_config.outputs.skip != 'true'
@@ -239,7 +239,7 @@ jobs:
       - name: Code coverage.
         if: steps.load_config.outputs.skip != 'true'
         run: >
-          pytest --cov=${{ steps.load_config.outputs.subfolder_core }}
+          pytest --cov=${{ steps.load_config.outputs.folder_core }}
           --cov-fail-under=${{ steps.load_config.outputs.coverage_target }}
           tests/unit_tests.py
 
@@ -268,7 +268,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - id: load_config
-        run: echo "version=$(yq '.python_version' config.yml)" >> $GITHUB_OUTPUT
+        run: echo "version=$(yq '.py_version' config.yml)" >> $GITHUB_OUTPUT
 
       - uses: ./.github/actions/set-up-python
         with:
@@ -312,26 +312,27 @@ jobs:
 
       - id: load_config
         run: |
-          echo "version=$(yq '.python_version' config.yml)" >> $GITHUB_OUTPUT
-          echo "region=$(yq '.aws_project_region' config.yml)" >> $GITHUB_OUTPUT
-          echo "path_core=$(yq '.core_py_path' config.yml)" >> $GITHUB_OUTPUT
-          echo "bucket_scripts=$(yq '.scripts_bucket_name' config.yml)" >> $GITHUB_OUTPUT
-          echo "name_core=$(yq '.core_py_name' config.yml)" >> $GITHUB_OUTPUT
-          echo "path_verify=$(yq '.verify_s3_deploy_aux_path' config.yml)" >> $GITHUB_OUTPUT
-          echo "deploy_dir_core=$(yq '.core_zip_dir_name' config.yml)" >> $GITHUB_OUTPUT
-          echo "zipfile_core=$(yq '.core_zip_file_name' config.yml)" >> $GITHUB_OUTPUT
-          echo "lambda_core=$(yq '.core_function_name' config.yml)" >> $GITHUB_OUTPUT
-          echo "zipfile_list=$(yq '.list_zip_file_name' config.yml)" >> $GITHUB_OUTPUT
-          echo "path_list=$(yq '.list_code_src_path' config.yml)" >> $GITHUB_OUTPUT
-          echo "lambda_list=$(yq '.list_function_name' config.yml)" >> $GITHUB_OUTPUT
-          echo "deploy_dir_cleanup=$(yq '.cleanup_zip_dir_name' config.yml)" >> $GITHUB_OUTPUT
-          echo "zipfile_cleanup=$(yq '.cleanup_zip_file_name' config.yml)" >> $GITHUB_OUTPUT
-          echo "path_cleanup=$(yq '.cleanup_code_src_path' config.yml)" >> $GITHUB_OUTPUT
-          echo "lambda_cleanup=$(yq '.cleanup_function_name' config.yml)" >> $GITHUB_OUTPUT
-          echo "deploy_dir_upload=$(yq '.upload_zip_dir_name' config.yml)" >> $GITHUB_OUTPUT
-          echo "zipfile_upload=$(yq '.upload_zip_file_name' config.yml)" >> $GITHUB_OUTPUT
-          echo "path_upload=$(yq '.upload_code_src_path' config.yml)" >> $GITHUB_OUTPUT
-          echo "lambda_upload=$(yq '.upload_function_name' config.yml)" >> $GITHUB_OUTPUT
+          echo "version=$(yq '.py_version' config.yml)" >> $GITHUB_OUTPUT
+          echo "region=$(yq '.region' config.yml)" >> $GITHUB_OUTPUT
+          echo "path_core=$(yq '.core_path' config.yml)" >> $GITHUB_OUTPUT
+          echo "bucket_scripts=$(yq '.scripts_bucket' config.yml)" >> $GITHUB_OUTPUT
+          echo "name_core=$(yq '.core_py' config.yml)" >> $GITHUB_OUTPUT
+          echo "path_verify=$(yq '.verify' config.yml)" >> $GITHUB_OUTPUT
+          echo "deploy_dir_core=$(yq '.core_zip_dir' config.yml)" >> $GITHUB_OUTPUT
+          echo "zipfile_core=$(yq '.core_zipfile' config.yml)" >> $GITHUB_OUTPUT
+          echo "lambda_core=$(yq '.core_function' config.yml)" >> $GITHUB_OUTPUT
+          echo "zipfile_list=$(yq '.list_zipfile' config.yml)" >> $GITHUB_OUTPUT
+          echo "path_list=$(yq '.list_src' config.yml)" >> $GITHUB_OUTPUT
+          echo "lambda_list=$(yq '.list_function' config.yml)" >> $GITHUB_OUTPUT
+          echo "deploy_dir_cleanup=$(yq '.cleanup_zip_dir' config.yml)" >> $GITHUB_OUTPUT
+          echo "zipfile_cleanup=$(yq '.cleanup_zipfile' config.yml)" >> $GITHUB_OUTPUT
+          echo "path_cleanup=$(yq '.cleanup_src' config.yml)" >> $GITHUB_OUTPUT
+          echo "lambda_cleanup=$(yq '.cleanup_function' config.yml)" >> $GITHUB_OUTPUT
+          echo "deploy_dir_upload=$(yq '.upload_zip_dir' config.yml)" >> $GITHUB_OUTPUT
+          echo "zipfile_upload=$(yq '.upload_zipfile' config.yml)" >> $GITHUB_OUTPUT
+          echo "path_upload=$(yq '.upload_src' config.yml)" >> $GITHUB_OUTPUT
+          echo "lambda_upload=$(yq '.upload_function' config.yml)" >> $GITHUB_OUTPUT
+          echo "folder_core=$(yq '.core_folder' config.yml)" >> $GITHUB_OUTPUT
 
       - uses: ./.github/actions/set-up-python
         with:
@@ -353,7 +354,7 @@ jobs:
       - name: Upload core script to S3 and verify correct version is live.
         env:
           MY_CORE_PATH: ${{ steps.load_config.outputs.path_core }}
-          MY_BUCKET: ${{ steps.load_config.outputs.MY_BUCKET_scripts }}
+          MY_BUCKET: ${{ steps.load_config.outputs.bucket_scripts }}
           MY_CORE_NAME: ${{ steps.load_config.outputs.name_core }}
           MY_VERIFY_BASH: ${{ steps.load_config.outputs.path_verify }}
         run: |
@@ -366,7 +367,7 @@ jobs:
           sleep 3
           chmod +x ${{ env.MY_VERIFY_BASH }}
           ${{ env.MY_VERIFY_BASH }} \
-            "${{ steps.load_config.outputs.subfolder_core }}" \
+            "${{ steps.load_config.outputs.folder_core }}" \
             "${{ env.MY_CORE_NAME }}" \
             "${{ env.MY_BUCKET }}"
 
@@ -510,8 +511,8 @@ jobs:
       - id: load_config
         run: |
           echo "folder_cloud=$(yq '.cloud_folder' config.yml)" >> $GITHUB_OUTPUT
-          echo "region=$(yq '.aws_project_region' config.yml)" >> $GITHUB_OUTPUT
-          echo "id=$(yq '.cloudfront_distribution_id' config.yml)" >> $GITHUB_OUTPUT
+          echo "region=$(yq '.region' config.yml)" >> $GITHUB_OUTPUT
+          echo "id=$(yq '.distribution' config.yml)" >> $GITHUB_OUTPUT
 
       - run: |
           cd ${{ steps.load_config.outputs.folder_cloud }}

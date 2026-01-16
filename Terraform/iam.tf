@@ -15,29 +15,35 @@ data "aws_iam_role" "cleanup_role" {
   name = "AllowDownstreamLambda2DeletePlaylistS3"
 }
 
-resource "aws_iam_role" "upload_role" {
+#TMP:
+data "aws_iam_role" "upload_role" {
   name = "rvcgs-lambda-presigned-url-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "lambda.amazonaws.com"
-      }
-    }]
-  })
 }
 
+# Will import later:
+#resource "aws_iam_role" "upload_role" {
+#  name = "rvcgs-lambda-presigned-url-role"
+#
+#  assume_role_policy = jsonencode({
+#    Version = "2012-10-17"
+#    Statement = [{
+#      Action = "sts:AssumeRole"
+#      Effect = "Allow"
+#      Principal = {
+#        Service = "lambda.amazonaws.com"
+#      }
+#    }]
+#  })
+#}
+
 resource "aws_iam_role_policy_attachment" "upload_role_attachment" {
-  role       = aws_iam_role.upload_role.name
+  role       = data.aws_iam_role.upload_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
 resource "aws_iam_role_policy" "upload_policy" {
   name = "s3-presigned-url-policy"
-  role = aws_iam_role.upload_role.id
+  role = data.aws_iam_role.upload_role.id
 
   policy = jsonencode({
     Version = "2012-10-17"

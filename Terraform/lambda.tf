@@ -56,7 +56,7 @@ locals {
       handler      = "${trimsuffix(local.local_lambda_upload_src_python_code_script_name, ".py")}.lambda_handler"
       timeout      = 23 #seconds.
       tag_purpose  = "Gets triggered after upload API call"
-      iam_role_arn = aws_iam_role.upload_role.arn
+      iam_role_arn = data.aws_iam_role.upload_role.arn
       # Lambda code deployment not managed by Terraform:
       dummy_deployment_package = "dummy_upload_functionality.zip"
     }
