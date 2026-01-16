@@ -2,6 +2,30 @@
 
 <!-- version list -->
 
+## v4.7.0 (2026-01-16)
+
+### Bug Fixes
+
+- Trying to deploy to new Lambda functions.
+  ([`9b125ed`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/9b125edef852c9fd46e5522c85029a7375904b5d))
+
+- Trying to deploy to new Lambda functions..
+  ([`4dcd5c3`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/4dcd5c384dbdecae235f6ac811b2dd4592c8918a))
+
+### Features
+
+- Fixed final JS locations on HTML.
+  ([`04a1cb8`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/04a1cb8210c4a640d7df4e6e36a32b28bd560843))
+
+- Refactoring entire project to have a single source of truth, which is Terraform. CSS path was
+  missing.
+  ([`fe2cf45`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/fe2cf455f3b1543e7b7650207c06f0dbacba8bd1))
+
+- Refactoring entire project to have a single source of truth, which is Terraform. CSS path was
+  missing.
+  ([`4a4a242`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/4a4a2424b992940128a645e46de275c4be5c7f9b))
+
+
 ## v4.6.17 (2026-01-08)
 
 ### Bug Fixes
