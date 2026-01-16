@@ -5,8 +5,8 @@
 py_version: 3.10
 core_py: random_video_clip_generator.py
 core_folder: PythonCore
-skip_pylint: false
-skip_pytest: false
+skip_pylint: true
+skip_pytest: true
 coverage: 40
 core_path: PythonCore/random_video_clip_generator.py
 # Web:

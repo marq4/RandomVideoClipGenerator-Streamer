@@ -338,11 +338,6 @@ jobs:
         with:
           project-version: ${{ steps.load_config.outputs.version }}
 
-      # No need to install AWS CLI.
-      # These are needed or import breaks.
-      # (Script is executed to verify version).
-      - run: python -m pip install boto3 boto3-stubs boto3-stubs[s3] PyYAML
-
       - name: Load AWS credentials from GitHub secrets.
         uses: aws-actions/configure-aws-credentials@v4
         with:

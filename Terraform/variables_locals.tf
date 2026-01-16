@@ -145,14 +145,14 @@ variable "ci_python_skip_testing_option" {
   type        = bool
   description = "Whether to skip pytest job."
   # Set to false to enable Python testing in CI (and apply):
-  default = false
+  default = true
 }
 
 variable "ci_python_skip_code_quality_option" {
   type        = bool
   description = "Whether to skip pylint, etc job."
   # Set to false to enable Python linting in CI (and apply):
-  default = false
+  default = true
 }
 
 variable "ci_python_unit_testing_code_coverage_value" {

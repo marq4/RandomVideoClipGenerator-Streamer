@@ -41,7 +41,7 @@
         <li>${install_vlc}</li>
         <li>
           Create this folder structure on your computer:
-          <code>C:\Videos\videos</code>
+          <code>${rvcg_folder}\videos</code>
         </li>
         <li>${download_music_videos}</li>
         <li>
@@ -126,7 +126,7 @@
           <li>${install_vlc}</li>
           <li>
             Create this folder structure on your computer:
-             <code>C:\Videos\videos</code>
+             <code>${rvcg_folder}\videos</code>
           </li>
           <li>${download_music_videos}</li>
           <li>
@@ -135,7 +135,7 @@
              PowerShell script
              </a>.
           </li>
-          <li>Move it to <code>C:\Videos</code> folder. (⚠️ NOT videos subfolder 😉.)</li>
+          <li>Move it to <code>C:\RandomVideoClipGenerator</code> folder. (⚠️ NOT videos subfolder 😉.)</li>
           <li>Run it:</li>
           <li>
             <ol>
@@ -146,7 +146,7 @@
                  changes to your device?)
               </li>
               <li>
-                Change-directory into your Videos folder: <code>cd C:\Videos</code>
+                Change-directory into your ${rvcg_folder} folder: <code>cd ${rvcg_folder}</code>
               </li>
               <li>
                 Execute the script: <br>
