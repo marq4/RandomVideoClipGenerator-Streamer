@@ -15,6 +15,6 @@ terraform {
   backend "s3" {
     key = "terraform-state-file"
     # Bucket and Region specified at init time.
-    # Do: init -backend-config=prod.tfvars
+    # Do: init -backend-config=backend-prod.tfvars
   }
 }

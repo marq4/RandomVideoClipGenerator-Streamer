@@ -1,21 +1,21 @@
-# Just loading from ClickOps for now:
+# TMP: just loading some values from ClickOps for now.
 
 #TMP:
-data "aws_iam_role" "core-role" {
+data "aws_iam_role" "core_role" {
   name = "AllowLambda2WriteLogs2CloudWatchRWS3AndInvokeOtherFunctions"
 }
 
 #TMP:
-data "aws_iam_role" "list-role" {
+data "aws_iam_role" "list_role" {
   name = "respond_with_listmd_as_json-role-5a3esndg"
 }
 
 #TMP:
-data "aws_iam_role" "cleanup-role" {
+data "aws_iam_role" "cleanup_role" {
   name = "AllowDownstreamLambda2DeletePlaylistS3"
 }
 
-resource "aws_iam_role" "upload-role" {
+resource "aws_iam_role" "upload_role" {
   name = "rvcgs-lambda-presigned-url-role"
 
   assume_role_policy = jsonencode({
@@ -30,14 +30,14 @@ resource "aws_iam_role" "upload-role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "upload-role-attachment" {
-  role       = aws_iam_role.upload-role.name
+resource "aws_iam_role_policy_attachment" "upload_role_attachment" {
+  role       = aws_iam_role.upload_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-resource "aws_iam_role_policy" "upload-policy" {
+resource "aws_iam_role_policy" "upload_policy" {
   name = "s3-presigned-url-policy"
-  role = aws_iam_role.upload-role.id
+  role = aws_iam_role.upload_role.id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -48,7 +48,7 @@ resource "aws_iam_role_policy" "upload-policy" {
           "s3:PutObjectAcl"
         ]
         Effect   = "Allow"
-        Resource = "${aws_s3_bucket.upload-bucket.arn}/*"
+        Resource = "${aws_s3_bucket.s3_buckets["upload"].arn}/*"
       }
     ]
   })

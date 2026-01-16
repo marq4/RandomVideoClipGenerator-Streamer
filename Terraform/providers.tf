@@ -1,10 +1,10 @@
 # Main project's Region (default = no alias):
 provider "aws" {
-  region = local.aws_selected_region
+  region = local.cloud_selected_region
 
   # All resources that use this provider will get the project tags:
   default_tags {
-    tags = local.common_tags
+    tags = local.cloud_common_tags
   }
 }
 
@@ -14,6 +14,6 @@ provider "aws" {
   alias  = "nvirginia"
 
   default_tags {
-    tags = local.common_tags
+    tags = local.cloud_common_tags
   }
 }

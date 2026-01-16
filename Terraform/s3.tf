@@ -1,311 +1,158 @@
-# STYLE: no final dot on tags.
+locals {
+  s3_bucket_mappings = {
+    "backend" = {
+      name        = local.s3_bucket_backend_name
+      tag_purpose = "Store tfstate remotely"
+      public      = false
+      enable_acls = false
+    }
+    "scripts" = {
+      name        = local.s3_bucket_scripts_name
+      tag_purpose = "Storage for Python core and PowerShell scripts"
+      public      = true
+      enable_acls = false
+    }
+    "playlist" = {
+      name        = local.s3_bucket_playlist_name
+      tag_purpose = "Tmp storage for web browsers to download resulting XML playlist"
+      public      = true
+      enable_acls = false
+    }
+    "upload" = {
+      name        = local.s3_bucket_upload_name
+      tag_purpose = "Tmp storage for web browsers to upload video list text file to"
+      public      = false
+      enable_acls = false
+    }
 
-# Remote state:
+    # Website hosting + redirect buckets:
+    "apex_com" = {
+      name        = var.dns_domain_main_apex_dot_com_url
+      tag_purpose = "Contains the web assets"
+      public      = true
+      enable_acls = true
+    }
+    "www_com" = {
+      name        = "www.${var.dns_domain_main_apex_dot_com_url}"
+      tag_purpose = "Redirects to apex domain"
+      public      = true
+      enable_acls = true
+    }
+    "apex_acronym_me" = {
+      name        = var.dns_domain_acronym_url
+      tag_purpose = "Redirects to about page"
+      public      = true
+      enable_acls = true
+    }
+    "www_acronym_me" = {
+      name        = "www.${var.dns_domain_acronym_url}"
+      tag_purpose = "Redirects to about page"
+      public      = true
+      enable_acls = true
+    }
+  }
+}
 
-# Store tfstate remotely:
-resource "aws_s3_bucket" "rvcgs-backend-bucket" {
-  bucket = var.s3-backend-bucket-name
+
+resource "aws_s3_bucket" "s3_buckets" {
+  for_each = local.s3_bucket_mappings
+  bucket   = each.value.name
   lifecycle {
     prevent_destroy = true
   }
 }
 
-resource "aws_s3_bucket_versioning" "versioning-for-backend" {
-  bucket = aws_s3_bucket.rvcgs-backend-bucket.id
+
+resource "aws_s3_bucket_policy" "policies_for_all_buckets" {
+  for_each   = local.s3_bucket_mappings
+  bucket     = aws_s3_bucket.s3_buckets[each.key].id
+  depends_on = [aws_s3_bucket_public_access_block.public_access] #XXX?
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = concat(
+      [{
+        Sid       = "PreventDeletion"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:DeleteBucket"
+        Resource  = aws_s3_bucket.s3_buckets[each.key].arn
+      }],
+      each.value.public ?
+      [{
+        Sid       = "PublicReadAllObjects"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.s3_buckets[each.key].arn}/*"
+      }]
+      :
+      []
+    )
+  })
+}
+
+resource "aws_s3_bucket_public_access_block" "public_access" {
+  for_each = {
+    for nickname, values in local.s3_bucket_mappings : nickname => values
+    if values.public == true
+  }
+  bucket = aws_s3_bucket.s3_buckets[each.key].id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_versioning" "versioning_for_backend" {
+  bucket = aws_s3_bucket.s3_buckets["backend"].id
   versioning_configuration {
     status = "Enabled"
   }
 }
 
-
-# Scripts bucket:
-
-resource "aws_s3_bucket" "scripts-bucket" {
-  bucket = var.s3-scripts-bucket-name
-  lifecycle {
-    prevent_destroy = true
-  }
-  tags = {
-    Purpose = "Storage for Python core and PowerShell scripts"
-  }
-}
-
-# Scripts must be publicly accessible:
-resource "aws_s3_bucket_public_access_block" "public-access-for-scripts" {
-  bucket = aws_s3_bucket.scripts-bucket.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
-# Inline JSON for dynamic ARN:
-resource "aws_s3_bucket_policy" "policy-for-scripts" {
-  bucket = aws_s3_bucket.scripts-bucket.id
-
-  depends_on = [aws_s3_bucket_public_access_block.public-access-for-scripts]
-
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Sid" : "PublicReadGetObject",
-        "Effect" : "Allow",
-        "Principal" : "*",
-        "Action" : "s3:GetObject",
-        "Resource" : "${aws_s3_bucket.scripts-bucket.arn}/*"
-      },
-      {
-        "Sid" : "PreventDeletion",
-        "Effect" : "Deny",
-        "Principal" : "*",
-        "Action" : "s3:DeleteBucket",
-        "Resource" : aws_s3_bucket.scripts-bucket.arn
-      }
-    ]
-  })
-}
-
-
-# Playlist bucket:
-
-resource "aws_s3_bucket" "playlist-bucket" {
-  bucket = var.s3-playlist-bucket-name
-  lifecycle {
-    prevent_destroy = true
-  }
-  tags = {
-    Purpose = "Tmp storage for web browsers to download resulting XML playlist"
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "public-access-for-playlist" {
-  bucket = aws_s3_bucket.playlist-bucket.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
-resource "aws_s3_bucket_policy" "policy-for-playlist" {
-  bucket = aws_s3_bucket.playlist-bucket.id
-
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Sid" : "PreventDeletion",
-        "Effect" : "Deny",
-        "Principal" : "*",
-        "Action" : "s3:DeleteBucket",
-        "Resource" : aws_s3_bucket.playlist-bucket.arn
-      }
-    ]
-  })
-}
-
-
-# Upload bucket:
-
-resource "aws_s3_bucket" "upload-bucket" {
-  bucket = var.s3-upload-bucket-name
-  lifecycle {
-    prevent_destroy = true
-  }
-  tags = {
-    Purpose = "Tmp storage for web browsers to upload video list text file to"
-  }
-}
-
-resource "aws_s3_bucket_policy" "policy-for-upload" {
-  bucket = aws_s3_bucket.upload-bucket.id
-
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Sid" : "PreventDeletion",
-        "Effect" : "Deny",
-        "Principal" : "*",
-        "Action" : "s3:DeleteBucket",
-        "Resource" : aws_s3_bucket.upload-bucket.arn
-      }
-    ]
-  })
-}
-
-resource "aws_s3_bucket_cors_configuration" "cors-for-upload" {
-  bucket = aws_s3_bucket.upload-bucket.id
+resource "aws_s3_bucket_cors_configuration" "cors_for_upload" {
+  bucket = aws_s3_bucket.s3_buckets["upload"].id
   cors_rule {
     allowed_headers = ["*"]
     allowed_methods = ["PUT", "GET"]
-    allowed_origins = ["https://randomvideoclipgenerator.com"]
+    allowed_origins = ["https://${var.dns_domain_main_apex_dot_com_url}"]
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
   }
 }
 
 
-
-# Website hosting (+ redirect) buckets:
-
-# 1.- Apex.com (randomvideoclipgenerator.com):
-
-resource "aws_s3_bucket" "apex-dot-com-bucket" {
-  bucket = var.main-dot-com-apex-url
-
-  tags = {
-    Purpose = "Contains web assets"
+resource "aws_s3_bucket_ownership_controls" "enable_acls_for_web_buckets" {
+  for_each = {
+    for nickname, values in local.s3_bucket_mappings : nickname => values
+    if values.enable_acls == true
   }
-}
-
-resource "aws_s3_bucket_public_access_block" "public-access-for-apex" {
-  bucket = aws_s3_bucket.apex-dot-com-bucket.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
-resource "aws_s3_bucket_ownership_controls" "enable-acls-apex" {
-  bucket = aws_s3_bucket.apex-dot-com-bucket.id
-
+  bucket = aws_s3_bucket.s3_buckets[each.key].id
   rule {
     object_ownership = "BucketOwnerPreferred"
   }
 }
 
-resource "aws_s3_bucket_website_configuration" "web-hosting" {
-  bucket = aws_s3_bucket.apex-dot-com-bucket.id
+resource "aws_s3_bucket_website_configuration" "web_hosting" {
+  bucket = aws_s3_bucket.s3_buckets["apex_com"].id
 
   index_document {
     suffix = "index.html"
   }
 }
 
-resource "aws_s3_bucket_policy" "policy-for-apex-dot-com" {
-  bucket = aws_s3_bucket.apex-dot-com-bucket.id
-
-  depends_on = [aws_s3_bucket_public_access_block.public-access-for-apex]
-
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Sid" : "PublicReadGetObject",
-        "Effect" : "Allow",
-        "Principal" : "*",
-        "Action" : "s3:GetObject",
-        "Resource" : "${aws_s3_bucket.apex-dot-com-bucket.arn}/*"
-      }
-    ]
-  })
-}
-
-# 2.- WWW.com: www.randomvideoclipgenerator.com:
-
-resource "aws_s3_bucket" "www-dot-com-bucket" {
-  bucket = "www.${var.main-dot-com-apex-url}"
-
-  tags = {
-    Purpose = "Redirect to apex domain"
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "public-access-for-www-com" {
-  bucket = aws_s3_bucket.www-dot-com-bucket.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
-resource "aws_s3_bucket_ownership_controls" "enable-acls-www-com" {
-  bucket = aws_s3_bucket.www-dot-com-bucket.id
-
-  rule {
-    object_ownership = "BucketOwnerPreferred"
-  }
-}
-
-resource "aws_s3_bucket_website_configuration" "www-redirect" {
-  bucket = aws_s3_bucket.www-dot-com-bucket.id
+resource "aws_s3_bucket_website_configuration" "redirect" {
+  for_each = toset([
+    "www_com",
+    "apex_acronym_me",
+    "www_acronym_me"
+  ])
+  bucket = aws_s3_bucket.s3_buckets[each.value].id
 
   redirect_all_requests_to {
-    host_name = var.main-dot-com-apex-url
+    host_name = var.dns_domain_main_apex_dot_com_url
   }
 }
 
-# 3.- Apex-acronym.me (rvcg.me):
-
-resource "aws_s3_bucket" "apex-acronym-dot-me-bucket" {
-  bucket = var.acronym-domain
-
-  tags = {
-    Purpose = "Redirects to about page"
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "public-access-for-acronym" {
-  bucket = aws_s3_bucket.apex-acronym-dot-me-bucket.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
-resource "aws_s3_bucket_ownership_controls" "enable-acls-acronym" {
-  bucket = aws_s3_bucket.apex-acronym-dot-me-bucket.id
-
-  rule {
-    object_ownership = "BucketOwnerPreferred"
-  }
-}
-
-resource "aws_s3_bucket_website_configuration" "acronym-redirect" {
-  bucket = aws_s3_bucket.apex-acronym-dot-me-bucket.id
-
-  redirect_all_requests_to {
-    host_name = var.main-dot-com-apex-url
-  }
-}
-
-# 4.- WWW-acronym.me: www.rvcg.me:
-
-resource "aws_s3_bucket" "www-acronym-dot-me-bucket" {
-  bucket = "www.${var.acronym-domain}"
-
-  tags = {
-    Purpose = "Redirects to about page"
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "public-access-for-www-acronym" {
-  bucket = aws_s3_bucket.www-acronym-dot-me-bucket.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
-resource "aws_s3_bucket_ownership_controls" "enable-acls-www-acronym" {
-  bucket = aws_s3_bucket.www-acronym-dot-me-bucket.id
-
-  rule {
-    object_ownership = "BucketOwnerPreferred"
-  }
-}
-
-resource "aws_s3_bucket_website_configuration" "www-acronym-redirect" {
-  bucket = aws_s3_bucket.www-acronym-dot-me-bucket.id
-
-  redirect_all_requests_to {
-    host_name = var.main-dot-com-apex-url
-  }
-}
+# STYLE: no final dot on tags.
