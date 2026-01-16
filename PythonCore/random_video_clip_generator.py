@@ -34,7 +34,7 @@ LARGEST_MAX = 25
 #  === Common globals and classes ===
 
 # DO NOT CHANGE THIS or CD breaks:
-__version__ = '4.7.2'
+__version__ = '4.7.3'
 
 RUNNING_ENV_IS_LAMBDA = bool(os.getenv('AWS_LAMBDA_FUNCTION_NAME'))
 

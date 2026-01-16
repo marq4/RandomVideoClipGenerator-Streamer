@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v4.7.3 (2026-01-16)
+
+### Bug Fixes
+
+- It made no sense installing Cloud crap only to python rvcg.py version. Improved instructions for
+  core users, instead of Videos/videos now its rvcg/videos.
+  ([`f7b6ebd`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/f7b6ebd327fb4ecfe9c6d32d01bd2519a6ab082d))
+
+
 ## v4.7.2 (2026-01-16)
 
 ### Bug Fixes
