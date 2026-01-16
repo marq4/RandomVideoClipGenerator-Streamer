@@ -4,6 +4,7 @@ import os
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from typing import Any
 
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
@@ -52,8 +53,8 @@ def test_list_files_subfolder(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.chdir(repo_root)
     monkeypatch.setattr(rvcg, 'SUBFOLDER', EXAMPLE_VIDEOS_SUBFOLDER)
     files = rvcg.list_files_subfolder_local()
-    expected = set(example_videos_with_durations)
-    actual_files_set = set(files)
+    expected = set(example_videos_with_durations.keys())
+    actual_files_set = {Path(f.name) for f in files}
     assert expected.issubset(actual_files_set), f"Missing files: {expected - actual_files_set}"
 
     # Ensure program exits if critical subfolder containing video files is not found:
@@ -65,9 +66,9 @@ def test_list_files_subfolder(monkeypatch: MonkeyPatch) -> None:
 
 def test_list_files_subfolder_empty(tmp_path: Path, monkeypatch: MonkeyPatch) -> None:
     """ Ensure program exits if subfolder is empty. """
-    subfolder = tmp_path / rvcg.SUBFOLDER
-    subfolder.mkdir()
-    monkeypatch.chdir(tmp_path)
+    empty_subfolder = tmp_path / 'videos'
+    empty_subfolder.mkdir()
+    monkeypatch.setattr(rvcg, 'SUBFOLDER', empty_subfolder)
     with pytest.raises(SystemExit):
         rvcg.list_files_subfolder_local() # Works with SUBFOLDER global.
 
@@ -76,8 +77,8 @@ def test_select_video_at_random(monkeypatch: MonkeyPatch) -> None:
     files = list(example_videos_with_durations.keys())
     monkeypatch.setattr(rvcg, 'CURRENT_DIRECTORY', '/tmp')
     selected_video_full_path = rvcg.select_video_at_random_local(files)
-    video_name = os.path.basename(selected_video_full_path)
-    assert video_name in files
+    video_name = Path(selected_video_full_path).name
+    assert Path(video_name) in files
     assert 'videos' in selected_video_full_path
 
 def test_get_video_duration() -> None:
@@ -145,9 +146,9 @@ def test_generate_random_video_clips_playlist_empty_video_list() -> None:
     """ Passing empty list of videos (or None ) makes first assert fail. """
     empty_video_list = ()
     with pytest.raises(AssertionError):
-        rvcg.generate_playlist_local(empty_video_list)
+        rvcg.generate_playlist_local(empty_video_list) # type: ignore[arg-type]
     with pytest.raises(AssertionError):
-        rvcg.generate_playlist_local(None)
+        rvcg.generate_playlist_local(None) # type: ignore[arg-type]
 
 def test_generate_random_video_clips_playlist_invalid_number_of_clips(
     monkeypatch: MonkeyPatch) -> None:
@@ -155,7 +156,7 @@ def test_generate_random_video_clips_playlist_invalid_number_of_clips(
 
     # Value less than 1:
     too_low_value = 0
-    example_dummy_video_list = ['video.mp4']
+    example_dummy_video_list = [Path('video.mp4')]
     monkeypatch.setattr(rvcg, 'NUMBER_OF_CLIPS', too_low_value)
     with(pytest.raises(AssertionError,
                        match=f"Invalid number of clips: {too_low_value}. ")):
@@ -170,12 +171,20 @@ def test_generate_random_video_clips_playlist_invalid_number_of_clips(
 
 def test_generate_random_video_clips_playlist_valid_xml(monkeypatch: MonkeyPatch) -> None:
     """ Ensure function generates a valid XML structure with correct elements. """
-    example_dummy_video_list = ['video.mp4']
+    example_dummy_video_list = [Path('video.mp4')]
     # Mock return values from other functions:
-    monkeypatch.setattr(rvcg, 'get_video_duration_local', lambda *_: 16)
-    monkeypatch.setattr(rvcg, 'choose_starting_point_local', lambda *_: 0)
-    monkeypatch.setattr(rvcg, 'select_video_at_random_local', lambda *_: 'video.mp4')
-    monkeypatch.setattr('random.randint', lambda *_: 2)
+    def mock_get_duration(*_: Any) -> int:
+        return 16
+    def mock_choose_start(*_: Any) -> int:
+        return 0
+    def mock_select_video(*_: Any) -> str:
+        return 'video.mp4'
+    def mock_rand_int(*_: Any) -> int:
+        return 2
+    monkeypatch.setattr(rvcg, 'get_video_duration_local', mock_get_duration)
+    monkeypatch.setattr(rvcg, 'choose_starting_point_local', mock_choose_start)
+    monkeypatch.setattr(rvcg, 'select_video_at_random_local', mock_select_video)
+    monkeypatch.setattr('random.randint', mock_rand_int)
     playlist = rvcg.generate_playlist_local(example_dummy_video_list)
     assert playlist.tag == 'playlist'
     assert playlist.attrib['version'] == '1'

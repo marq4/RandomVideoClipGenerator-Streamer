@@ -1,7 +1,5 @@
-""" Random video clips player for:
-    * Windows 10 (local with python command).
-    * Web/Cloud service: https://www.randomvideoclipgenerator.com
-"""
+""" Random Video Clip Generator core. """
+
 
 import json
 import os
@@ -9,61 +7,117 @@ import random
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
+from dataclasses import dataclass
 from pathlib import Path
 from subprocess import PIPE, Popen
+from typing import Any, Literal, NamedTuple, TypedDict, Union, cast
 
 import boto3
 import yaml
+from mypy_boto3_lambda.client import LambdaClient
 from mypy_boto3_s3.client import S3Client
 
 #===============================================================================
-# Please set these values if running the script locally:
+# Please set these values if simply running the stand-alone script locally:
 NUMBER_OF_CLIPS = 5
 INTERVAL_MIN = 4
 INTERVAL_MAX = 8
-SUBFOLDER = 'videos'
+SUBFOLDER_NAME = 'videos'
 LARGEST_MIN = 15
 LARGEST_MAX = 25
 #===============================================================================
 
-
-RUNNING_ENV_IS_LAMBDA = bool(os.getenv('AWS_LAMBDA_FUNCTION_NAME'))
-
-XML_PLAYLIST_FILE = 'clips.xspf'
-if RUNNING_ENV_IS_LAMBDA:
-    XML_PLAYLIST_FILE = '/tmp/' + XML_PLAYLIST_FILE
-
+#  === Common globals and classes ===
 
 # DO NOT CHANGE THIS or CD breaks:
 __version__ = '4.7.0'
 
+RUNNING_ENV_IS_LAMBDA = bool(os.getenv('AWS_LAMBDA_FUNCTION_NAME'))
 
-# Globals for local script:
+def get_xml_playlist_file_path() -> str:
+    """ Prepend /tmp/ to clips.xspf if env is Lambda. """
+    suffix = ''
+    if RUNNING_ENV_IS_LAMBDA:
+        suffix = '/tmp/'
+    return f"{suffix}clips.xspf"
+
+XML_PLAYLIST = get_xml_playlist_file_path()
+
+@dataclass
+class VideoMetadata:
+    """ Metadata for a video file. """
+    filename: str
+    duration: int
+
+VideoItemTypes = Union[str, VideoMetadata]
+VideoListTypes = Union[list[str], list[Path], list[VideoMetadata]]
+
+#  === Additional local globals ===
+
 CURRENT_DIRECTORY = os.path.dirname( os.path.abspath(__file__) )
+SCRIPT_DIR = Path(__file__).parent
+SUBFOLDER = SCRIPT_DIR / SUBFOLDER_NAME
 VLC_BATCH_FILE = 'exevlc.bat'
 
-# Load config from repo root:
-config_path = Path(__file__).parent / 'config.yml'
-with open(config_path, encoding='UTF-8') as f:
-    config = yaml.safe_load(f)
 
-# Globals for Cloud Service:
+#  === Cloud globals and classes ===
+
+BucketKey = Literal['playlist_bucket', 'upload_bucket']
+
+class CloudConfig(TypedDict):
+    """" Type definition for Cloud configuration. """
+    playlist_bucket: str
+    upload_bucket: str
+
+class APIGWResponse(TypedDict):
+    """ Type definition for APIGW-Lambda proxy response. """
+    statusCode: int
+    headers: dict[str, str]
+    body: str
+
+class PlaylistParams(NamedTuple):
+    """ Validated playlist generation parameters. """
+    num_clips: int
+    min_duration: int
+    max_duration: int
+
+def load_config_from_repo_root_cloud() -> CloudConfig:
+    """ Load and parse config YAML. """
+    config_path = Path(__file__).parent / 'config.yml'
+    if not config_path.exists():
+        return cast(CloudConfig, {
+            'playlist_bucket_name': '',
+            'upload_bucket_name': ''
+        })
+    with open(config_path, encoding='UTF-8') as f:
+        config: CloudConfig = yaml.safe_load(f)
+    return config
+
+def get_bucket_name_cloud(config: CloudConfig, bucket_key: BucketKey) -> str:
+    """ Get S3 bucket name from config. """
+    bucket_name: str = ''
+    if RUNNING_ENV_IS_LAMBDA:
+        bucket_name = config[bucket_key]
+    return bucket_name
+
 DEFAULT_NUMBER_OF_CLIPS_CLOUD = 55
 MAX_NUM_CLIPS_CLOUD = 1_000
 DEFAULT_INTERVAL_MIN_CLOUD = 2
 DEFAULT_INTERVAL_MAX_CLOUD = 2
-OUTPUT_BUCKET = config['playlist_bucket_name']
 OK_STATUS_CODE = 200
 NOT_FOUND_STATUS_CODE = 404
+values_getter = load_config_from_repo_root_cloud()
+OUTPUT_BUCKET = get_bucket_name_cloud(values_getter, 'playlist_bucket')
+UPLOAD_BUCKET = get_bucket_name_cloud(values_getter, 'upload_bucket')
 
 
-# _ Common code section _
+#  === Common functions ===
 
 def prepend_line(filename: str, line: str) -> None:
     """ Append line to beginning of file. """
     if not filename:
         raise ValueError(f"Cannot prepend line: '{line}' to invalid {filename}. ")
-    if line is not None and len(line) > 0:
+    if len(line) > 0:
         with open(filename, 'r+', encoding='utf-8') as file:
             content = file.read()
             file.seek(0,0)
@@ -97,10 +151,10 @@ def add_clip_to_tracklist(track_list: ET.Element, \
 
 def create_xml_file(playlist_et: ET.Element) -> None:
     """ Finally write the playlist tree element as an xspf file to disk. """
-    ET.ElementTree(playlist_et).write(XML_PLAYLIST_FILE, encoding='UTF-8', xml_declaration=False)
-    prepend_line(XML_PLAYLIST_FILE, '<?xml version="1.0" encoding="UTF-8"?>')
+    ET.ElementTree(playlist_et).write(XML_PLAYLIST, encoding='UTF-8', xml_declaration=False)
+    prepend_line(XML_PLAYLIST, '<?xml version="1.0" encoding="UTF-8"?>')
 
-def generate_random_video_clips_playlist(video_list: list,
+def generate_random_video_clips_playlist(video_list: VideoListTypes,
         num_clips: int, min_duration: int, max_duration: int) -> ET.Element:
     """
     * Create playlist as an xml element tree.
@@ -123,24 +177,23 @@ def generate_random_video_clips_playlist(video_list: list,
         f"Invalid number of clips: {num_clips}. "
 
     for iteration in range(num_clips):
-        if RUNNING_ENV_IS_LAMBDA:
-            pair = random.choice(video_list)
-            video_file = list(pair.keys())[0]
-            video_file += '.mp4'
-            duration = int(float(list(pair.values())[0].rstrip()))
-        else:
-            video_file = select_video_at_random_local(video_list)
-            duration = get_video_duration_local(iteration, video_file)
-
-        if RUNNING_ENV_IS_LAMBDA:
-            begin_at = random.randint(0, duration - max_duration)
+        item: object = random.choice(video_list)
+        duration: int
+        if isinstance(item, VideoMetadata):
+            # Lambda env.
+            video_file = item.filename + '.mp4'
+            duration = int(item.duration)
+            begin_at = random.randint(0, int(duration) - max_duration)
             clip_length = random.randint(min_duration, max_duration)
         else:
-            begin_at = choose_starting_point_local(duration)
+            # Local env.
+            assert isinstance(item, Path), "Variable item should be a Path in local env. "
+            video_file = str(item)
+            duration = get_video_duration_local(iteration, video_file)
+            begin_at = choose_starting_point_local(int(duration))
             clip_length = random.randint(INTERVAL_MIN, INTERVAL_MAX)
         play_to = begin_at + clip_length
-
-        add_clip_to_tracklist(tracks, video_file, begin_at, play_to)
+        add_clip_to_tracklist(tracks, video_file, begin_at, play_to) # type: ignore[arg-type]
 
     return playlist
 
@@ -155,283 +208,7 @@ def verify_intervals_valid() -> None:
     assert LARGEST_MAX >= INTERVAL_MAX >= 1
 
 
-# _ Cloud code section _
-
-def validate_num_clips_cloud(desired: int) -> int:
-    """ TRY to give the user the number of clips they desire. """
-    try:
-        num_clips = int(desired)
-    except ValueError:
-        return DEFAULT_NUMBER_OF_CLIPS_CLOUD
-    if num_clips > MAX_NUM_CLIPS_CLOUD:
-        return MAX_NUM_CLIPS_CLOUD
-    if num_clips < 1:
-        return 1
-    return num_clips
-
-def validate_min_duration_independent_cloud(desired: int) -> int:
-    """ Shortest clip in playlist can be between 1 and LARGEST_MIN seconds. """
-    try:
-        shortest = int(desired)
-    except ValueError:
-        return DEFAULT_INTERVAL_MIN_CLOUD
-    if shortest < 1:
-        return 1
-    if shortest > LARGEST_MIN:
-        return LARGEST_MIN
-    return shortest
-
-def validate_max_duration_independent_cloud(desired: int) -> int:
-    """ Longest clip in playlist can be between 1 and LARGEST_MAX seconds. """
-    try:
-        longest = int(desired)
-    except ValueError:
-        return DEFAULT_INTERVAL_MAX_CLOUD
-    if longest < 1:
-        return 1
-    if longest > LARGEST_MAX:
-        return LARGEST_MAX
-    return longest
-
-def validate_minmax_durations_together_cloud(
-    independently_correct_min: int,
-    independently_correct_max: int
-) -> tuple[int, int]:
-    """
-    Intervals are NOT independent.
-    Just going for defaults for now.
-    """
-    min_interval = independently_correct_min
-    max_interval = independently_correct_max
-    if max_interval < min_interval:
-        min_interval = DEFAULT_INTERVAL_MIN_CLOUD
-        max_interval = DEFAULT_INTERVAL_MAX_CLOUD
-    return (min_interval, max_interval)
-
-def parse_into_dictios_cloud(path: str) -> list:
-    """
-    Transform pairs from text file into array of dictionaries, splitting 
-    the lines by the last occurrence of '.mp4 ::: '.
-    """
-    result = []
-    with open(path, 'r', encoding='utf-8') as file:
-        for line in file:
-            line = line.replace('\r', '').replace('\0', '')
-            line = line.replace('\n', '')
-            line = line.replace('\ufeff', '')
-            if '.mp4' in line:
-                pair = {}
-                (key, val) = line.rsplit('.mp4 ::: ', 1)
-                pair[key] = val
-                result.append(pair)
-    return result
-
-def send_final_xml_playlist_to_user_cloud(s3: S3Client) -> str:
-    """
-    To allow the user's browser to download the resulting file:
-        + Upload XML playlist to S3.
-        + Generate pre-signed URL???
-    """
-    object_key = "clips.xspf"
-    s3.upload_file(XML_PLAYLIST_FILE,
-                    OUTPUT_BUCKET,
-                    object_key,
-                    ExtraArgs={
-                        'ContentType': 'application/xspf+xml',
-                        'ContentDisposition': 'attachment; filename="clips.xspf"',
-                        'ACL': 'public-read'
-                    }
-    )
-    url = f"https://{OUTPUT_BUCKET}.s3.us-east-2.amazonaws.com/{object_key}"
-    return url
-
-def generate_playlist_cloud(pairs: list,
-                      num_clips: int,
-                      min_duration: int,
-                      max_duration: int) -> None:
-    """ Cloud wrapper for fundamental functionality. """
-    top_element = generate_random_video_clips_playlist(
-        pairs,
-        num_clips,
-        min_duration,
-        max_duration)
-    create_xml_file(top_element)
-
-def delete_playlist_after_download_cloud() -> None:
-    """ Immediately delete the generated XML so no other user accidentally gets it. """
-    lambda_client = boto3.client('lambda')
-    lambda_client.invoke(
-        FunctionName='DeletePlaylistAfterDownload',
-        InvocationType='Event', # Must be async.
-        Payload=json.dumps({'file_key': "clips.xspf"})
-    )
-
-def prepare_response_cloud(status_ok: bool, method: str, body: str) -> dict:
-    """ Return JSON-like dictionary to return to Lambda caller (APIGW). """
-    headers = {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type'
-    }
-    if method != '':
-        headers['Access-Control-Allow-Methods'] = method
-    return {
-        'statusCode': OK_STATUS_CODE if status_ok else NOT_FOUND_STATUS_CODE,
-        'headers': headers,
-        'body': body
-    }
-
-def get_version_response_cloud() -> dict:
-    """ Just return the version to be displayed in the webpage. """
-    body = json.dumps({
-        'version': __version__
-    })
-    return prepare_response_cloud(True, 'GET', body)
-
-def get_test_values_response_cloud(body: dict) -> dict:
-    """ Validate clips, min, max. """
-    values = validate_and_get_parameters_cloud(body)
-    body_json = json.dumps({
-        'num_clips': values[0],
-        'min_duration': values[1],
-        'max_duration': values[2]
-    })
-    return prepare_response_cloud(True, 'POST', body_json)
-
-def extract_parameters_cloud(body: dict) -> tuple[int, int, int]:
-    """
-    Convert them from string to int.
-    If empty: default.
-    Otherwise:
-        If invalid: default.
-        Clamp floor to 1.
-        Convert to int.
-    """
-    extracted_num_clips = body.get('num_clips')
-    extracted_min_duration = body.get('min_duration')
-    extracted_max_duration = body.get('max_duration')
-
-    # Number of clips:
-    if extracted_num_clips is None or extracted_num_clips == '':
-        int_num_clips = DEFAULT_NUMBER_OF_CLIPS_CLOUD
-    else:
-        try:
-            int_num_clips = int(extracted_num_clips)
-            int_num_clips = max(int_num_clips, 1)
-        except ValueError:
-            int_num_clips = DEFAULT_NUMBER_OF_CLIPS_CLOUD
-
-    # Min interval:
-    if extracted_min_duration is None or extracted_min_duration == '':
-        int_min_duration = DEFAULT_INTERVAL_MIN_CLOUD
-    else:
-        try:
-            int_min_duration = int(extracted_min_duration)
-            int_min_duration = max(int_min_duration, 1)
-        except ValueError:
-            int_min_duration = DEFAULT_INTERVAL_MIN_CLOUD
-
-    # Max interval:
-    if extracted_max_duration is None or extracted_max_duration == '':
-        int_max_duration = DEFAULT_INTERVAL_MAX_CLOUD
-    else:
-        try:
-            int_max_duration = int(extracted_max_duration)
-            int_max_duration = max(int_max_duration, 1)
-        except ValueError:
-            int_max_duration = DEFAULT_INTERVAL_MAX_CLOUD
-
-    return (int_num_clips, int_min_duration, int_max_duration)
-
-def validate_and_get_parameters_cloud(body: dict) -> tuple[int, int, int]:
-    """
-    Extract and validate user parameters from request body.
-    Returns: (num_clips, min_duration, max_duration).
-    """
-    (user_num_clips, user_min_duration, user_max_duration) = extract_parameters_cloud(body)
-    num_clips = validate_num_clips_cloud(user_num_clips)
-    min_duration_independent = validate_min_duration_independent_cloud(user_min_duration)
-    max_duration_independent = validate_max_duration_independent_cloud(user_max_duration)
-    (ok_min, ok_max) = \
-        validate_minmax_durations_together_cloud(min_duration_independent, max_duration_independent)
-    result = (num_clips, ok_min, ok_max)
-    return result
-
-def get_playlist_response_cloud(event: dict) -> dict:
-    """ Handle XML playlist generation for web users. """
-    s3 = boto3.client('s3')
-
-    # Bucket name where user's video list text files are uploaded to:
-    bucket_name = config['upload_bucket_name']
-
-    # Event comes from API GW as json.
-    body = json.loads(event['body'])
-    filename_s3 = body['file']
-
-    local_filename = '/tmp/' + filename_s3
-
-    # Read pairs from S3 object (user-uploaded video list text file):
-    s3.download_file(bucket_name, filename_s3, local_filename)
-
-    pairs = parse_into_dictios_cloud(local_filename)
-
-    # Validate parameters:
-    (num_clips, min_duration, max_duration) = validate_and_get_parameters_cloud(body)
-
-    generate_playlist_cloud(pairs, num_clips, min_duration, max_duration)
-
-    download_url = send_final_xml_playlist_to_user_cloud(s3)
-
-    body = json.dumps({
-            'num_clips': num_clips,
-            'min_duration': min_duration,
-            'max_duration': max_duration,
-            'download_url': download_url
-    })
-    return prepare_response_cloud(True, 'POST', body)
-
-def get_invalid_response_cloud() -> dict:
-    """ Tell user what went wrong. """
-    body = json.dumps({
-        'error': 'Not Found',
-        'message': 'The requested path does not exist.',
-        'available_endpoints': ['/version', '/generate']
-    })
-    return prepare_response_cloud(False, '', body)
-
-def cloud_main(event, _context):
-    """
-    Default (original) name: lambda_handler.
-    Main function for Cloud Service Lambda environment.
-    """
-
-    assert RUNNING_ENV_IS_LAMBDA is True, 'God help us. '
-    assert XML_PLAYLIST_FILE.startswith('/tmp/'), \
-        'AWS Lambda fs is read-only except for /tmp. '
-
-    # Check which route was called (generate | version):
-    route = event.get('rawPath', '')
-
-    if route.endswith('/version'):
-        return get_version_response_cloud()
-
-    if route.endswith('/testvalues'):
-        try:
-            body = json.loads(event['body'])
-        except (json.JSONDecodeError, KeyError):
-            error_body = json.dumps({'error': 'Invalid JSON in request body.'})
-            return prepare_response_cloud(False, '', error_body)
-        return get_test_values_response_cloud(body)
-
-    if route.endswith('/generate'):
-        playlist_response = get_playlist_response_cloud(event)
-        delete_playlist_after_download_cloud()
-        return playlist_response
-
-    return get_invalid_response_cloud()
-
-
-# _ Local code section _
+#  === Local functions ===
 
 def display_version_and_exit_local():
     """ Simply print global __version__ value and exit. """
@@ -439,18 +216,18 @@ def display_version_and_exit_local():
         print(__version__)
         sys.exit(0)
 
-def list_files_subfolder_local() -> list:
+def list_files_subfolder_local() -> list[Path]:
     """ Create a list of all files in (global) SUBFOLDER. """
     subfolder_path = Path(SUBFOLDER)
     if not subfolder_path.exists():
         raise FileNotFoundError(f"Subfolder does not exist: {SUBFOLDER}. ")
-    subfolder_contents = [f.name for f in subfolder_path.iterdir() if f.is_file()]
+    subfolder_contents = [f for f in subfolder_path.iterdir() if f.is_file()]
     if not subfolder_contents:
         print(f"There are no files under {SUBFOLDER}. ")
         sys.exit()
     return subfolder_contents
 
-def select_video_at_random_local(list_of_files: list) -> str:
+def select_video_at_random_local(list_of_files: list[Path]) -> str:
     """ Choose a video. :return: Video filename with Win full path. """
     assert list_of_files and SUBFOLDER
     subfolder_path = Path(CURRENT_DIRECTORY) / SUBFOLDER
@@ -503,7 +280,7 @@ def choose_starting_point_local(video_length: int) -> int:
         return 0
     return random.randint(0, video_length - INTERVAL_MAX)
 
-def generate_playlist_local(video_list: list) -> ET.Element:
+def generate_playlist_local(video_list: list[Path]) -> ET.Element:
     """ Local wrapper for fundamental functionality. """
     top_element = generate_random_video_clips_playlist(
         video_list,
@@ -516,7 +293,7 @@ def generate_playlist_local(video_list: list) -> ET.Element:
 def execute_vlc_local() -> None:
     """ Call VLC only once and pass it the xspf playlist. """
     # Use absolute path for the playlist:
-    playlist_path = os.path.abspath(XML_PLAYLIST_FILE)
+    playlist_path = os.path.abspath(XML_PLAYLIST)
     executable = Path(CURRENT_DIRECTORY) / VLC_BATCH_FILE
     assert Path(executable).exists(), f"""\n
         Windows Batch script that calls VLC: {VLC_BATCH_FILE} is missing.
@@ -544,4 +321,281 @@ if __name__ == "__main__":
     if not RUNNING_ENV_IS_LAMBDA:
         local_main()
 
-# Release...
+
+#  === Cloud functions ===
+
+def validate_num_clips_cloud(desired: int) -> int:
+    """ TRY to give the user the number of clips they desire. """
+    try:
+        num_clips = int(desired)
+    except ValueError:
+        return DEFAULT_NUMBER_OF_CLIPS_CLOUD
+    if num_clips > MAX_NUM_CLIPS_CLOUD:
+        return MAX_NUM_CLIPS_CLOUD
+    if num_clips < 1:
+        return 1
+    return num_clips
+
+def validate_min_duration_independent_cloud(desired: int) -> int:
+    """ Shortest clip in playlist can be between 1 and LARGEST_MIN seconds. """
+    try:
+        shortest = int(desired)
+    except ValueError:
+        return DEFAULT_INTERVAL_MIN_CLOUD
+    if shortest < 1:
+        return 1
+    if shortest > LARGEST_MIN:
+        return LARGEST_MIN
+    return shortest
+
+def validate_max_duration_independent_cloud(desired: int) -> int:
+    """ Longest clip in playlist can be between 1 and LARGEST_MAX seconds. """
+    try:
+        longest = int(desired)
+    except ValueError:
+        return DEFAULT_INTERVAL_MAX_CLOUD
+    if longest < 1:
+        return 1
+    if longest > LARGEST_MAX:
+        return LARGEST_MAX
+    return longest
+
+def validate_minmax_durations_together_cloud(
+    independently_correct_min: int,
+    independently_correct_max: int
+) -> tuple[int, int]:
+    """
+    Intervals are NOT independent.
+    Just going for defaults for now.
+    """
+    min_interval = independently_correct_min
+    max_interval = independently_correct_max
+    if max_interval < min_interval:
+        min_interval = DEFAULT_INTERVAL_MIN_CLOUD
+        max_interval = DEFAULT_INTERVAL_MAX_CLOUD
+    return (min_interval, max_interval)
+
+def parse_into_dictios_cloud(path: str) -> list[dict[str, str]]:
+    """
+    Transform pairs from text file into array of dictionaries, splitting 
+    the lines by the last occurrence of '.mp4 ::: '.
+    """
+    result: list[dict[str, str]] = []
+    with open(path, 'r', encoding='utf-8') as file:
+        for line in file:
+            line = line.replace('\r', '').replace('\0', '')
+            line = line.replace('\n', '')
+            line = line.replace('\ufeff', '')
+            if '.mp4' in line:
+                pair: dict[str, str] = {}
+                (key, val) = line.rsplit('.mp4 ::: ', 1)
+                pair[key] = val
+                result.append(pair)
+    return result
+
+def send_final_xml_playlist_to_user_cloud(s3: S3Client) -> str:
+    """
+    To allow the user's browser to download the resulting file:
+        + Upload XML playlist to S3.
+        + Generate pre-signed URL???
+    """
+    object_key = "clips.xspf"
+    s3.upload_file(XML_PLAYLIST,
+                    OUTPUT_BUCKET,
+                    object_key,
+                    ExtraArgs={
+                        'ContentType': 'application/xspf+xml',
+                        'ContentDisposition': 'attachment; filename="clips.xspf"',
+                        'ACL': 'public-read'
+                    }
+    )
+    url = f"https://{OUTPUT_BUCKET}.s3.us-east-2.amazonaws.com/{object_key}"
+    return url
+
+def generate_playlist_cloud(pairs: list[dict[str, str]],
+                      num_clips: int,
+                      min_duration: int,
+                      max_duration: int) -> None:
+    """ Cloud wrapper for fundamental functionality. """
+    video_metadata_list: list[VideoMetadata] = []
+    for pair in pairs:
+        file = list(pair.keys())[0]
+        length = int(float(list(pair.values())[0].rstrip()))
+        video_metadata_list.append(VideoMetadata(filename=file, duration=length))
+    top_element = generate_random_video_clips_playlist(
+        video_metadata_list,
+        num_clips,
+        min_duration,
+        max_duration)
+    create_xml_file(top_element)
+
+def delete_playlist_after_download_cloud() -> None:
+    """ Immediately delete the generated XML so no other user accidentally gets it. """
+    lambda_client: LambdaClient = boto3.client('lambda') # type: ignore[assignment]
+    lambda_client.invoke(
+        FunctionName='DeletePlaylistAfterDownload',
+        InvocationType='Event', # Must be async.
+        Payload=json.dumps({'file_key': "clips.xspf"})
+    )
+
+def prepare_response_cloud(status_ok: bool, method: str, body: str) -> APIGWResponse:
+    """ Return JSON-like dictionary to return to Lambda caller (APIGW). """
+    headers = {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type'
+    }
+    if method != '':
+        headers['Access-Control-Allow-Methods'] = method
+    return {
+        'statusCode': OK_STATUS_CODE if status_ok else NOT_FOUND_STATUS_CODE,
+        'headers': headers,
+        'body': body
+    }
+
+def get_version_response_cloud() -> APIGWResponse:
+    """ Just return the version to be displayed in the webpage. """
+    body = json.dumps({
+        'version': __version__
+    })
+    return prepare_response_cloud(True, 'GET', body)
+
+def get_test_values_response_cloud(body: dict[str, Any]) -> APIGWResponse:
+    """ Validate clips, min, max. """
+    values = validate_and_get_parameters_cloud(body)
+    body_json = json.dumps({
+        'num_clips': values.num_clips,
+        'min_duration': values.min_duration,
+        'max_duration': values.max_duration
+    })
+    return prepare_response_cloud(True, 'POST', body_json)
+
+def extract_parameters_cloud(body: dict[str, Any]) -> tuple[int, int, int]:
+    """
+    Convert them from string to int.
+    If empty: default.
+    Otherwise:
+        If invalid: default.
+        Clamp floor to 1.
+        Convert to int.
+    """
+    extracted_num_clips = body.get('num_clips')
+    extracted_min_duration = body.get('min_duration')
+    extracted_max_duration = body.get('max_duration')
+
+    # Number of clips:
+    if extracted_num_clips is None or extracted_num_clips == '':
+        int_num_clips = DEFAULT_NUMBER_OF_CLIPS_CLOUD
+    else:
+        try:
+            int_num_clips = int(extracted_num_clips)
+            int_num_clips = max(int_num_clips, 1)
+        except ValueError:
+            int_num_clips = DEFAULT_NUMBER_OF_CLIPS_CLOUD
+
+    # Min interval:
+    if extracted_min_duration is None or extracted_min_duration == '':
+        int_min_duration = DEFAULT_INTERVAL_MIN_CLOUD
+    else:
+        try:
+            int_min_duration = int(extracted_min_duration)
+            int_min_duration = max(int_min_duration, 1)
+        except ValueError:
+            int_min_duration = DEFAULT_INTERVAL_MIN_CLOUD
+
+    # Max interval:
+    if extracted_max_duration is None or extracted_max_duration == '':
+        int_max_duration = DEFAULT_INTERVAL_MAX_CLOUD
+    else:
+        try:
+            int_max_duration = int(extracted_max_duration)
+            int_max_duration = max(int_max_duration, 1)
+        except ValueError:
+            int_max_duration = DEFAULT_INTERVAL_MAX_CLOUD
+
+    return (int_num_clips, int_min_duration, int_max_duration)
+
+def validate_and_get_parameters_cloud(body: dict[str, Any]) -> PlaylistParams:
+    """
+    Extract and validate user parameters from request body.
+    Returns: (num_clips, min_duration, max_duration).
+    """
+    (user_num_clips, user_min_duration, user_max_duration) = extract_parameters_cloud(body)
+    num_clips = validate_num_clips_cloud(user_num_clips)
+    min_duration_independent = validate_min_duration_independent_cloud(user_min_duration)
+    max_duration_independent = validate_max_duration_independent_cloud(user_max_duration)
+    (ok_min, ok_max) = \
+        validate_minmax_durations_together_cloud(min_duration_independent, max_duration_independent)
+    result = PlaylistParams(num_clips, ok_min, ok_max)
+    return result
+
+def get_playlist_response_cloud(event: dict[str, Any]) -> APIGWResponse:
+    """ Handle XML playlist generation for web users. """
+    s3: S3Client  = boto3.client('s3') # type: ignore[assignment]
+
+    # Event comes from API GW as json.
+    body_str: str = event['body']
+    body: dict[str, Any] = json.loads(body_str)
+    filename_s3 = body['file']
+
+    local_filename = '/tmp/' + filename_s3
+
+    # Read pairs from S3 object (user-uploaded video list text file):
+    s3.download_file(UPLOAD_BUCKET, filename_s3, local_filename)
+
+    pairs = parse_into_dictios_cloud(local_filename)
+
+    # Validate parameters:
+    (num_clips, min_duration, max_duration) = validate_and_get_parameters_cloud(body)
+
+    generate_playlist_cloud(pairs, num_clips, min_duration, max_duration)
+
+    download_url = send_final_xml_playlist_to_user_cloud(s3)
+
+    response_body = json.dumps({
+            'num_clips': num_clips,
+            'min_duration': min_duration,
+            'max_duration': max_duration,
+            'download_url': download_url
+    })
+    return prepare_response_cloud(True, 'POST', response_body)
+
+def get_invalid_response_cloud() -> APIGWResponse:
+    """ Tell user what went wrong. """
+    body = json.dumps({
+        'error': 'Not Found',
+        'message': 'The requested path does not exist.',
+        'available_endpoints': ['/version', '/generate']
+    })
+    return prepare_response_cloud(False, '', body)
+
+def cloud_main(event: dict[str, Any], _context: Any):
+    """
+    Default (original) name: lambda_handler.
+    Main function for Cloud Service Lambda environment.
+    """
+
+    assert RUNNING_ENV_IS_LAMBDA is True, 'God help us. '
+    assert XML_PLAYLIST.startswith('/tmp/'), \
+        'AWS Lambda fs is read-only except for /tmp. '
+
+    # Check which route was called (generate | version):
+    route = event.get('rawPath', '')
+
+    if route.endswith('/version'):
+        return get_version_response_cloud()
+
+    if route.endswith('/testvalues'):
+        try:
+            body = json.loads(event['body'])
+        except (json.JSONDecodeError, KeyError):
+            error_body = json.dumps({'error': 'Invalid JSON in request body.'})
+            return prepare_response_cloud(False, '', error_body)
+        return get_test_values_response_cloud(body)
+
+    if route.endswith('/generate'):
+        playlist_response = get_playlist_response_cloud(event)
+        delete_playlist_after_download_cloud()
+        return playlist_response
+
+    return get_invalid_response_cloud()

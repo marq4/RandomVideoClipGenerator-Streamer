@@ -26,6 +26,8 @@ resource "local_file" "locally_generated_config_yaml" {
     # S3:
     main_bucket: ${var.dns_domain_main_apex_dot_com_url}
     scripts_bucket: ${local.s3_bucket_scripts_name}
+    upload_bucket: ${local.s3_bucket_upload_name}
+    playlist_bucket: ${local.s3_bucket_playlist_name}
     # Lambda:
     core_zip_dir: ${local.ci_lambda_deploy_main_temp_zip_dir_name}
     core_zipfile: ${local.ci_lambda_deploy_main_temp_zip_file_name}
@@ -71,6 +73,7 @@ resource "local_file" "locally_generated_html_documents" {
   install_vlc           = local.html_install_vlc_text
   download_music_videos = local.html_download_music_videos_contact_text
   css                   = "${local.local_css_subfolder_name}/styles.css"
+  rvcg_folder           = "C:\\RandomVideoClipGenerator"
 })}
   EOT
 }

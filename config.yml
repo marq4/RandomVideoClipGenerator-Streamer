@@ -5,8 +5,8 @@
 py_version: 3.10
 core_py: random_video_clip_generator.py
 core_folder: PythonCore
-skip_pylint: true
-skip_pytest: true
+skip_pylint: false
+skip_pytest: false
 coverage: 40
 core_path: PythonCore/random_video_clip_generator.py
 # Web:
@@ -20,6 +20,8 @@ cloud_folder: CloudWebService
 # S3:
 main_bucket: randomvideoclipgenerator.com
 scripts_bucket: rvcgs-marq-scripts-30122025
+upload_bucket: rvcgs-marq-list-videos-upload-05012026
+playlist_bucket: rvcgs-marq-xspf-playlist-31122025
 # Lambda:
 core_zip_dir: main-lambda-package
 core_zipfile: core_functionality.zip

@@ -25,13 +25,12 @@ VLC_CRASHED_ERROR_CODE = 3221226356
 REPO_ROOT = Path(__file__).parent.parent
 
 
-def aux_get_list_of_absolute_paths_for_example_video_titles_list() -> list[str]:
+def aux_get_list_of_absolute_paths_for_example_video_titles_list() -> list[Path]:
     """ Assume example videos are there. """
-    videos_absolute_paths : list[str] = []
-    for title in example_video_titles:
-        absolute_video_path = REPO_ROOT / EXAMPLE_VIDEOS_SUBFOLDER / title
-        videos_absolute_paths.append(absolute_video_path)
-    return videos_absolute_paths
+    return [
+        REPO_ROOT / EXAMPLE_VIDEOS_SUBFOLDER / title
+        for title in example_video_titles
+    ]
 
 def test_verify_example_videos_available(monkeypatch: MonkeyPatch) -> None:
     """ Ensure example videos (local: real, CI: fake) are there. """
@@ -58,6 +57,7 @@ def test_playlist_is_valid() -> None:
     """ IT: get video durations (for real) -> generate XML -> basic validation. """
     real_playlist = aux_generate_real_playlist()
     tracks = real_playlist.find('trackList')
+    assert tracks is not None, "Element trackList not found in 'real' playlist. "
     actual_number_of_tracks = len(tracks)
     expected_number_of_tracks = rvcg.NUMBER_OF_CLIPS
     assert actual_number_of_tracks == expected_number_of_tracks, \
@@ -81,13 +81,13 @@ def aux_write_real_playlist_to_disk_get_absolute_path() -> str:
     """ Generate real playlist, write it to disk, return its absolute path. """
     real_playlist = aux_generate_real_playlist()
     rvcg.create_xml_file(real_playlist)
-    return os.path.abspath(rvcg.XML_PLAYLIST_FILE)
+    return os.path.abspath(rvcg.XML_PLAYLIST)
 
-def execute_vlc(playlist: str, timeout: str) -> CompletedProcess:
+def execute_vlc(playlist: str, timeout: float) -> CompletedProcess[str]:
     """ Call VLC CLI passing appropriate flags and the playlist. """
     result = subprocess.run([
         VLC_PATH,
-        # Flags required to avoid intermittent crash on CI:
+        # Flags to avoid intermittent crash as much as possible on CI (it still happens):
         # 3221226356 (0xC0000374 - heap corruption):
         '--no-loop',
         '--no-repeat',
@@ -123,7 +123,7 @@ def test_vlc_accepts_playlist_timeout_expected() -> None:
 def test_vlc_cannot_parse_malformed_playlist() -> None:
     """ Negative VLC test: append some nonsense to the top of the XML file. """
     playlist_abs_path = aux_write_real_playlist_to_disk_get_absolute_path()
-    rvcg.prepend_line(rvcg.XML_PLAYLIST_FILE, \
+    rvcg.prepend_line(rvcg.XML_PLAYLIST, \
         'This line should make VLC reject this playlist /> ')
     result = execute_vlc(playlist_abs_path, TIMEOUT)
     all_output = result.stderr.lower() + result.stdout.lower()

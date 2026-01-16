@@ -20,20 +20,20 @@ from pathlib import Path
 EXAMPLE_VIDEOS_SUBFOLDER = 'example_videos'
 
 example_video_titles = [
-    "Deftones - You've Seen The Butcher [Official Music Video] $!.mp4",
-    "Doja Cat ñá - Kiss Me More (Official Video) ft. SZA.mp4",
-    "RaeSremmurd_NoType.mp4"
+    Path("Deftones - You've Seen The Butcher [Official Music Video] $!.mp4"),
+    Path("Doja Cat ñá - Kiss Me More (Official Video) ft. SZA.mp4"),
+    Path("RaeSremmurd_NoType.mp4")
 ]
 
 known_durations_local = [213, 315, 197]
 given_durations_ci = [10, 12, 8]
 
-def set_example_video_durations() -> dict[str, int]:
+def set_example_video_durations() -> dict[Path, int]:
     """
     Create a dictionary containing the video file names and their known/given durations.
     Video durations depends on whether videos are real (local) or fake (CI).
     """
-    result: dict[str, int] = {}
+    result: dict[Path, int] = {}
     if os.getenv('CI'):
         result = dict(zip(example_video_titles, given_durations_ci))
     else:
@@ -41,7 +41,7 @@ def set_example_video_durations() -> dict[str, int]:
         result = dict(zip(example_video_titles, known_durations_local))
     return result
 
-example_videos_with_durations : dict = set_example_video_durations()
+example_videos_with_durations : dict[Path, int] = set_example_video_durations()
 
 def create_fake_example_videos() -> None:
     """ Using FFMpeg. For CI env only. """
