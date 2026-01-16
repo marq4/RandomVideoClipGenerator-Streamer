@@ -9,5 +9,6 @@ pyscan-rs~=0.1.8
 boto3~=1.35
 boto3-stubs~=1.42
 boto3-stubs[s3]~=1.42
+boto3-stubs[lambda]~=1.42
 PyYAML~=6.0
 types-PyYAML~=6.0
