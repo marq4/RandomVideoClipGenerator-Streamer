@@ -5,7 +5,7 @@
 const params = new URLSearchParams(window.location.search)
 const uploadedFile = params.get('file')
 // Values come from Terraform:
-const API_ENDPOINT = 'https://swo0pk82b9.execute-api.us-east-2.amazonaws.com/prod/generate'
+const API_ENDPOINT = 'https://0vx18dkqk2.execute-api.us-east-2.amazonaws.com/prod/generate'
 
 document.getElementById('generatebutton').addEventListener('click', async () => {
   // Grab input values as strings:

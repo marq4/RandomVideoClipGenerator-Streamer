@@ -4,7 +4,7 @@
 /* global Vue, axios */
 
 // Values come from Terraform:
-const API_ENDPOINT = 'https://swo0pk82b9.execute-api.us-east-2.amazonaws.com/prod/upload'
+const API_ENDPOINT = 'https://0vx18dkqk2.execute-api.us-east-2.amazonaws.com/prod/upload'
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

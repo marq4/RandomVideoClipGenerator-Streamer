@@ -3,7 +3,7 @@
 async function getSuggestedMusicVideoListJSON () {
   try {
     // Values come from Terraform:
-    const response = await fetch('https://swo0pk82b9.execute-api.us-east-2.amazonaws.com/prod/list')
+    const response = await fetch('https://0vx18dkqk2.execute-api.us-east-2.amazonaws.com/prod/list')
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }

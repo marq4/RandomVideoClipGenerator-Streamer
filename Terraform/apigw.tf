@@ -69,7 +69,7 @@ resource "aws_apigatewayv2_route" "apigw_get_suggested_music_video_list_route" {
 }
 
 # To upload user's list of local videos with durations:
-resource "aws_apigatewayv2_route" "apigw_upload_list_route" {
+resource "aws_apigatewayv2_route" "apigw_upload_route" {
   api_id    = aws_apigatewayv2_api.apigw_http_api.id
   route_key = "GET ${local.apigw_upload_route_path}"
   target    = "integrations/${aws_apigatewayv2_integration.apigw_lambda_integrations["upload"].id}"

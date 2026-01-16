@@ -4,7 +4,7 @@
 async function fetchAndDisplayVersion () {
   try {
     // Values come from Terraform:
-    const url = 'https://swo0pk82b9.execute-api.us-east-2.amazonaws.com/prod/version'
+    const url = 'https://0vx18dkqk2.execute-api.us-east-2.amazonaws.com/prod/version'
     const response = await fetch(url)
     const data = await response.json()
     const version = data.version || '4.2.0'

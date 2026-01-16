@@ -20,7 +20,7 @@ data "aws_iam_role" "upload_role" {
   name = "rvcgs-lambda-presigned-url-role"
 }
 
-# Will import later:
+
 #resource "aws_iam_role" "upload_role" {
 #  name = "rvcgs-lambda-presigned-url-role"
 #

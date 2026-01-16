@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Generate Playlist</title>
+  <link rel="stylesheet" href="${css}">
+</head>
+<body>
+
+  <div id="app" class="info upload-form">
+    <label for="num_clips" id="numclips">Number of clips:</label>
+    <input type="number" name="num_clips" id="clipsin" value="5">
+    <label for="min_duration">Minimum duration:</label>
+    <input type="number" name="min_duration" value="1" id="mindur">
+    <label for="max_duration">Maximum duration:</label>
+    <input type="number" name="max_duration" value="4" id="maxdur">
+    <br>
+    <button id="generatebutton" class="actual-button" type="button">
+      Generate Playlist
+    </button>
+  </div>
+
+  <div class="info">
+    <h2>Instructions (continued):</h2>
+    <ol>
+      <li>
+        Choose the number of clips you want (maximum: 1,000).
+        (If you need more, go for the "Python script" local option.)
+      </li>
+      <li>
+        If you're testing this for the first time go for 1 second
+        intervals (min, max) to see how smooth the transition between clips is!
+        Note: completely invalid selections will simply yield the very reasonable defaults of
+        55 clips, 2 seconds each. Otherwise values are set on a best-effort basis.
+      </li>
+      <li>
+        Click the "Generate Playlist" button.
+        Contact me if you see this: Failed to generate playlist.
+      </li>
+      <li>
+        When you double-click the downloaded playlist (clips.xspf),
+        your video clips will appear on VLC media player.
+        Press f key to toggle full-screen.
+      </li>
+    </ol>
+  </div>
+
+  <a href="/">Back</a>
+  <script src="${generate}"></script>
+
+</body>
+</html>
