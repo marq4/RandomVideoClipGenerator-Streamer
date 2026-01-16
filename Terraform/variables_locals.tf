@@ -57,13 +57,18 @@ locals {
   local_html_path                   = "${local.local_web_path}/${local.local_html_subfolder_name}"
   local_html_main_index_path        = "${local.local_html_path}/${local.html_main_name}"
   local_html_generate_playlist_path = "${local.local_html_path}/${local.html_generate_playlist_name}"
+  local_html_about_path             = "${local.local_html_path}/about/index.html"
   html_template_mappings = {
     "html_main_index" = {
       local_src_template_path = "../${local.local_html_main_index_path}.tpl"
       local_document_path     = "../${local.local_html_main_index_path}"
       remote_html_target_path = "${local.local_html_subfolder_name}/${local.html_main_name}"
     }
-    # "html_about_index" = {}
+    "html_about" = {
+      local_src_template_path = "../${local.local_html_about_path}.tpl"
+      local_document_path     = "../${local.local_html_about_path}"
+      remote_html_target_path = "${local.local_html_subfolder_name}/about/"
+    }
     "html_generate_playlist" = {
       local_src_template_path = "../${local.local_html_generate_playlist_path}.tpl"
       local_document_path     = "../${local.local_html_generate_playlist_path}"
@@ -95,32 +100,32 @@ locals {
   local_js_version_path           = "${local.local_js_path}/${local.js_version_name}"
   local_js_upload_path            = "${local.local_js_path}/${local.js_upload_name}"
   local_js_list_path              = "${local.local_js_path}/${local.js_list_name}"
-  remote_js_tabs_target_path      = "${local.local_js_subfolder_name}/${local.js_tabs_name}"
+  remote_js_tabs_target_path      = "/${local.local_js_subfolder_name}/${local.js_tabs_name}"
   js_template_mappings = {
     "generate" = {
       local_src_template_path = "../${local.local_js_generate_playlist_path}.tpl"
       local_script_path       = "../${local.local_js_generate_playlist_path}"
       # We can't get these values from the proper APIGW resources as they also contain the method (GET/POST):
       apigw_route_value     = local.apigw_generate_route_path
-      remote_js_target_path = "${local.local_js_subfolder_name}/${local.js_generate_playlist_name}"
+      remote_js_target_path = "/${local.local_js_subfolder_name}/${local.js_generate_playlist_name}"
     }
     "version" = {
       local_src_template_path = "../${local.local_js_version_path}.tpl"
       local_script_path       = "../${local.local_js_version_path}"
       apigw_route_value       = local.apigw_version_route_path
-      remote_js_target_path   = "${local.local_js_subfolder_name}/${local.js_version_name}"
+      remote_js_target_path   = "/${local.local_js_subfolder_name}/${local.js_version_name}"
     }
     "upload" = {
       local_src_template_path = "../${local.local_js_upload_path}.tpl"
       local_script_path       = "../${local.local_js_upload_path}"
       apigw_route_value       = local.apigw_upload_route_path
-      remote_js_target_path   = "${local.local_js_subfolder_name}/${local.js_upload_name}"
+      remote_js_target_path   = "/${local.local_js_subfolder_name}/${local.js_upload_name}"
     }
     "list" = {
       local_src_template_path = "../${local.local_js_list_path}.tpl"
       local_script_path       = "../${local.local_js_list_path}"
       apigw_route_value       = local.apigw_list_route_path
-      remote_js_target_path   = "${local.local_js_subfolder_name}/${local.js_list_name}"
+      remote_js_target_path   = "/${local.local_js_subfolder_name}/${local.js_list_name}"
     }
   }
 

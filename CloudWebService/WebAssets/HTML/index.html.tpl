@@ -60,7 +60,7 @@
           </ul>
         </li>
         <li>
-          Execute the script to generate the playlist file:
+          Execute the script to generate the playlist file: <br>
            <code>python3 ${core}</code>
         </li>
         <li>
@@ -125,7 +125,7 @@
           <li>${install_ffmpeg}</li>
           <li>${install_vlc}</li>
           <li>
-            Create this folder structure on your computer:
+            Create this folder structure on your computer: <br>
              <code>${rvcg_folder}\videos</code>
           </li>
           <li>${download_music_videos}</li>

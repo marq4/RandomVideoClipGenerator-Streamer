@@ -87,13 +87,13 @@ class PlaylistParams(NamedTuple):
 
 def load_config_from_repo_root_cloud() -> CloudConfig:
     """ Load and parse config YAML. """
-    import yaml  # pylint: disable=import-outside-toplevel
-    config_path = Path(__file__).parent / 'config.yml'
-    if not config_path.exists():
+    if not RUNNING_ENV_IS_LAMBDA:
         return cast(CloudConfig, {
             'playlist_bucket_name': '',
             'upload_bucket_name': ''
         })
+    config_path = Path(__file__).parent / 'config.yml'
+    import yaml  # pylint: disable=import-outside-toplevel
     with open(config_path, encoding='UTF-8') as f:
         config: CloudConfig = yaml.safe_load(f)
     return config
@@ -111,6 +111,7 @@ DEFAULT_INTERVAL_MIN_CLOUD = 2
 DEFAULT_INTERVAL_MAX_CLOUD = 2
 OK_STATUS_CODE = 200
 NOT_FOUND_STATUS_CODE = 404
+
 values_getter = load_config_from_repo_root_cloud()
 OUTPUT_BUCKET = get_bucket_name_cloud(values_getter, 'playlist_bucket')
 UPLOAD_BUCKET = get_bucket_name_cloud(values_getter, 'upload_bucket')
@@ -606,5 +607,3 @@ def cloud_main(event: dict[str, Any], _context: Any):
         return playlist_response
 
     return get_invalid_response_cloud()
-
-# Release!!!!

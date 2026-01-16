@@ -72,7 +72,7 @@ resource "local_file" "locally_generated_html_documents" {
   install_ffmpeg        = local.html_install_ffmpeg_text
   install_vlc           = local.html_install_vlc_text
   download_music_videos = local.html_download_music_videos_contact_text
-  css                   = "${local.local_css_subfolder_name}/styles.css"
+  css                   = "/${local.local_css_subfolder_name}/styles.css"
   rvcg_folder           = "C:\\RandomVideoClipGenerator"
 })}
   EOT
