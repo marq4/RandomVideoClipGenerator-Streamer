@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v4.7.4 (2026-01-16)
+
+### Bug Fixes
+
+- About page was missing CSS. Simple script was still trying to import yaml module.
+  ([`84f20ea`](https://github.com/marq4/RandomVideoClipGenerator-Streamer/commit/84f20ea11e1cb9c381816a1866d2c8ac7c5361c7))
+
+
 ## v4.7.3 (2026-01-16)
 
 ### Bug Fixes
