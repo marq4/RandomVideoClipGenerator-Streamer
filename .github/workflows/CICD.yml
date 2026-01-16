@@ -516,10 +516,6 @@ jobs:
           echo "bucket=$(yq '.main_bucket' config.yml)" >> $GITHUB_OUTPUT
           echo "folder_html=$(yq '.html_folder' config.yml)" >> $GITHUB_OUTPUT
 
-      - run: |
-          cd ${{ steps.load_config.outputs.folder_cloud }}
-          ls -ltAh | tail -n +2 | head -1
-
       - name: Load AWS credentials from GitHub secrets.
         uses: aws-actions/configure-aws-credentials@v4
         with:
