@@ -47,3 +47,4 @@ document.getElementById('generatebutton').addEventListener('click', async () => 
     alert('Failed to generate playlist.')
   }
 })
+
